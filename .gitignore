@@ -1,0 +1,28 @@
+# Vscode
+.vscode/*
+.history/
+.code-workspace
+
+# JetBrains
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Eclipse
+.project
+.classpath
+.factorypath
+.settings/
+.metadata/
+tmp/
+bin/
+
+# Maven
+target/
+
+# Archivos de entorno (NUNCA subir credenciales)
+.env
+.env.*
+!.env.example

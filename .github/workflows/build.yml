@@ -1,0 +1,41 @@
+name: Java CI with Maven
+run-name: running Java CI with Maven 🚀
+
+on:
+  push:
+    branches: [ "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    services:
+      db:
+        image: mysql
+        ports: 
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: my-secret-pw
+          MYSQL_DATABASE: ecicare
+        
+    steps:
+    - name: Check out repository code ✅
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 21 🍵
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Load .env file 📄
+      uses: falti/dotenv-action@v1.1.2
+      with:
+        path: .env.local
+      
+    - name: Build with Maven 🏗️
+      run: mvn -B verify --file pom.xml
