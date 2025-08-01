@@ -1,36 +1,50 @@
-name: Java CI with Maven
-run-name: running Java CI with Maven 🚀
+name: project build & test
 
 on:
-  push:
-    branches: [ "develop" ]
-  pull_request:
-    branches: [ "main", "develop" ]
+    push:
+        branches: ["main", "develop"]
+    pull_request:
+        branches: ["main"]
 
 jobs:
-  build:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Set up Java version
+              uses: actions/setup-java@v4
+              with:
+                  java-version: "21"
+                  distribution: "microsoft"
 
-    runs-on: ubuntu-latest
+            - name: Build with Maven
+              run: mvn clean install
 
-    services:
-      db:
-        image: mysql
-        ports: 
-          - 3306:3306
-        env:
-          MYSQL_ROOT_PASSWORD: my-secret-pw
-          MYSQL_DATABASE: ecicare
-        
-    steps:
-    - name: Check out repository code ✅
-      uses: actions/checkout@v4
+            - name: Upload artifact for deployment job
+              uses: actions/upload-artifact@v4
+              with:
+                  name: java-app
+                  path: "${{ github.workspace }}/target/*.jar"
 
-    - name: Set up JDK 21 🍵
-      uses: actions/setup-java@v4
-      with:
-        java-version: '21'
-        distribution: 'temurin'
-        cache: maven
-        
-    - name: Build with Maven 🏗️
-      run: mvn -B verify --file pom.xml
+    test:
+        runs-on: ubuntu-latest
+        needs: build
+        steps:
+            - uses: actions/checkout@v4
+            - name: Set up Java version
+              uses: actions/setup-java@v4
+              with:
+                  java-version: "21"
+                  distribution: "microsoft"
+            - name: Run tests
+              run: mvn test
+            - name: Generate test report
+              run: mvn jacoco:report
+            - name: Upload test report
+              uses: actions/upload-artifact@v4
+              with:
+                  name: test-reports
+                  path: "${{ github.workspace }}/target/site/jacoco/"
+                  retention-days: 5
+            - name: final verify
+              run: mvn clean verify
