@@ -1,6 +1,6 @@
-package edu.escuelaing.ecicare.exceptions.redeem;
+package edu.escuelaing.ecicare.utils.exceptions.redeem;
 
-import edu.escuelaing.ecicare.exceptions.RedeemAwardException;
+import edu.escuelaing.ecicare.utils.exceptions.RedeemAwardException;
 
 public class NotEnoughQRQuantityException extends RedeemAwardException {
 

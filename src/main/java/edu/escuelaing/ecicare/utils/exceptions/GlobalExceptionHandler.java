@@ -1,4 +1,4 @@
-package edu.escuelaing.ecicare.exceptions;
+package edu.escuelaing.ecicare.utils.exceptions;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -6,14 +6,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import edu.escuelaing.ecicare.models.dto.ApiErrorDto;
+
+import edu.escuelaing.ecicare.utils.models.dto.ApiErrorDto;
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiErrorDto> handleResourceNotFoundException(ResourceNotFoundException exception, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorDto> handleResourceNotFoundException(ResourceNotFoundException exception,
+            HttpServletRequest request) {
         ApiErrorDto apiError = ApiErrorDto.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.NOT_FOUND.value())
@@ -37,7 +39,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RedeemAwardException.class)
-    public ResponseEntity<ApiErrorDto> handleRedeemAwardException(RedeemAwardException exception, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorDto> handleRedeemAwardException(RedeemAwardException exception,
+            HttpServletRequest request) {
         ApiErrorDto apiError = ApiErrorDto.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
@@ -49,7 +52,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MedicalApproveException.class)
-    public ResponseEntity<ApiErrorDto> handleMedicalApproveException(MedicalApproveException exception, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorDto> handleMedicalApproveException(MedicalApproveException exception,
+            HttpServletRequest request) {
         ApiErrorDto apiError = ApiErrorDto.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.FORBIDDEN.value())

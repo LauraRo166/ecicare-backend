@@ -1,6 +1,5 @@
 package edu.escuelaing.ecicare.retos.controllers;
 
-import edu.escuelaing.ecicare.models.entity.UserEcicare;
 import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
 import edu.escuelaing.ecicare.retos.models.Challenge;
 import edu.escuelaing.ecicare.retos.services.ChallengeService;
@@ -97,8 +96,10 @@ public class ChallengeController {
     /**
      * Retrieves all challenges in which a user with the given email is registered.
      *
-     * <p>This endpoint searches for challenges that include the user
-     * identified by their email address.</p>
+     * <p>
+     * This endpoint searches for challenges that include the user
+     * identified by their email address.
+     * </p>
      *
      * @param user all {@link UserEcicare} of user
      * @return a list of challenges where the user is registered
