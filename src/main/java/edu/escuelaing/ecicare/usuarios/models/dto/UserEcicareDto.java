@@ -1,8 +1,8 @@
 package edu.escuelaing.ecicare.usuarios.models.dto;
 
 import java.time.LocalDateTime;
-import edu.escuelaing.ecicare.models.entity.enums.Role;
 
+import edu.escuelaing.ecicare.utils.models.entity.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

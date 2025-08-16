@@ -18,14 +18,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import edu.escuelaing.ecicare.exceptions.ResourceNotFoundException;
-import edu.escuelaing.ecicare.exceptions.notfound.UserEcicareNotFoundException;
-import edu.escuelaing.ecicare.models.entity.enums.Role;
 import edu.escuelaing.ecicare.usuarios.models.dto.UserEcicareDto;
 import edu.escuelaing.ecicare.usuarios.models.dto.UserEcicareResponseDTO;
 import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
 import edu.escuelaing.ecicare.usuarios.repositories.UserEcicareRepository;
 import edu.escuelaing.ecicare.usuarios.services.UserEcicareService;
+import edu.escuelaing.ecicare.utils.exceptions.ResourceNotFoundException;
+import edu.escuelaing.ecicare.utils.exceptions.notfound.UserEcicareNotFoundException;
+import edu.escuelaing.ecicare.utils.models.entity.enums.Role;
 
 @ExtendWith(MockitoExtension.class)
 class UserEcicareServiceTest {
@@ -69,7 +69,6 @@ class UserEcicareServiceTest {
         verify(userEcicareRepository, times(0)).deleteById(userId);
     }
 
-
     @Test
     void getUserEcicareById() {
         UserEcicare user = UserEcicare.builder()
@@ -80,10 +79,10 @@ class UserEcicareServiceTest {
                 .hasMedicalApprove(false)
                 .build();
         when(userEcicareRepository.findById(1L)).thenReturn(Optional.of(user));
-        UserEcicareResponseDTO result = userEcicareService.getUserEcicareById(1L); 
+        UserEcicareResponseDTO result = userEcicareService.getUserEcicareById(1L);
         assertEquals(user.getIdEci(), result.getIdEci());
         assertEquals(user.getName(), result.getName());
-        assertEquals(user.getEmail(), result.getEmail());   
+        assertEquals(user.getEmail(), result.getEmail());
     }
 
     @Test
@@ -98,7 +97,7 @@ class UserEcicareServiceTest {
     }
 
     @Test
-    void setHasMedicalApproveUserEcicare(){
+    void setHasMedicalApproveUserEcicare() {
         UserEcicare user = UserEcicare.builder()
                 .idEci(1L)
                 .name("User")

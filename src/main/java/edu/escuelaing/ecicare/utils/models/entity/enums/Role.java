@@ -1,4 +1,4 @@
-package edu.escuelaing.ecicare.models.entity.enums;
+package edu.escuelaing.ecicare.utils.models.entity.enums;
 
 public enum Role {
     PROFESSOR,

@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 import org.antlr.v4.runtime.misc.NotNull;
 
-import edu.escuelaing.ecicare.models.entity.enums.Role;
+import edu.escuelaing.ecicare.utils.models.entity.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Email;

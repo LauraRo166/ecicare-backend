@@ -5,12 +5,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import edu.escuelaing.ecicare.exceptions.ResourceNotFoundException;
-import edu.escuelaing.ecicare.exceptions.notfound.UserEcicareNotFoundException;
 import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
 import edu.escuelaing.ecicare.usuarios.models.dto.UserEcicareDto;
 import edu.escuelaing.ecicare.usuarios.models.dto.UserEcicareResponseDTO;
 import edu.escuelaing.ecicare.usuarios.repositories.UserEcicareRepository;
+import edu.escuelaing.ecicare.utils.exceptions.ResourceNotFoundException;
+import edu.escuelaing.ecicare.utils.exceptions.notfound.UserEcicareNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -2,10 +2,10 @@ package edu.escuelaing.ecicare.usuarios.services;
 
 import org.springframework.stereotype.Service;
 
-import edu.escuelaing.ecicare.exceptions.notfound.UserEcicareNotFoundException;
 import edu.escuelaing.ecicare.usuarios.models.dto.LoginRequestDTO;
 import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
 import edu.escuelaing.ecicare.usuarios.repositories.UserEcicareRepository;
+import edu.escuelaing.ecicare.utils.exceptions.notfound.UserEcicareNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import edu.escuelaing.ecicare.usuarios.models.dto.AuthResponseDTO;

@@ -1,6 +1,6 @@
-package edu.escuelaing.ecicare.exceptions.notfound;
+package edu.escuelaing.ecicare.utils.exceptions.notfound;
 
-import edu.escuelaing.ecicare.exceptions.ResourceNotFoundException;
+import edu.escuelaing.ecicare.utils.exceptions.ResourceNotFoundException;
 
 public class TipNotFoundException extends ResourceNotFoundException {
 

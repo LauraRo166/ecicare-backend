@@ -1,4 +1,4 @@
-package edu.escuelaing.ecicare.models.dto;
+package edu.escuelaing.ecicare.utils.models.dto;
 
 import lombok.Builder;
 import lombok.Data;

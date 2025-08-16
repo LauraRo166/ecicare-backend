@@ -13,11 +13,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import edu.escuelaing.ecicare.exceptions.notfound.UserEcicareNotFoundException;
 import edu.escuelaing.ecicare.usuarios.controllers.AuthController;
 import edu.escuelaing.ecicare.usuarios.models.dto.AuthResponseDTO;
 import edu.escuelaing.ecicare.usuarios.models.dto.LoginRequestDTO;
 import edu.escuelaing.ecicare.usuarios.services.AuthService;
+import edu.escuelaing.ecicare.utils.exceptions.notfound.UserEcicareNotFoundException;
 
 @WebMvcTest(AuthController.class)
 public class AuthControllerTest {
@@ -43,8 +43,8 @@ public class AuthControllerTest {
 
         when(authService.login(loginRequest)).thenReturn(authResponse);
         mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
                             {
                               "email": "test@example.com",
                               "password": "password123"
@@ -54,25 +54,24 @@ public class AuthControllerTest {
                 .andExpect(jsonPath("$.idEci").value(1))
                 .andExpect(jsonPath("$.email").value("test@example.com"))
                 .andExpect(jsonPath("$.name").value("TestUser"));
-        
+
     }
 
-
-    //Incomplete test for invalid login
+    // Incomplete test for invalid login
     @Test
     void shouldReturnUnauthorizedWhenLoginFails() throws Exception {
 
         when(authService.login(any(LoginRequestDTO.class)))
                 .thenThrow(new UserEcicareNotFoundException("User not found"));
         mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
                             {
                               "email": "test@example.com",
                               "password": "password123"
                             }
                         """))
                 .andExpect(status().isNotFound());
-        
+
     }
 }
