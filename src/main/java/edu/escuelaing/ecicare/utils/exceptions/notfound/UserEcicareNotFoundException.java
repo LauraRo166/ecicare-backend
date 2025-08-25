@@ -8,4 +8,12 @@ public class UserEcicareNotFoundException extends ResourceNotFoundException {
         super("User not found with id " + id);
     }
 
+    public UserEcicareNotFoundException(String email) {
+        super("User not found with email " + email);
+    }
+
+    public UserEcicareNotFoundException() {
+        super("Invalid email or password");
+    }
+
 }

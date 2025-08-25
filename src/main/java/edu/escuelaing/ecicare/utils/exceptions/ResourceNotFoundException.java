@@ -10,4 +10,10 @@ public class ResourceNotFoundException extends RuntimeException {
         super(message);
     }
 
+    public static ResourceNotFoundException create(String resourceType, Object resourceId) {
+        return new ResourceNotFoundException(
+                String.format("%s with ID '%s' not found", resourceType, resourceId));
+    }
+
+
 }

@@ -65,7 +65,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiErrorDto> handlePropertyValueException(Exception exception, HttpServletRequest request) {
+    public ResponseEntity<ApiErrorDto> handlePropertyValueException(Exception exception,
+            HttpServletRequest request) {
         ApiErrorDto apiError = ApiErrorDto.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
