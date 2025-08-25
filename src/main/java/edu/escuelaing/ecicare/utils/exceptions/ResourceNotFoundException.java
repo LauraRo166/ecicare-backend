@@ -15,4 +15,5 @@ public class ResourceNotFoundException extends RuntimeException {
                 String.format("%s with ID '%s' not found", resourceType, resourceId));
     }
 
+
 }
