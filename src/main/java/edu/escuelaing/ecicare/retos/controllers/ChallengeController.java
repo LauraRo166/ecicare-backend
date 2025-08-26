@@ -135,11 +135,12 @@ public class ChallengeController {
     /**
      * Adds a user to the list of registered participants for a challenge.
      *
-     * @param user the {@link UserEcicare} to be added
+     * @param userEmail the {@link UserEcicare} to be added
      * @param name the name of the challenge
      */
     @PutMapping("/update/user/{name}")
-    public void addUseByEmail(@RequestBody UserEcicare user, @PathVariable String name) {
-        challengeService.addUserByEmail(user, name);
+    public void addUseByEmail(@PathVariable String userEmail, @PathVariable String name) {
+        challengeService.addUserByEmail(userEmail, name);
     }
+
 }

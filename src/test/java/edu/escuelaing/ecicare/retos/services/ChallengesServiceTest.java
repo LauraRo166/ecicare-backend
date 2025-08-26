@@ -210,12 +210,13 @@ class ChallengeServiceTest {
         UserEcicare user = new UserEcicare(); // Asumimos que UserEcicare existe
         user.setEmail("test@user.com");
 
+
         Challenge challenge = createTestChallenge(challengeName, "Wellness");
 
         when(challengeRepository.findByName(challengeName)).thenReturn(challenge);
 
         // Act
-        challengeService.addUserByEmail(user, challengeName);
+        challengeService.addUserByEmail(user.getEmail(), challengeName);
 
         // Assert
         assertThat(challenge.getRegistered()).hasSize(1).contains(user);
@@ -236,7 +237,7 @@ class ChallengeServiceTest {
         when(challengeRepository.findByName(challengeName)).thenReturn(challenge);
 
         // Act
-        challengeService.addUserByEmail(user, challengeName);
+        challengeService.addUserByEmail(user.getEmail(), challengeName);
 
         // Assert
         assertThat(challenge.getRegistered()).hasSize(1);

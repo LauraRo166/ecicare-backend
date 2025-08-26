@@ -36,7 +36,10 @@ public class Challenge {
     @Column(name="phrase")
     public String phrase; // Motivational phrase or slogan associated with the challenge.
     @Column(name="registered")
-    @ManyToMany(mappedBy = "registered", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany
+    @JoinTable(name = "user_challenges", joinColumns = @JoinColumn(name = "name"),
+            inverseJoinColumns = @JoinColumn(name = "id_Eci")
+    )
     //cuadrar con el modulo de usuarios para hacer el join con algun atributo.
     public List<UserEcicare> registered; // List of users registered for the challenge.
 

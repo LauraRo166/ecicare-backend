@@ -3,12 +3,11 @@ package edu.escuelaing.ecicare.usuarios.models.entity;
 import lombok.*;
 
 import java.time.LocalDateTime;
-
-import org.antlr.v4.runtime.misc.NotNull;
+import java.util.List;
 
 import edu.escuelaing.ecicare.utils.models.entity.enums.Role;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import edu.escuelaing.ecicare.retos.models.Challenge;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 
@@ -46,4 +45,7 @@ public class UserEcicare {
     @Column(name = "has_medical_approve", nullable = false)
     private Boolean hasMedicalApprove;
 
+    @ManyToMany(mappedBy = "registered")
+    @Column(name = "challenges")
+    private List<Challenge> challenges;
 }

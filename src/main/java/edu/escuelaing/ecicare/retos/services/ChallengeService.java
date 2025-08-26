@@ -3,6 +3,7 @@ package edu.escuelaing.ecicare.retos.services;
 import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
 import edu.escuelaing.ecicare.retos.models.Challenge;
 import edu.escuelaing.ecicare.retos.repositories.ChallengeRepository;
+import edu.escuelaing.ecicare.usuarios.repositories.UserEcicareRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,7 @@ import java.util.Objects;
 public class ChallengeService {
 
     private final ChallengeRepository challengeRepository;
+    private final UserEcicareRepository userEcicareRepository;
 
     /**
      * Creates and saves a new challenge in the repository.
@@ -116,17 +118,20 @@ public class ChallengeService {
      * Registers a user to a specific challenge by adding them
      * to the list of registered participants.
      *
-     * @param user the {@link UserEcicare} to be added
+     * @param userEmail the {@link UserEcicare} to be added
      * @param name the name of the challenge
      */
-    public void addUserByEmail(UserEcicare user, String name) {
+    public Challenge addUserByEmail(String userEmail, String name) {
         Challenge challenge = getChallengeByName(name);
         List<UserEcicare> registered = challenge.getRegistered();
+        UserEcicare user = userEcicareRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userEmail));
         if (!registered.contains(user)) {
             registered.add(user);
             challenge.setRegistered(registered);
             challengeRepository.save(challenge);
         }
+        return challenge;
     }
 
     /**
