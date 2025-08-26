@@ -3,6 +3,7 @@ package edu.escuelaing.ecicare.retos.services;
 import edu.escuelaing.ecicare.retos.models.Challenge;
 import edu.escuelaing.ecicare.retos.repositories.ChallengeRepository;
 import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
+import edu.escuelaing.ecicare.usuarios.repositories.UserEcicareRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -23,6 +25,10 @@ class ChallengeServiceTest {
 
     @Mock
     private ChallengeRepository challengeRepository;
+
+
+    @Mock
+    private UserEcicareRepository userEcicareRepository;
 
     @InjectMocks
     private ChallengeService challengeService;
@@ -210,16 +216,16 @@ class ChallengeServiceTest {
         UserEcicare user = new UserEcicare(); // Asumimos que UserEcicare existe
         user.setEmail("test@user.com");
 
-
         Challenge challenge = createTestChallenge(challengeName, "Wellness");
 
         when(challengeRepository.findByName(challengeName)).thenReturn(challenge);
+        when(userEcicareRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
 
         // Act
-        challengeService.addUserByEmail(user.getEmail(), challengeName);
+        Challenge result = challengeService.addUserByEmail(user.getEmail(), challengeName);
 
         // Assert
-        assertThat(challenge.getRegistered()).hasSize(1).contains(user);
+        assertThat(result.getRegistered()).hasSize(1).contains(user);
         verify(challengeRepository, times(1)).save(challenge);
     }
 
@@ -235,12 +241,13 @@ class ChallengeServiceTest {
         challenge.getRegistered().add(user); // Pre-register the user
 
         when(challengeRepository.findByName(challengeName)).thenReturn(challenge);
+        when(userEcicareRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
 
         // Act
-        challengeService.addUserByEmail(user.getEmail(), challengeName);
+        Challenge result = challengeService.addUserByEmail(user.getEmail(), challengeName);
 
         // Assert
-        assertThat(challenge.getRegistered()).hasSize(1);
+        assertThat(result.getRegistered()).hasSize(1);
         verify(challengeRepository, never()).save(challenge);
     }
 
