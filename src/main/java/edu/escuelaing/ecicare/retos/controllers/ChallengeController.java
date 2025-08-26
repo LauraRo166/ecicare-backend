@@ -88,7 +88,7 @@ public class ChallengeController {
      * @return a list of {@link Challenge} entities matching the given module
      *         or {@code null} if not found
      */
-    @GetMapping("/find/{healthModule")
+    @GetMapping("/find/{healthModule}")
     public List<Challenge> getChallengeByHealthModule(@PathVariable String healthModule) {
         return challengeService.getChallengeByHealthModule(healthModule);
     }

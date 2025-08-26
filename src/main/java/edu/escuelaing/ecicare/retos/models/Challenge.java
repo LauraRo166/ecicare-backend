@@ -35,18 +35,28 @@ public class Challenge {
     public String description; // Detailed description of the challenge.
     @Column(name="phrase")
     public String phrase; // Motivational phrase or slogan associated with the challenge.
-    @Column(name="registered")
     @ManyToMany
-    @JoinTable(name = "user_challenges", joinColumns = @JoinColumn(name = "name"),
-            inverseJoinColumns = @JoinColumn(name = "id_Eci")
+    @JoinTable(name = "user_challenges", joinColumns = @JoinColumn(name = "challenge_name"),
+            inverseJoinColumns = @JoinColumn(name = "user_idEci")
     )
     //cuadrar con el modulo de usuarios para hacer el join con algun atributo.
     public List<UserEcicare> registered; // List of users registered for the challenge.
 
-    @Column(name="tips", nullable = false)
+    @ElementCollection
+    @CollectionTable(
+            name = "challenge_tips",
+            joinColumns = @JoinColumn(name = "challenge_name")
+    )
+    @Column(name="tips")
     public List<String> tips; // List of tips related to the challenge.
     @Column(name="duration", nullable = false, updatable = false)
     public LocalDateTime duration; // Duration or deadline of the challenge, represented as a date and time.
+
+    @ElementCollection
+    @CollectionTable(
+            name = "challenge_goals",
+            joinColumns = @JoinColumn(name = "challenge_name")
+    )
     @Column(name="goals", nullable = false)
     public List<String> goals; // List of goals that participants should achieve during the challenge.
     @Column(name="reward")
@@ -55,6 +65,6 @@ public class Challenge {
     public String healthModule; // Health module to which the challenge belongs
 
     //challenge rating
-    @Column(name = "ratings")
+    @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL, orphanRemoval = true)
     public List<Rating> ratings; // Ratings and reviews provided by users for the challenge.
 }
