@@ -14,19 +14,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>backend-ecicare</name>
     <description>backend-ecicare</description>
-    <url />
-    <licenses>
-        <license />
-    </licenses>
-    <developers>
-        <developer />
-    </developers>
-    <scm>
-        <connection />
-        <developerConnection />
-        <tag />
-        <url />
-    </scm>
+
     <properties>
         <java.version>21</java.version>
         <maven.compiler.source>21</maven.compiler.source>
@@ -34,6 +22,7 @@
         <jacoco.excludes.pattern>
             **/entity/*,**/model/*,**/models/*,**/dto/*,**/dtos/*,**/enums/*,**/config/*,**/exceptions/**,**/BackendEcicareApplication.class</jacoco.excludes.pattern>
     </properties>
+
     <dependencies>
 
         <dependency>
