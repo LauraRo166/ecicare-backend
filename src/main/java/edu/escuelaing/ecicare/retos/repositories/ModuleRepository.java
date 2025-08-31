@@ -1,0 +1,16 @@
+package edu.escuelaing.ecicare.retos.repositories;
+
+import edu.escuelaing.ecicare.retos.models.Module;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+/**
+ * Repository interface for managing {@link Module} entities.
+ * This repository can be extended with custom query methods
+ * by following Spring Data JPA's method naming conventions.
+ *
+ * @author Byte Programming
+ */
+@Repository
+public interface ModuleRepository extends JpaRepository<Module, String> {
+}

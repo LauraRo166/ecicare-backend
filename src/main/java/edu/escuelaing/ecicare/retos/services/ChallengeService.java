@@ -1,5 +1,6 @@
 package edu.escuelaing.ecicare.retos.services;
 
+import edu.escuelaing.ecicare.retos.repositories.ModuleRepository;
 import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
 import edu.escuelaing.ecicare.retos.models.Challenge;
 import edu.escuelaing.ecicare.retos.repositories.ChallengeRepository;
@@ -30,6 +31,7 @@ public class ChallengeService {
 
     private final ChallengeRepository challengeRepository;
     private final UserEcicareRepository userEcicareRepository;
+    private final ModuleRepository moduleRepository;
 
     /**
      * Creates and saves a new challenge in the repository.
@@ -72,24 +74,13 @@ public class ChallengeService {
     }
 
     /**
-     * Retrieves all challenges that belong to a specific health module.
-     *
-     * @param healthModule the health module (e.g., nutrition, exercise, etc.)
-     * @return a list of {@link Challenge} entities matching the given module
-     *         or {@code null} if no such challenge exists
-     */
-    public List<Challenge> getChallengeByHealthModule(String healthModule) {
-        return challengeRepository.findByHealthModule(healthModule);
-    }
-
-    /**
      * Updates an existing challenge with new values for specific fields:
      * phrase, reward, and health module.
      *
      * @param name      the name of the challenge to update
      * @param challenge the {@link Challenge} containing updated values
      */
-    public void updateChallenge(String name, Challenge challenge) {
+    public Challenge updateChallenge(String name, Challenge challenge) {
         Challenge oldChallenge = getChallengeByName(name);
         if (oldChallenge != null) {
             if (!Objects.equals(challenge.getPhrase(), "")) {
@@ -98,11 +89,12 @@ public class ChallengeService {
             if (!Objects.equals(challenge.getReward(), "")){
                 oldChallenge.setReward(challenge.getReward());
             }
-            if (!Objects.equals(challenge.getHealthModule(), "")){
-                oldChallenge.setHealthModule(challenge.getHealthModule());
+            if (challenge.getModule() != null) {
+                oldChallenge.setModule(challenge.getModule());
             }
             challengeRepository.save(oldChallenge);
         }
+        return oldChallenge;
     }
 
     /**

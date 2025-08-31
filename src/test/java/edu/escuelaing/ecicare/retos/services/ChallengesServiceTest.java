@@ -1,6 +1,7 @@
 package edu.escuelaing.ecicare.retos.services;
 
 import edu.escuelaing.ecicare.retos.models.Challenge;
+import edu.escuelaing.ecicare.retos.models.Module;
 import edu.escuelaing.ecicare.retos.repositories.ChallengeRepository;
 import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
 import edu.escuelaing.ecicare.usuarios.repositories.UserEcicareRepository;
@@ -33,14 +34,14 @@ class ChallengeServiceTest {
     @InjectMocks
     private ChallengeService challengeService;
 
-    private Challenge createTestChallenge(String name, String healthModule) {
+    private Challenge createTestChallenge(String name, Module module) {
         return Challenge.builder()
                 .name(name)
                 .description("A test challenge description.")
                 .phrase("Go for it!")
                 .duration(LocalDateTime.now().plusDays(10))
                 .reward("100 XP")
-                .healthModule(healthModule)
+                .module(module)
                 .registered(new ArrayList<>())
                 .tips(List.of("Stay hydrated", "Warm-up first"))
                 .goals(List.of("Complete the main task", "Track your progress"))
@@ -52,7 +53,7 @@ class ChallengeServiceTest {
     @DisplayName("Should save challenge when creating a new one")
     void createChallenge_whenCalledWithChallenge_shouldSaveChallenge() {
         // Arrange
-        Challenge challenge = createTestChallenge("New Fitness Challenge", "Fitness");
+        Challenge challenge = createTestChallenge("New Fitness Challenge", new Module("Fitness"));
 
         // Act
         challengeService.createChallenge(challenge);
@@ -65,8 +66,8 @@ class ChallengeServiceTest {
     @DisplayName("Should return all challenges when they exist")
     void getAllChallenges_whenChallengesExist_shouldReturnChallengeList() {
         // Arrange
-        Challenge challenge1 = createTestChallenge("Challenge 1", "Nutrition");
-        Challenge challenge2 = createTestChallenge("Challenge 2", "Mental Health");
+        Challenge challenge1 = createTestChallenge("Challenge 1", new Module("Nutrition"));
+        Challenge challenge2 = createTestChallenge("Challenge 2", new Module("Mental Health"));
         when(challengeRepository.findAll()).thenReturn(List.of(challenge1, challenge2));
 
         // Act
@@ -98,7 +99,7 @@ class ChallengeServiceTest {
     void getChallengeByName_whenChallengeExists_shouldReturnChallenge() {
         // Arrange
         String challengeName = "Fitness Challenge";
-        Challenge expectedChallenge = createTestChallenge(challengeName, "Exercise");
+        Challenge expectedChallenge = createTestChallenge(challengeName, new Module("Excercise"));
         when(challengeRepository.findByName(challengeName)).thenReturn(expectedChallenge);
 
         // Act
@@ -128,14 +129,14 @@ class ChallengeServiceTest {
     void updateChallenge_whenChallengeExists_shouldUpdateAndSaveChanges() {
         // Arrange
         String originalName = "Original Challenge";
-        Challenge oldChallenge = createTestChallenge(originalName, "Old Module");
+        Challenge oldChallenge = createTestChallenge(originalName, new Module("Old Module"));
         oldChallenge.setPhrase("Old Phrase");
         oldChallenge.setReward("Old Reward");
 
         Challenge updates = Challenge.builder()
                 .phrase("New Phrase")
                 .reward("New Reward")
-                .healthModule("New Module")
+                .module(new Module("New Module"))
                 .build();
 
         when(challengeRepository.findByName(originalName)).thenReturn(oldChallenge);
@@ -148,7 +149,7 @@ class ChallengeServiceTest {
         verify(challengeRepository, times(1)).save(oldChallenge);
         assertThat(oldChallenge.getPhrase()).isEqualTo("New Phrase");
         assertThat(oldChallenge.getReward()).isEqualTo("New Reward");
-        assertThat(oldChallenge.getHealthModule()).isEqualTo("New Module");
+        assertThat(oldChallenge.getModule()).isEqualTo(new Module("New Module"));
     }
 
     @Test
@@ -156,14 +157,14 @@ class ChallengeServiceTest {
     void updateChallenge_whenUpdateDataHasEmptyStrings_shouldIgnoreEmptyFields() {
         // Arrange
         String originalName = "Original Challenge";
-        Challenge oldChallenge = createTestChallenge(originalName, "Old Module");
+        Challenge oldChallenge = createTestChallenge(originalName, new Module("Old Module"));
         oldChallenge.setPhrase("Old Phrase");
         oldChallenge.setReward("Old Reward");
 
         Challenge updates = Challenge.builder()
                 .phrase("") // This should be ignored
                 .reward("New Reward")
-                .healthModule("") // This should be ignored
+                .module(null) // This should be ignored
                 .build();
 
         when(challengeRepository.findByName(originalName)).thenReturn(oldChallenge);
@@ -175,7 +176,7 @@ class ChallengeServiceTest {
         verify(challengeRepository, times(1)).save(oldChallenge);
         assertThat(oldChallenge.getPhrase()).isEqualTo("Old Phrase"); // Unchanged
         assertThat(oldChallenge.getReward()).isEqualTo("New Reward"); // Changed
-        assertThat(oldChallenge.getHealthModule()).isEqualTo("Old Module"); // Unchanged
+        assertThat(oldChallenge.getModule()).isEqualTo(new Module("Old Module")); // Unchanged
     }
 
     @Test
@@ -216,7 +217,7 @@ class ChallengeServiceTest {
         UserEcicare user = new UserEcicare(); // Asumimos que UserEcicare existe
         user.setEmail("test@user.com");
 
-        Challenge challenge = createTestChallenge(challengeName, "Wellness");
+        Challenge challenge = createTestChallenge(challengeName, new Module("Wellness"));
 
         when(challengeRepository.findByName(challengeName)).thenReturn(challenge);
         when(userEcicareRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
@@ -237,7 +238,7 @@ class ChallengeServiceTest {
         UserEcicare user = new UserEcicare();
         user.setEmail("test@user.com");
 
-        Challenge challenge = createTestChallenge(challengeName, "Wellness");
+        Challenge challenge = createTestChallenge(challengeName, new Module("Wellness"));
         challenge.getRegistered().add(user); // Pre-register the user
 
         when(challengeRepository.findByName(challengeName)).thenReturn(challenge);
@@ -258,8 +259,8 @@ class ChallengeServiceTest {
         UserEcicare user = new UserEcicare();
         user.setEmail("active@user.com");
 
-        Challenge challenge1 = createTestChallenge("Challenge 1", "Nutrition");
-        Challenge challenge2 = createTestChallenge("Challenge 2", "Fitness");
+        Challenge challenge1 = createTestChallenge("Challenge 1", new Module("Nutrition"));
+        Challenge challenge2 = createTestChallenge("Challenge 2", new Module("Fitness"));
         List<Challenge> expectedChallenges = List.of(challenge1, challenge2);
 
         when(challengeRepository.findByRegistered(user)).thenReturn(expectedChallenges);

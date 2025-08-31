@@ -41,15 +41,6 @@ public interface ChallengeRepository extends JpaRepository<Challenge, String> {
     List<Challenge> findByDuration(LocalDateTime duration);
 
     /**
-     * Finds all challenges that belong to a specific health module.
-     *
-     * @param healthModule the health module (e.g., nutrition, exercise, etc.)
-     * @return a list of {@link Challenge} entities matching the given module
-     *         or {@code null} if no match is found
-     */
-    List<Challenge> findByHealthModule(String healthModule);
-
-    /**
      * Finds all challenges where a specific user is registered.
      *
      * Spring Data JPA will generate the query automatically
