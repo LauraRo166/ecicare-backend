@@ -17,8 +17,8 @@ public class Redeemable {
     private RedeemableId id;
 
     @ManyToOne
-    @MapsId("challengeId")
-    @JoinColumn(name = "challenge_id")
+    @MapsId("challengeName")
+    @JoinColumn(name = "challenge_name")
     private Challenge challenge;
 
     @ManyToOne
