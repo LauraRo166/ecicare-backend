@@ -20,8 +20,15 @@ public class AwardService {
     private final AwardRepository awardRepository;
     private final MapperService mapperService;
 
-    public List<Award> getAllAwards() {
-        return awardRepository.findAll();
+    public int getAllAwardsLength() {
+        return awardRepository.findAll().size();
+    }
+
+    public List<Award> getAwardPagination(int page, int size) {
+        return awardRepository.findAll().stream()
+                .skip((long) (page - 1) * size)
+                .limit(size)
+                .toList();
     }
 
     public Award getAwardById(Long awardId) {
