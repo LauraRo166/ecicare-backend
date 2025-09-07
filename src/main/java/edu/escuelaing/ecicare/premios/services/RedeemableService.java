@@ -3,13 +3,13 @@ package edu.escuelaing.ecicare.premios.services;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
-import edu.escuelaing.ecicare.exceptions.notfound.RedeemableNotFoundException;
+import edu.escuelaing.ecicare.utils.exceptions.notfound.RedeemableNotFoundException;
 import edu.escuelaing.ecicare.premios.models.dto.RedeemableDto;
 import edu.escuelaing.ecicare.premios.models.entity.Award;
-import edu.escuelaing.ecicare.models.entity.Challenge;
 import edu.escuelaing.ecicare.premios.models.entity.Redeemable;
 import edu.escuelaing.ecicare.premios.models.entity.RedeemableId;
 import edu.escuelaing.ecicare.premios.repositories.RedeemableRepository;
+import edu.escuelaing.ecicare.retos.models.Challenge;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -23,9 +23,10 @@ public class RedeemableService {
         return redeemableRepository.findAll();
     }
 
-    public Redeemable getRedeemableById(Long challengeId, Long awardId) {
-        Optional<Redeemable> redeemable = redeemableRepository.findById(new RedeemableId(challengeId, awardId));
-        if (!redeemable.isPresent()) throw new RedeemableNotFoundException(challengeId, awardId);
+    public Redeemable getRedeemableById(String challengeName, Long awardId) {
+        Optional<Redeemable> redeemable = redeemableRepository.findById(new RedeemableId(challengeName, awardId));
+        if (!redeemable.isPresent())
+            throw new RedeemableNotFoundException(challengeName, awardId);
         return redeemable.get();
     }
 
@@ -39,7 +40,7 @@ public class RedeemableService {
     public Redeemable createRedeemableToChallenge(RedeemableDto redeemableDto, Challenge challenge) {
         Award award = awardService.getAwardById(redeemableDto.getAwardId());
         RedeemableId redeemableId = RedeemableId.builder()
-                .challengeId(challenge.getChallengeId())
+                .challengeName(challenge.getName())
                 .awardId(award.getAwardId())
                 .build();
         Redeemable redeemableEntity = Redeemable.builder()
@@ -52,17 +53,17 @@ public class RedeemableService {
         return redeemableRepository.save(redeemableEntity);
     }
 
-    public Redeemable updateRedeemable(Long challengeId, Long awardId, RedeemableDto redeemableDto) {
-        Redeemable existingRedeemable = this.getRedeemableById(challengeId, awardId);
-        
+    public Redeemable updateRedeemable(String challengeName, Long awardId, RedeemableDto redeemableDto) {
+        Redeemable existingRedeemable = this.getRedeemableById(challengeName, awardId);
+
         existingRedeemable.setRequiredQR(redeemableDto.getRequiredQR());
         existingRedeemable.setLimitDays(redeemableDto.getLimitDays());
-        
+
         return redeemableRepository.save(existingRedeemable);
     }
 
-    public void deleteRedeemable(Long challengeId, Long awardId) {
-        Redeemable redeemable = this.getRedeemableById(challengeId, awardId);
+    public void deleteRedeemable(String challengeName, Long awardId) {
+        Redeemable redeemable = this.getRedeemableById(challengeName, awardId);
         redeemableRepository.delete(redeemable);
     }
 }

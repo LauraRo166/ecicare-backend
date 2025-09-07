@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
-import edu.escuelaing.ecicare.exceptions.notfound.AwardNotFoundException;
+import edu.escuelaing.ecicare.utils.exceptions.notfound.AwardNotFoundException;
 import edu.escuelaing.ecicare.premios.models.dto.AwardDto;
 import edu.escuelaing.ecicare.premios.models.entity.Award;
 import edu.escuelaing.ecicare.services.MapperService;

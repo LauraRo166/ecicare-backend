@@ -21,26 +21,26 @@ public class RedeemableController {
         return ResponseEntity.ok(redeemableService.getAllRedeemables());
     }
 
-    @GetMapping("/{challengeId}/{awardId}")
+    @GetMapping("/{challengeName}/{awardId}")
     public ResponseEntity<Redeemable> getRedeemableById(
-            @PathVariable Long challengeId,
+            @PathVariable String challengeName,
             @PathVariable Long awardId) {
-        return ResponseEntity.ok(redeemableService.getRedeemableById(challengeId, awardId));
+        return ResponseEntity.ok(redeemableService.getRedeemableById(challengeName, awardId));
     }
 
-    @PutMapping("/{challengeId}/{awardId}")
+    @PutMapping("/{challengeName}/{awardId}")
     public ResponseEntity<Redeemable> updateRedeemable(
-            @PathVariable Long challengeId,
+            @PathVariable String challengeName,
             @PathVariable Long awardId,
             @RequestBody RedeemableDto redeemableDto) {
-        return ResponseEntity.ok(redeemableService.updateRedeemable(challengeId, awardId, redeemableDto));
+        return ResponseEntity.ok(redeemableService.updateRedeemable(challengeName, awardId, redeemableDto));
     }
 
-    @DeleteMapping("/{challengeId}/{awardId}")
+    @DeleteMapping("/{challengeName}/{awardId}")
     public ResponseEntity<Void> deleteRedeemable(
-            @PathVariable Long challengeId,
+            @PathVariable String challengeName,
             @PathVariable Long awardId) {
-        redeemableService.deleteRedeemable(challengeId, awardId);
+        redeemableService.deleteRedeemable(challengeName, awardId);
         return ResponseEntity.noContent().build();
     }
 }

@@ -1,6 +1,6 @@
 package edu.escuelaing.ecicare.premios.models.entity;
 
-import edu.escuelaing.ecicare.models.entity.Challenge;
+import edu.escuelaing.ecicare.retos.models.Challenge;
 import jakarta.persistence.*;
 import lombok.*;
 

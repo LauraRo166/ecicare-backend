@@ -12,8 +12,8 @@ import lombok.*;
 @AllArgsConstructor
 public class RedeemableId implements Serializable {
 
-    @Column(name = "challenge_id")
-    private Long challengeId;
+    @Column(name = "challenge_name")
+    private String challengeName;
 
     @Column(name = "award_id")
     private Long awardId;

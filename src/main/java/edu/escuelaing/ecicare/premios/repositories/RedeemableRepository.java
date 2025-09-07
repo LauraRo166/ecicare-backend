@@ -10,6 +10,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface RedeemableRepository extends JpaRepository<Redeemable, RedeemableId> {
 
-    Optional<Redeemable> findByChallengeChallengeIdAndAwardAwardId(Long challengeId, Long awardId);
+    Optional<Redeemable> findByChallengeChallengeIdAndAwardAwardId(String challengeName, Long awardId);
     
 }
