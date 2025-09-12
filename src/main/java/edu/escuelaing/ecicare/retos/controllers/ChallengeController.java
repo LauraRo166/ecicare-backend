@@ -64,7 +64,7 @@ public class ChallengeController {
      * @return the {@link Challenge} with the specified name,
      *         or {@code null} if not found
      */
-    @GetMapping("/find/{name}")
+    @GetMapping("/find/name/{name}")
     public Challenge getChallengeByName(@PathVariable String name) {
         return challengeService.getChallengeByName(name);
     }
@@ -76,21 +76,9 @@ public class ChallengeController {
      * @return a list of {@link Challenge} entities matching the given duration
      *         or {@code null} if not found
      */
-    @GetMapping("/find/{duration}")
+    @GetMapping("/find/duration/{duration}")
     public List<Challenge> getChallengeByDuration(@PathVariable LocalDateTime duration) {
         return challengeService.getChallengeByDuration(duration);
-    }
-
-    /**
-     * Retrieves challenges belonging to a specific health module.
-     *
-     * @param healthModule the health module (e.g., nutrition, exercise, etc.)
-     * @return a list of {@link Challenge} entities matching the given module
-     *         or {@code null} if not found
-     */
-    @GetMapping("/find/{healthModule")
-    public List<Challenge> getChallengeByHealthModule(@PathVariable String healthModule) {
-        return challengeService.getChallengeByHealthModule(healthModule);
     }
 
     /**
@@ -118,8 +106,7 @@ public class ChallengeController {
      */
     @PutMapping("/update/{name}")
     public Challenge updateChallenge(@PathVariable String name, @RequestBody Challenge challenge) {
-        challengeService.updateChallenge(name, challenge);
-        return challenge;
+        return challengeService.updateChallenge(name, challenge);
     }
 
     /**
@@ -135,11 +122,12 @@ public class ChallengeController {
     /**
      * Adds a user to the list of registered participants for a challenge.
      *
-     * @param user the {@link UserEcicare} to be added
+     * @param userEmail the {@link UserEcicare} to be added
      * @param name the name of the challenge
      */
-    @PutMapping("/update/user/{name}")
-    public void addUseByEmail(@RequestBody UserEcicare user, @PathVariable String name) {
-        challengeService.addUserByEmail(user, name);
+    @PutMapping("/update/user/{userEmail}/challenge/{name}")
+    public void addUseByEmail(@PathVariable String userEmail, @PathVariable String name) {
+        challengeService.addUserByEmail(userEmail, name);
     }
+
 }

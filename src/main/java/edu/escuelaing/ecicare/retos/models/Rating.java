@@ -21,14 +21,22 @@ import lombok.*;
 @Table(name = "rating")
 public class Rating {
 
-    //Numeric score given to the challenge.
     //This field is the primary key of the table.
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ratingId", nullable = false, updatable = false)
+    private Long id;
+
+    //Numeric score given to the challenge.
     @Column(name="rating", nullable = false, updatable = false)
-    public int rating;
+    private int rating;
 
     @Column(name="feedback", nullable = false, updatable = false)
-    public String feedback; //Textual feedback associated with the rating.
+    private String feedback; //Textual feedback associated with the rating.
+
+    @ManyToOne
+    @JoinColumn(name = "challenge_name", nullable = false)
+    private Challenge challenge; //Challenge to which the rating belongs
 }
 
 /*NOTA: clase no utilizada actualmente para calificacion de los retos, falta la logica para

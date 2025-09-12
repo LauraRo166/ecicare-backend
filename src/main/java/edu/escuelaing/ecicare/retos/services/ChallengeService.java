@@ -1,8 +1,10 @@
 package edu.escuelaing.ecicare.retos.services;
 
+import edu.escuelaing.ecicare.retos.repositories.ModuleRepository;
 import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
 import edu.escuelaing.ecicare.retos.models.Challenge;
 import edu.escuelaing.ecicare.retos.repositories.ChallengeRepository;
+import edu.escuelaing.ecicare.usuarios.repositories.UserEcicareRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +30,8 @@ import java.util.Objects;
 public class ChallengeService {
 
     private final ChallengeRepository challengeRepository;
+    private final UserEcicareRepository userEcicareRepository;
+    private final ModuleRepository moduleRepository;
 
     /**
      * Creates and saves a new challenge in the repository.
@@ -70,24 +74,13 @@ public class ChallengeService {
     }
 
     /**
-     * Retrieves all challenges that belong to a specific health module.
-     *
-     * @param healthModule the health module (e.g., nutrition, exercise, etc.)
-     * @return a list of {@link Challenge} entities matching the given module
-     *         or {@code null} if no such challenge exists
-     */
-    public List<Challenge> getChallengeByHealthModule(String healthModule) {
-        return challengeRepository.findByHealthModule(healthModule);
-    }
-
-    /**
      * Updates an existing challenge with new values for specific fields:
      * phrase, reward, and health module.
      *
      * @param name      the name of the challenge to update
      * @param challenge the {@link Challenge} containing updated values
      */
-    public void updateChallenge(String name, Challenge challenge) {
+    public Challenge updateChallenge(String name, Challenge challenge) {
         Challenge oldChallenge = getChallengeByName(name);
         if (oldChallenge != null) {
             if (!Objects.equals(challenge.getPhrase(), "")) {
@@ -96,11 +89,12 @@ public class ChallengeService {
             if (!Objects.equals(challenge.getReward(), "")){
                 oldChallenge.setReward(challenge.getReward());
             }
-            if (!Objects.equals(challenge.getHealthModule(), "")){
-                oldChallenge.setHealthModule(challenge.getHealthModule());
+            if (challenge.getModule() != null) {
+                oldChallenge.setModule(challenge.getModule());
             }
             challengeRepository.save(oldChallenge);
         }
+        return oldChallenge;
     }
 
     /**
@@ -116,17 +110,20 @@ public class ChallengeService {
      * Registers a user to a specific challenge by adding them
      * to the list of registered participants.
      *
-     * @param user the {@link UserEcicare} to be added
+     * @param userEmail the {@link UserEcicare} to be added
      * @param name the name of the challenge
      */
-    public void addUserByEmail(UserEcicare user, String name) {
+    public Challenge addUserByEmail(String userEmail, String name) {
         Challenge challenge = getChallengeByName(name);
         List<UserEcicare> registered = challenge.getRegistered();
+        UserEcicare user = userEcicareRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userEmail));
         if (!registered.contains(user)) {
             registered.add(user);
             challenge.setRegistered(registered);
             challengeRepository.save(challenge);
         }
+        return challenge;
     }
 
     /**
