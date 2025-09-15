@@ -26,10 +26,23 @@ Cada microservicio está diseñado para funcionar de manera independiente, pero 
 
 ## Ejecución 🚀
 
-Para ejecutar el proyecto, es necesario tener un contenedor de MySQL corriendo. El siguiente comando ejecuta un contenedor de MySQL:
-
+1. Clona el repositorio:
 ```bash
-docker run --name some-mysql -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=eci-care -p 3306:3306 -d mysql:latest
+git clone https://github.com/ByteProgramming1/ecicare-backend-new.git
+cd ecicare-backend-new
+```
+2. Construye y corre los contenedores:
+```bash
+docker-compose up -d
+```
+3. Utilice el siguiente comando para obtener un shell bash dentro del contenedor de la aplicación:
+```bash
+docker-compose exec app bash
+```
+4. Ejecute:
+```bash
+mvn clean verify
+mvn springboot:run
 ```
 
 ## Licencia 📄
