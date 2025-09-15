@@ -35,6 +35,7 @@ public class Challenge {
     private String description; // Detailed description of the challenge.
     @Column(name="phrase")
     private String phrase; // Motivational phrase or slogan associated with the challenge.
+
     @ManyToMany
     @JoinTable(name = "user_challenges", joinColumns = @JoinColumn(name = "challenge_name"),
             inverseJoinColumns = @JoinColumn(name = "user_idEci")
@@ -42,13 +43,19 @@ public class Challenge {
     //cuadrar con el modulo de usuarios para hacer el join con algun atributo.
     private List<UserEcicare> registered; // List of users registered for the challenge.
 
+    @ManyToMany
+    @JoinTable(name = "user_challenges", joinColumns = @JoinColumn(name = "challenge_name"),
+            inverseJoinColumns = @JoinColumn(name = "user_idEci")
+    )
+    private List<UserEcicare> confirmed; // List of users confirmed for the challenge done.
+
     @ElementCollection
     @CollectionTable(
             name = "challenge_tips",
             joinColumns = @JoinColumn(name = "challenge_name")
     )
-    @Column(name="tips")
     private List<String> tips; // List of tips related to the challenge.
+
     @Column(name="duration", nullable = false, updatable = false)
     private LocalDateTime duration; // Duration or deadline of the challenge, represented as a date and time.
 
@@ -57,8 +64,8 @@ public class Challenge {
             name = "challenge_goals",
             joinColumns = @JoinColumn(name = "challenge_name")
     )
-    @Column(name="goals", nullable = false)
     private List<String> goals; // List of goals that participants should achieve during the challenge.
+
     @Column(name="reward")
     private String reward; // Reward given upon completing the challenge.
 

@@ -260,13 +260,16 @@ class ChallengeServiceTest {
         user.setEmail("active@user.com");
 
         Challenge challenge1 = createTestChallenge("Challenge 1", new Module("Nutrition"));
+        challenge1.getRegistered().add(user);
         Challenge challenge2 = createTestChallenge("Challenge 2", new Module("Fitness"));
+        challenge2.getRegistered().add(user);
         List<Challenge> expectedChallenges = List.of(challenge1, challenge2);
 
         when(challengeRepository.findByRegistered(user)).thenReturn(expectedChallenges);
+        when(userEcicareRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
 
         // Act
-        List<Challenge> result = challengeService.getChallengesByUser(user);
+        List<Challenge> result = challengeService.getChallengesByUserEmail(user.getEmail());
 
         // Assert
         assertThat(result)

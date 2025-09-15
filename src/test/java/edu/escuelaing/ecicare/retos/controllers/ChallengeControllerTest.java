@@ -2,7 +2,6 @@ package edu.escuelaing.ecicare.retos.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.escuelaing.ecicare.retos.models.Challenge;
-import edu.escuelaing.ecicare.retos.models.Module;
 import edu.escuelaing.ecicare.retos.services.ChallengeService;
 import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
 import org.junit.jupiter.api.DisplayName;
@@ -127,7 +126,7 @@ public class ChallengeControllerTest {
                 Challenge.builder().name("Challenge1").build()
         );
 
-        when(challengeService.getChallengesByUser(user)).thenReturn(challenges);
+        when(challengeService.getChallengesByUserEmail(user.getEmail())).thenReturn(challenges);
 
         mockMvc.perform(get("/challenges/find/user/challenge")
                         .contentType(MediaType.APPLICATION_JSON)

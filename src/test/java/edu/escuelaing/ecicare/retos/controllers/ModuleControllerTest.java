@@ -138,7 +138,7 @@ class ModuleControllerTest {
 
         when(moduleService.updateModuleDescription("Module1", "New Description"))
                 .thenReturn(module);
-        
+
         mockMvc.perform(put("/modules/update/Module1/description")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"description\":\"New Description\"}"))

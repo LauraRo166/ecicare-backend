@@ -127,12 +127,37 @@ public class ChallengeService {
     }
 
     /**
+     * Confirms a user to a specific challenge by adding them, removing from registered list.
+     * to the list of confirms participants.
+     *
+     * @param userEmail the {@link UserEcicare} to be added
+     * @param name the name of the challenge
+     */
+    public Challenge confirmUserByEmail(String userEmail, String name) {
+        Challenge challenge = getChallengeByName(name);
+        List<UserEcicare> registered = challenge.getRegistered();
+        List<UserEcicare> confirmed = challenge.getConfirmed();
+        UserEcicare user = userEcicareRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userEmail));
+        if (registered.contains(user)) {
+            registered.remove(user);
+            confirmed.add(user);
+            challenge.setRegistered(registered);
+            challenge.setConfirmed(confirmed);
+            challengeRepository.save(challenge);
+        }
+        return challenge;
+    }
+
+    /**
      * Retrieves all challenges in which a specific user is registered.
      *
-     * @param user the user whose challenges should be retrieved
+     * @param userEmail the user whose challenges should be retrieved
      * @return a list of {@link Challenge} entities containing the user
      */
-    public List<Challenge> getChallengesByUser(UserEcicare user) {
+    public List<Challenge> getChallengesByUserEmail(String userEmail) {
+        UserEcicare user = userEcicareRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userEmail));
         return challengeRepository.findByRegistered(user);
     }
 }

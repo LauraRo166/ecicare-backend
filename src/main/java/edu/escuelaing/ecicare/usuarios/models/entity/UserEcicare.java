@@ -46,6 +46,8 @@ public class UserEcicare {
     private Boolean hasMedicalApprove;
 
     @ManyToMany(mappedBy = "registered")
-    @Column(name = "challenges")
-    private List<Challenge> challenges;
+    private List<Challenge> challengesRegistered;
+
+    @ManyToMany(mappedBy = "confirmed")
+    private List<Challenge> challengesConfirmed;
 }
