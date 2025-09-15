@@ -1,10 +1,12 @@
 package edu.escuelaing.ecicare.retos.models;
 
+import edu.escuelaing.ecicare.premios.models.entity.Redeemable;
 import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Represents a challenge within the Ecicare system.
@@ -66,8 +68,8 @@ public class Challenge {
     )
     private List<String> goals; // List of goals that participants should achieve during the challenge.
 
-    @Column(name="reward")
-    private String reward; // Reward given upon completing the challenge.
+    @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Redeemable> redeemables;
 
     @ManyToOne
     @JoinColumn(name = "module_name", nullable = false)

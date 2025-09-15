@@ -11,6 +11,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RedeemableDto {
     private Long awardId;
-    private Integer requiredQR;
     private Integer limitDays;
 }

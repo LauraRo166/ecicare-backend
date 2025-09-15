@@ -1,6 +1,5 @@
 package edu.escuelaing.ecicare.retos.services;
 
-import edu.escuelaing.ecicare.retos.repositories.ModuleRepository;
 import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
 import edu.escuelaing.ecicare.retos.models.Challenge;
 import edu.escuelaing.ecicare.retos.repositories.ChallengeRepository;
@@ -31,7 +30,6 @@ public class ChallengeService {
 
     private final ChallengeRepository challengeRepository;
     private final UserEcicareRepository userEcicareRepository;
-    private final ModuleRepository moduleRepository;
 
     /**
      * Creates and saves a new challenge in the repository.
@@ -85,9 +83,6 @@ public class ChallengeService {
         if (oldChallenge != null) {
             if (!Objects.equals(challenge.getPhrase(), "")) {
                 oldChallenge.setPhrase(challenge.getPhrase());
-            }
-            if (!Objects.equals(challenge.getReward(), "")){
-                oldChallenge.setReward(challenge.getReward());
             }
             if (challenge.getModule() != null) {
                 oldChallenge.setModule(challenge.getModule());

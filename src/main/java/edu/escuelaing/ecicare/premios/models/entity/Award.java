@@ -1,8 +1,11 @@
 package edu.escuelaing.ecicare.premios.models.entity;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -37,14 +40,16 @@ public class Award {
     @Column(name = "update_date")
     private LocalDateTime updateDate;
 
-    @Column(name = "created_by")
-    private Long createdBy;
+    @ManyToOne
+    @JoinColumn(name = "created_by")
+    private UserEcicare createdBy;
 
-    @Column(name = "updated_by")
-    private Long updatedBy;
+    @ManyToOne
+    @JoinColumn(name = "updated_by")
+    private UserEcicare updatedBy;
 
-    @JsonBackReference
-    @OneToMany(mappedBy = "award")
-    private List<Redeemable> redeemables;
+    @JsonManagedReference
+    @OneToMany(mappedBy = "award", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Redeemable> redeemables;
 
 }

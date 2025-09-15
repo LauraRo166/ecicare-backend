@@ -47,7 +47,6 @@ public class RedeemableService {
                 .id(redeemableId)
                 .award(award)
                 .challenge(challenge)
-                .requiredQR(redeemableDto.getRequiredQR())
                 .limitDays(redeemableDto.getLimitDays())
                 .build();
         return redeemableRepository.save(redeemableEntity);
@@ -56,7 +55,6 @@ public class RedeemableService {
     public Redeemable updateRedeemable(String challengeName, Long awardId, RedeemableDto redeemableDto) {
         Redeemable existingRedeemable = this.getRedeemableById(challengeName, awardId);
 
-        existingRedeemable.setRequiredQR(redeemableDto.getRequiredQR());
         existingRedeemable.setLimitDays(redeemableDto.getLimitDays());
 
         return redeemableRepository.save(existingRedeemable);
