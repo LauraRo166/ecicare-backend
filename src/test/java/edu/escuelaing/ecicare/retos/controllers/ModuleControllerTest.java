@@ -1,6 +1,9 @@
 package edu.escuelaing.ecicare.retos.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.escuelaing.ecicare.premios.models.entity.Award;
+import edu.escuelaing.ecicare.premios.models.entity.Redeemable;
+import edu.escuelaing.ecicare.premios.models.entity.RedeemableId;
 import edu.escuelaing.ecicare.retos.models.Challenge;
 import edu.escuelaing.ecicare.retos.models.Module;
 import edu.escuelaing.ecicare.retos.services.ModuleService;
@@ -16,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -90,6 +94,22 @@ class ModuleControllerTest {
                 .description("Desc1")
                 .build();
 
+        Award award = Award.builder()
+                .name("Gold Medal")
+                .description("Special award")
+                .build();
+
+        // Crear un RedeemableId
+        RedeemableId redeemableId = new RedeemableId("Challenge1", award.getAwardId());
+
+        Redeemable redeemable = Redeemable.builder()
+                .id(redeemableId)
+                .award(award)
+                .limitDays(30)
+                .build();
+
+        Set<Redeemable> redeemables = Set.of(redeemable);
+
         List<Challenge> challenges = Arrays.asList(
                 Challenge.builder()
                         .name("Challenge1")
@@ -97,7 +117,7 @@ class ModuleControllerTest {
                         .phrase("Keep going!")
                         .duration(LocalDateTime.now().plusDays(5))
                         .goals(List.of("Goal1", "Goal2"))
-                        .reward("Medal")
+                        .redeemables(redeemables)
                         .module(module)
                         .build(),
                 Challenge.builder()
@@ -106,7 +126,7 @@ class ModuleControllerTest {
                         .phrase("Never give up!")
                         .duration(LocalDateTime.now().plusDays(10))
                         .goals(List.of("GoalA"))
-                        .reward("Certificate")
+                        .redeemables(redeemables)
                         .module(module)
                         .build()
         );

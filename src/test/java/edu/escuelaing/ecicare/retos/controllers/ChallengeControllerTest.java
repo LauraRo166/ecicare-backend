@@ -1,6 +1,9 @@
 package edu.escuelaing.ecicare.retos.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.escuelaing.ecicare.premios.models.entity.Award;
+import edu.escuelaing.ecicare.premios.models.entity.Redeemable;
+import edu.escuelaing.ecicare.premios.models.entity.RedeemableId;
 import edu.escuelaing.ecicare.retos.models.Challenge;
 import edu.escuelaing.ecicare.retos.services.ChallengeService;
 import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
@@ -16,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -35,6 +39,25 @@ public class ChallengeControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    private Set<Redeemable> createTestRedeemable(String name){
+        Award award = Award.builder()
+                .name("Gold Medal")
+                .description("Special award")
+                .build();
+
+        // Crear un RedeemableId
+        RedeemableId redeemableId = new RedeemableId(name, award.getAwardId());
+
+        Redeemable redeemable = Redeemable.builder()
+                .id(redeemableId)
+                .award(award)
+                .limitDays(30)
+                .build();
+
+        Set<Redeemable> redeemables = Set.of(redeemable);
+        return redeemables;
+    }
+
     @Test
     @DisplayName("Should create a challenge successfully")
     void shouldCreateChallenge() throws Exception {
@@ -42,7 +65,7 @@ public class ChallengeControllerTest {
                 .name("Challenge1")
                 .description("Description1")
                 .duration(LocalDateTime.now().plusDays(5))
-                .reward("Medal")
+                .redeemables(createTestRedeemable("Challenge1"))
                 .build();
 
         doNothing().when(challengeService).createChallenge(any(Challenge.class));
@@ -69,7 +92,7 @@ public class ChallengeControllerTest {
 
         when(challengeService.getAllChallenges()).thenReturn(challenges);
 
-        mockMvc.perform(get("/challenges/all"))
+        mockMvc.perform(get("/challenges/"))
                 .andExpect(status().isOk())
                 .andExpect(result -> {
                     Challenge[] response = objectMapper.readValue(
@@ -87,7 +110,7 @@ public class ChallengeControllerTest {
 
         when(challengeService.getChallengeByName("Challenge1")).thenReturn(challenge);
 
-        mockMvc.perform(get("/challenges/find/name/Challenge1"))
+        mockMvc.perform(get("/challenges/Challenge1"))
                 .andExpect(status().isOk())
                 .andExpect(result -> {
                     Challenge response = objectMapper.readValue(
@@ -106,7 +129,7 @@ public class ChallengeControllerTest {
 
         when(challengeService.getChallengeByDuration(duration)).thenReturn(challenges);
 
-        mockMvc.perform(get("/challenges/find/duration/" + duration))
+        mockMvc.perform(get("/challenges/duration/" + duration))
                 .andExpect(status().isOk())
                 .andExpect(result -> {
                     Challenge[] response = objectMapper.readValue(
@@ -128,7 +151,7 @@ public class ChallengeControllerTest {
 
         when(challengeService.getChallengesByUserEmail(user.getEmail())).thenReturn(challenges);
 
-        mockMvc.perform(get("/challenges/find/user/challenge")
+        mockMvc.perform(get("/challenges/user/"+ user.getEmail())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(user)))
                 .andExpect(status().isOk())
@@ -150,7 +173,7 @@ public class ChallengeControllerTest {
 
         when(challengeService.updateChallenge("Challenge1", updated)).thenReturn(updated);
 
-        mockMvc.perform(put("/challenges/update/Challenge1")
+        mockMvc.perform(put("/challenges/Challenge1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updated)))
                 .andExpect(status().isOk())
@@ -166,7 +189,7 @@ public class ChallengeControllerTest {
     void shouldDeleteChallenge() throws Exception {
         doNothing().when(challengeService).deleteChallenge("Challenge1");
 
-        mockMvc.perform(delete("/challenges/delete/Challenge1"))
+        mockMvc.perform(delete("/challenges/Challenge1"))
                 .andExpect(status().isOk());
     }
 
@@ -184,7 +207,7 @@ public class ChallengeControllerTest {
         when(challengeService.addUserByEmail(userEmail, challengeName)).thenReturn(mockChallenge);
 
         // Perform request
-        mockMvc.perform(put("/challenges/update/user/{userEmail}/challenge/{name}", userEmail, challengeName))
+        mockMvc.perform(put("/challenges/users/{userEmail}/challenges/{challengeName}", userEmail, challengeName))
                 .andExpect(status().isOk());
     }
 }

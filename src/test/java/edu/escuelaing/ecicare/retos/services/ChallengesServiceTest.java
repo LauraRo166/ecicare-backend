@@ -1,5 +1,8 @@
 package edu.escuelaing.ecicare.retos.services;
 
+import edu.escuelaing.ecicare.premios.models.entity.Award;
+import edu.escuelaing.ecicare.premios.models.entity.Redeemable;
+import edu.escuelaing.ecicare.premios.models.entity.RedeemableId;
 import edu.escuelaing.ecicare.retos.models.Challenge;
 import edu.escuelaing.ecicare.retos.models.Module;
 import edu.escuelaing.ecicare.retos.repositories.ChallengeRepository;
@@ -17,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -40,13 +44,32 @@ class ChallengeServiceTest {
                 .description("A test challenge description.")
                 .phrase("Go for it!")
                 .duration(LocalDateTime.now().plusDays(10))
-                .reward("100 XP")
+                .redeemables(createTestRedeemable(name))
                 .module(module)
                 .registered(new ArrayList<>())
                 .tips(List.of("Stay hydrated", "Warm-up first"))
                 .goals(List.of("Complete the main task", "Track your progress"))
                 .ratings(new ArrayList<>())
                 .build();
+    }
+
+    private Set<Redeemable> createTestRedeemable(String name){
+        Award award = Award.builder()
+                .name("Gold Medal")
+                .description("Special award")
+                .build();
+
+        // Crear un RedeemableId
+        RedeemableId redeemableId = new RedeemableId(name, award.getAwardId());
+
+        Redeemable redeemable = Redeemable.builder()
+                .id(redeemableId)
+                .award(award)
+                .limitDays(30)
+                .build();
+
+        Set<Redeemable> redeemables = Set.of(redeemable);
+        return redeemables;
     }
 
     @Test
@@ -131,11 +154,13 @@ class ChallengeServiceTest {
         String originalName = "Original Challenge";
         Challenge oldChallenge = createTestChallenge(originalName, new Module("Old Module"));
         oldChallenge.setPhrase("Old Phrase");
-        oldChallenge.setReward("Old Reward");
+        Set<Redeemable> redeemables = createTestRedeemable(originalName);
+        oldChallenge.setRedeemables(redeemables);
 
+        Set<Redeemable> redeemables2 = createTestRedeemable(originalName);
         Challenge updates = Challenge.builder()
                 .phrase("New Phrase")
-                .reward("New Reward")
+                .redeemables(redeemables2)
                 .module(new Module("New Module"))
                 .build();
 
@@ -148,7 +173,7 @@ class ChallengeServiceTest {
         verify(challengeRepository, times(1)).findByName(originalName);
         verify(challengeRepository, times(1)).save(oldChallenge);
         assertThat(oldChallenge.getPhrase()).isEqualTo("New Phrase");
-        assertThat(oldChallenge.getReward()).isEqualTo("New Reward");
+        assertThat(oldChallenge.getRedeemables()).isEqualTo(redeemables);
         assertThat(oldChallenge.getModule()).isEqualTo(new Module("New Module"));
     }
 
@@ -159,11 +184,12 @@ class ChallengeServiceTest {
         String originalName = "Original Challenge";
         Challenge oldChallenge = createTestChallenge(originalName, new Module("Old Module"));
         oldChallenge.setPhrase("Old Phrase");
-        oldChallenge.setReward("Old Reward");
+        Set<Redeemable> redeemables = createTestRedeemable(originalName);
+        oldChallenge.setRedeemables(redeemables);
 
         Challenge updates = Challenge.builder()
-                .phrase("") // This should be ignored
-                .reward("New Reward")
+                .phrase("new phrase")
+                .redeemables(null)// This should be ignored
                 .module(null) // This should be ignored
                 .build();
 
@@ -174,8 +200,8 @@ class ChallengeServiceTest {
 
         // Assert
         verify(challengeRepository, times(1)).save(oldChallenge);
-        assertThat(oldChallenge.getPhrase()).isEqualTo("Old Phrase"); // Unchanged
-        assertThat(oldChallenge.getReward()).isEqualTo("New Reward"); // Changed
+        assertThat(oldChallenge.getPhrase()).isEqualTo("new phrase"); // Changed
+        assertThat(oldChallenge.getRedeemables()).isEqualTo(redeemables); // Unchanged
         assertThat(oldChallenge.getModule()).isEqualTo(new Module("Old Module")); // Unchanged
     }
 
