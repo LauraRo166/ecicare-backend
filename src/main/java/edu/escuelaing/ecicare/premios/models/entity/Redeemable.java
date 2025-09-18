@@ -2,7 +2,7 @@ package edu.escuelaing.ecicare.premios.models.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
-import edu.escuelaing.ecicare.retos.models.Challenge;
+import edu.escuelaing.ecicare.retos.models.entity.Challenge;
 import jakarta.persistence.*;
 import lombok.*;
 

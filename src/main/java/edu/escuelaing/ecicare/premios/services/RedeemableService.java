@@ -9,7 +9,7 @@ import edu.escuelaing.ecicare.premios.models.entity.Award;
 import edu.escuelaing.ecicare.premios.models.entity.Redeemable;
 import edu.escuelaing.ecicare.premios.models.entity.RedeemableId;
 import edu.escuelaing.ecicare.premios.repositories.RedeemableRepository;
-import edu.escuelaing.ecicare.retos.models.Challenge;
+import edu.escuelaing.ecicare.retos.models.entity.Challenge;
 import lombok.RequiredArgsConstructor;
 
 @Service

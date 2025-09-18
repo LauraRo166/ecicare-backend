@@ -1,4 +1,4 @@
-package edu.escuelaing.ecicare.retos.models;
+package edu.escuelaing.ecicare.retos.models.entity;
 
 import edu.escuelaing.ecicare.premios.models.entity.Redeemable;
 import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
@@ -33,8 +33,10 @@ public class Challenge {
     @Id
     @Column(name="name", nullable = false, updatable = false)
     private String name;
-    @Column(name="description", nullable = false, updatable = false)
+    @Column(name="description", nullable = false)
     private String description; // Detailed description of the challenge.
+    @Column(name = "image_url")
+    private String imageUrl; //Url of image from challenge
     @Column(name="phrase")
     private String phrase; // Motivational phrase or slogan associated with the challenge.
 

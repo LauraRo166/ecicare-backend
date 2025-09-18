@@ -1,11 +1,13 @@
 package edu.escuelaing.ecicare.retos.services;
 
-import edu.escuelaing.ecicare.retos.models.Challenge;
+import edu.escuelaing.ecicare.retos.models.dto.ModuleDTO;
+import edu.escuelaing.ecicare.retos.models.entity.Challenge;
 import edu.escuelaing.ecicare.retos.repositories.ModuleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import edu.escuelaing.ecicare.retos.models.Module;
+import edu.escuelaing.ecicare.retos.models.entity.Module;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -26,10 +28,18 @@ public class ModuleService {
     /**
      * Persists a new module in the database.
      *
-     * @param module the {@link Module} to be created
+     * @param moduleDto the {@link Module} to be created
      */
-    public void createModule(Module module) {
+    public Module createModule(ModuleDTO moduleDto) {
+        Module module = Module.builder()
+                .name(moduleDto.getName())
+                .description(moduleDto.getDescription())
+                .imageUrl(moduleDto.getImageUrl())
+                .challenges(Collections.emptyList())
+                .build();
+
         moduleRepository.save(module);
+        return module;
     }
 
     /**
@@ -56,14 +66,18 @@ public class ModuleService {
     /**
      * Updates the description of an existing {@link Module}.
      *
-     * @param name the unique identifier of the module to update
-     * @param description the new description to set for the module
+     * @param moduleDto a DTO from Module, for update description and imageUrl
      * @return the updated {@link Module} entity after the change has been saved
      * @throws java.util.NoSuchElementException if no module with the given name exists
      */
-    public Module updateModuleDescription(String name, String description) {
-        Module module = moduleRepository.findById(name).get();
-        module.setDescription(description);
+    public Module updateModuleByName(ModuleDTO moduleDto) {
+        Module module = moduleRepository.findById(moduleDto.getName()).get();
+        if (moduleDto.getDescription() != null) {
+            module.setDescription(moduleDto.getDescription());
+        }
+        if (moduleDto.getImageUrl() != null) {
+            module.setImageUrl(moduleDto.getImageUrl());
+        }
         moduleRepository.save(module);
         return module;
     }

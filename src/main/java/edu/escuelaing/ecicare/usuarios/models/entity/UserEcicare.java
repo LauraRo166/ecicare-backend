@@ -7,7 +7,7 @@ import java.util.List;
 
 import edu.escuelaing.ecicare.utils.models.entity.enums.Role;
 import jakarta.persistence.*;
-import edu.escuelaing.ecicare.retos.models.Challenge;
+import edu.escuelaing.ecicare.retos.models.entity.Challenge;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 

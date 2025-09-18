@@ -4,7 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.escuelaing.ecicare.premios.models.entity.Award;
 import edu.escuelaing.ecicare.premios.models.entity.Redeemable;
 import edu.escuelaing.ecicare.premios.models.entity.RedeemableId;
-import edu.escuelaing.ecicare.retos.models.Challenge;
+import edu.escuelaing.ecicare.retos.models.dto.ChallengeDTO;
+import edu.escuelaing.ecicare.retos.models.entity.Challenge;
 import edu.escuelaing.ecicare.retos.services.ChallengeService;
 import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
 import org.junit.jupiter.api.DisplayName;
@@ -61,24 +62,31 @@ public class ChallengeControllerTest {
     @Test
     @DisplayName("Should create a challenge successfully")
     void shouldCreateChallenge() throws Exception {
-        Challenge challenge = Challenge.builder()
+        ChallengeDTO challengeDto = ChallengeDTO.builder()
                 .name("Challenge1")
                 .description("Description1")
+                .imageUrl("imageUrl1")
                 .duration(LocalDateTime.now().plusDays(5))
-                .redeemables(createTestRedeemable("Challenge1"))
                 .build();
 
-        doNothing().when(challengeService).createChallenge(any(Challenge.class));
+        when(challengeService.createChallenge(any(ChallengeDTO.class)))
+                .thenReturn(Challenge.builder()
+                        .name("Challenge1")
+                        .description("Description1")
+                        .imageUrl("imageUrl1")
+                        .duration(LocalDateTime.now().plusDays(5))
+                        .build());
 
         mockMvc.perform(post("/challenges/")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(challenge)))
+                        .content(objectMapper.writeValueAsString(challengeDto)))
                 .andExpect(status().isOk())
                 .andExpect(result -> {
                     Challenge response = objectMapper.readValue(
                             result.getResponse().getContentAsString(), Challenge.class);
-                    assert response.getName().equals(challenge.getName());
-                    assert response.getDescription().equals(challenge.getDescription());
+                    assert response.getName().equals(challengeDto.getName());
+                    assert response.getImageUrl().equals(challengeDto.getImageUrl());
+                    assert response.getDescription().equals(challengeDto.getDescription());
                 });
     }
 
@@ -166,12 +174,18 @@ public class ChallengeControllerTest {
     @Test
     @DisplayName("Should update challenge successfully")
     void shouldUpdateChallenge() throws Exception {
-        Challenge updated = Challenge.builder()
+        ChallengeDTO updated = ChallengeDTO.builder()
                 .name("Challenge1")
                 .description("Updated Desc")
+                .imageUrl("imageUrl1")
+                .build();
+        Challenge challenge = Challenge.builder()
+                .name("Challenge1")
+                .description("Updated Desc")
+                .imageUrl("imageUrl1")
                 .build();
 
-        when(challengeService.updateChallenge("Challenge1", updated)).thenReturn(updated);
+        when(challengeService.updateChallenge(updated)).thenReturn(challenge);
 
         mockMvc.perform(put("/challenges/Challenge1")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -181,6 +195,7 @@ public class ChallengeControllerTest {
                     Challenge response = objectMapper.readValue(
                             result.getResponse().getContentAsString(), Challenge.class);
                     assert response.getDescription().equals("Updated Desc");
+                    assert response.getImageUrl().equals("imageUrl1");
                 });
     }
 

@@ -1,7 +1,8 @@
 package edu.escuelaing.ecicare.retos.controllers;
 
+import edu.escuelaing.ecicare.retos.models.dto.ChallengeDTO;
 import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
-import edu.escuelaing.ecicare.retos.models.Challenge;
+import edu.escuelaing.ecicare.retos.models.entity.Challenge;
 import edu.escuelaing.ecicare.retos.services.ChallengeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -38,13 +39,12 @@ public class ChallengeController {
     /**
      * Creates a new challenge.
      *
-     * @param challenge the {@link Challenge} to be created
+     * @param challengeDto the {@link Challenge} to be created
      * @return the created challenge
      */
     @PostMapping("/")
-    public Challenge createChallenge(@RequestBody Challenge challenge) {
-        challengeService.createChallenge(challenge);
-        return challenge;
+    public Challenge createChallenge(@RequestBody ChallengeDTO challengeDto) {
+        return challengeService.createChallenge(challengeDto);
     }
 
     /**
@@ -100,13 +100,13 @@ public class ChallengeController {
     /**
      * Updates an existing challenge by its name.
      *
-     * @param name      the name of the challenge to update
-     * @param challenge the {@link Challenge} with updated values
+     * @param challengeDto the {@link Challenge} with updated values like:
+     * description, imageUrl, phrase, tips, goals, Module
      * @return the updated challenge
      */
     @PutMapping("/{name}")
-    public Challenge updateChallenge(@PathVariable String name, @RequestBody Challenge challenge) {
-        return challengeService.updateChallenge(name, challenge);
+    public Challenge updateChallenge(@RequestBody ChallengeDTO challengeDto) {
+        return challengeService.updateChallenge(challengeDto);
     }
 
     /**

@@ -1,6 +1,6 @@
 package edu.escuelaing.ecicare.retos.repositories;
 
-import edu.escuelaing.ecicare.retos.models.Module;
+import edu.escuelaing.ecicare.retos.models.entity.Module;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

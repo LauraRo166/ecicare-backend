@@ -1,4 +1,4 @@
-package edu.escuelaing.ecicare.retos.models;
+package edu.escuelaing.ecicare.retos.models.entity;
 
 
 import jakarta.persistence.*;
@@ -33,6 +33,9 @@ public class Module {
 
     @OneToMany(mappedBy = "module", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Challenge> challenges; //List of challenges associated with this module.
+
+    @Column(name = "image_url")
+    private String imageUrl; //Url of image from module
 
     /**
      * Convenience constructor that creates a module with only a name.

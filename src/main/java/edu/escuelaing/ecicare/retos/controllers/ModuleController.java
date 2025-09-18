@@ -1,8 +1,9 @@
 package edu.escuelaing.ecicare.retos.controllers;
 
-import edu.escuelaing.ecicare.retos.models.Challenge;
+import edu.escuelaing.ecicare.retos.models.dto.ModuleDTO;
+import edu.escuelaing.ecicare.retos.models.entity.Challenge;
 import edu.escuelaing.ecicare.retos.services.ModuleService;
-import edu.escuelaing.ecicare.retos.models.Module;
+import edu.escuelaing.ecicare.retos.models.entity.Module;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,9 +37,8 @@ public class ModuleController {
      * @return the created {@link Module}
      */
     @PostMapping("/")
-    public Module createModule(@RequestBody Module module) {
-        moduleService.createModule(module);
-        return module;
+    public Module createModule(@RequestBody ModuleDTO module) {
+        return moduleService.createModule(module);
     }
 
     /**
@@ -46,7 +46,7 @@ public class ModuleController {
      *
      * @return a list of {@link Module} entities
      */
-    @GetMapping("/all")
+    @GetMapping("/")
     public List<Module> getAllModules() {
         return moduleService.getAllModules();
     }
@@ -57,7 +57,7 @@ public class ModuleController {
      * @param name the unique name of the module
      * @return a list of {@link Challenge} entities belonging to the module
      */
-    @GetMapping("/{name}/challenge")
+    @GetMapping("/challenge/{name}")
     public List<Challenge> getModuleChallenges(@PathVariable String name) {
         return moduleService.getChallengesByModule(name);
     }
@@ -65,13 +65,12 @@ public class ModuleController {
     /**
      * Updates the description of an existing module.
      *
-     * @param name the unique name of the module to update
-     * @param description the new description for the module
+     * @param module the new description for the module
      * @return the updated {@link Module}
      */
-    @PutMapping("/update/{name}/description")
-    public Module updateModuleDescription(@PathVariable String name, @RequestBody String description) {
-        return moduleService.updateModuleDescription(name, description);
+    @PutMapping("/")
+    public Module updateModuleDescription(@RequestBody ModuleDTO module) {
+        return moduleService.updateModuleByName(module);
     }
 
     /**
@@ -81,7 +80,7 @@ public class ModuleController {
      * @return {@code true} if the module was successfully deleted,
      *         {@code false} if it still contains challenges
      */
-    @DeleteMapping("/delete/{name}")
+    @DeleteMapping("/{name}")
     public boolean deleteModule(@PathVariable String name) {
         return moduleService.deleteModule(name);
     }
