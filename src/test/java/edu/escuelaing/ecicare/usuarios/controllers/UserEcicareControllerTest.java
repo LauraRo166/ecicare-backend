@@ -1,4 +1,4 @@
-package edu.escuelaing.ecicare.controllers;
+package edu.escuelaing.ecicare.usuarios.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

@@ -25,6 +25,12 @@ public class AwardService {
     }
 
     public List<Award> getAwardPagination(int page, int size) {
+        if (page < 1) {
+            throw new IllegalArgumentException("Page number must be 1 or greater");
+        }
+        if (size < 1) {
+            throw new IllegalArgumentException("Page size must be 1 or greater");
+        }
         return awardRepository.findAll().stream()
                 .skip((long) (page - 1) * size)
                 .limit(size)
