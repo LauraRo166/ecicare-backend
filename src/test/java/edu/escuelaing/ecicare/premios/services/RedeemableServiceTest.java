@@ -6,6 +6,7 @@ import edu.escuelaing.ecicare.premios.models.entity.Redeemable;
 import edu.escuelaing.ecicare.premios.models.entity.RedeemableId;
 import edu.escuelaing.ecicare.premios.repositories.RedeemableRepository;
 import edu.escuelaing.ecicare.retos.models.entity.Challenge;
+import edu.escuelaing.ecicare.retos.services.ChallengeService;
 import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
 import edu.escuelaing.ecicare.utils.exceptions.notfound.RedeemableNotFoundException;
 import edu.escuelaing.ecicare.utils.models.entity.enums.Role;
@@ -35,6 +36,9 @@ class RedeemableServiceTest {
 
     @Mock
     private AwardService awardService;
+
+    @Mock
+    private ChallengeService challengeService;
 
     @InjectMocks
     private RedeemableService redeemableService;
@@ -92,6 +96,7 @@ class RedeemableServiceTest {
                 .build();
 
         testRedeemableDto = RedeemableDto.builder()
+                .challengeName("Test Challenge")
                 .awardId(1L)
                 .limitDays(45)
                 .build();
@@ -166,17 +171,18 @@ class RedeemableServiceTest {
     void shouldCreateRedeemablesToChallengeSuccessfully() {
         // Given
         List<RedeemableDto> redeemableDtos = Arrays.asList(
-                RedeemableDto.builder().awardId(1L).limitDays(30).build(),
-                RedeemableDto.builder().awardId(2L).limitDays(60).build()
+                RedeemableDto.builder().challengeName("Test Challenge").awardId(1L).limitDays(30).build(),
+                RedeemableDto.builder().challengeName("Test Challenge").awardId(2L).limitDays(60).build()
         );
 
+        when(challengeService.getChallengeByName("Test Challenge")).thenReturn(testChallenge);
         when(awardService.getAwardById(1L)).thenReturn(testAward);
         when(awardService.getAwardById(2L)).thenReturn(createAnotherAward());
         when(redeemableRepository.save(any(Redeemable.class))).thenReturn(testRedeemable);
         when(redeemableRepository.saveAll(anyList())).thenReturn(Arrays.asList(testRedeemable, createAnotherRedeemable()));
 
         // When
-        List<Redeemable> result = redeemableService.createRedeemablesToChallenge(redeemableDtos, testChallenge);
+        List<Redeemable> result = redeemableService.createRedeemablesToChallenge(redeemableDtos);
 
         // Then
         assertNotNull(result);
@@ -189,11 +195,12 @@ class RedeemableServiceTest {
     @DisplayName("Should create single redeemable to challenge successfully")
     void shouldCreateSingleRedeemableToChallenge() {
         // Given
+        when(challengeService.getChallengeByName("Test Challenge")).thenReturn(testChallenge);
         when(awardService.getAwardById(1L)).thenReturn(testAward);
         when(redeemableRepository.save(any(Redeemable.class))).thenReturn(testRedeemable);
 
         // When
-        Redeemable result = redeemableService.createRedeemableToChallenge(testRedeemableDto, testChallenge);
+        Redeemable result = redeemableService.createRedeemableToChallenge(testRedeemableDto);
 
         // Then
         assertNotNull(result);
@@ -211,6 +218,7 @@ class RedeemableServiceTest {
         when(redeemableRepository.save(any(Redeemable.class))).thenReturn(testRedeemable);
 
         RedeemableDto updateDto = RedeemableDto.builder()
+                .challengeName("Test Challenge")
                 .awardId(1L)
                 .limitDays(90)
                 .build();
@@ -275,7 +283,7 @@ class RedeemableServiceTest {
         when(redeemableRepository.saveAll(anyList())).thenReturn(Arrays.asList());
 
         // When
-        List<Redeemable> result = redeemableService.createRedeemablesToChallenge(emptyList, testChallenge);
+        List<Redeemable> result = redeemableService.createRedeemablesToChallenge(emptyList);
 
         // Then
         assertTrue(result.isEmpty());
@@ -287,11 +295,12 @@ class RedeemableServiceTest {
     @DisplayName("Should create redeemable with correct composite key")
     void shouldCreateRedeemableWithCorrectCompositeKey() {
         // Given
+        when(challengeService.getChallengeByName("Test Challenge")).thenReturn(testChallenge);
         when(awardService.getAwardById(1L)).thenReturn(testAward);
         when(redeemableRepository.save(any(Redeemable.class))).thenReturn(testRedeemable);
 
         // When
-        redeemableService.createRedeemableToChallenge(testRedeemableDto, testChallenge);
+        redeemableService.createRedeemableToChallenge(testRedeemableDto);
 
         // Then
         verify(redeemableRepository).save(argThat(redeemable -> {
@@ -320,6 +329,7 @@ class RedeemableServiceTest {
         when(redeemableRepository.save(any(Redeemable.class))).thenReturn(existingRedeemable);
 
         RedeemableDto updateDto = RedeemableDto.builder()
+                .challengeName("Test Challenge")
                 .awardId(1L)
                 .limitDays(100)
                 .build();
@@ -341,15 +351,17 @@ class RedeemableServiceTest {
     void shouldHandleNullLimitDaysInDto() {
         // Given
         RedeemableDto dtoWithNullLimit = RedeemableDto.builder()
+                .challengeName("Test Challenge")
                 .awardId(1L)
                 .limitDays(null)
                 .build();
 
+        when(challengeService.getChallengeByName("Test Challenge")).thenReturn(testChallenge);
         when(awardService.getAwardById(1L)).thenReturn(testAward);
         when(redeemableRepository.save(any(Redeemable.class))).thenReturn(testRedeemable);
 
         // When
-        redeemableService.createRedeemableToChallenge(dtoWithNullLimit, testChallenge);
+        redeemableService.createRedeemableToChallenge(dtoWithNullLimit);
 
         // Then
         verify(redeemableRepository).save(argThat(redeemable -> 
@@ -362,15 +374,17 @@ class RedeemableServiceTest {
     void shouldHandleZeroLimitDays() {
         // Given
         RedeemableDto dtoWithZeroLimit = RedeemableDto.builder()
+                .challengeName("Test Challenge")
                 .awardId(1L)
                 .limitDays(0)
                 .build();
 
+        when(challengeService.getChallengeByName("Test Challenge")).thenReturn(testChallenge);
         when(awardService.getAwardById(1L)).thenReturn(testAward);
         when(redeemableRepository.save(any(Redeemable.class))).thenReturn(testRedeemable);
 
         // When
-        redeemableService.createRedeemableToChallenge(dtoWithZeroLimit, testChallenge);
+        redeemableService.createRedeemableToChallenge(dtoWithZeroLimit);
 
         // Then
         verify(redeemableRepository).save(argThat(redeemable -> 
@@ -383,15 +397,17 @@ class RedeemableServiceTest {
     void shouldHandleVeryLargeLimitDays() {
         // Given
         RedeemableDto dtoWithLargeLimit = RedeemableDto.builder()
+                .challengeName("Test Challenge")
                 .awardId(1L)
                 .limitDays(Integer.MAX_VALUE)
                 .build();
 
+        when(challengeService.getChallengeByName("Test Challenge")).thenReturn(testChallenge);
         when(awardService.getAwardById(1L)).thenReturn(testAward);
         when(redeemableRepository.save(any(Redeemable.class))).thenReturn(testRedeemable);
 
         // When
-        redeemableService.createRedeemableToChallenge(dtoWithLargeLimit, testChallenge);
+        redeemableService.createRedeemableToChallenge(dtoWithLargeLimit);
 
         // Then
         verify(redeemableRepository).save(argThat(redeemable -> 
@@ -438,15 +454,17 @@ class RedeemableServiceTest {
                 .build();
 
         RedeemableDto dto = RedeemableDto.builder()
+                .challengeName("Challenge-With_Special.Chars@123")
                 .awardId(1L)
                 .limitDays(15)
                 .build();
 
+        when(challengeService.getChallengeByName("Challenge-With_Special.Chars@123")).thenReturn(specialChallenge);
         when(awardService.getAwardById(1L)).thenReturn(testAward);
         when(redeemableRepository.save(any(Redeemable.class))).thenReturn(testRedeemable);
 
         // When
-        redeemableService.createRedeemableToChallenge(dto, specialChallenge);
+        redeemableService.createRedeemableToChallenge(dto);
 
         // Then
         verify(redeemableRepository).save(argThat(redeemable -> 

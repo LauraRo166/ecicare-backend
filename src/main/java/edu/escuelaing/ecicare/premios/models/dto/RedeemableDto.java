@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RedeemableDto {
-    private Long awardId;
+    private String challengeName;
+    private Long awardId; 
     private Integer limitDays;
 }

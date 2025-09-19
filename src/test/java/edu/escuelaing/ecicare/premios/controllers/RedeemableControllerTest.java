@@ -103,6 +103,7 @@ class RedeemableControllerTest {
                 .build();
 
         testRedeemableDto = RedeemableDto.builder()
+                .challengeName("Test Challenge")
                 .awardId(1L)
                 .limitDays(45)
                 .build();

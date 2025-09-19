@@ -317,7 +317,7 @@ class RedeemableModelTest {
     @Test
     @DisplayName("Should create RedeemableDto with all-args constructor")
     void shouldCreateRedeemableDtoWithAllArgsConstructor() {
-        RedeemableDto fullDto = new RedeemableDto(600L, 150);
+        RedeemableDto fullDto = new RedeemableDto("New Challenge",600L, 150);
 
         assertNotNull(fullDto);
         assertEquals(600L, fullDto.getAwardId());

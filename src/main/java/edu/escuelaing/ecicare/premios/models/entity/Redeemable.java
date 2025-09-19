@@ -29,7 +29,7 @@ public class Redeemable {
     @JsonBackReference
     private Award award;
 
-    @Column(name = "limit_days")
+    @Column(name = "limit_days", nullable = false)
     private Integer limitDays;
 
 }
