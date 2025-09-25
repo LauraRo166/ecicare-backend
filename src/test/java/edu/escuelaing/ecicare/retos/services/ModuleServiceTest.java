@@ -1,7 +1,8 @@
 package edu.escuelaing.ecicare.retos.services;
 
-import edu.escuelaing.ecicare.retos.models.Challenge;
-import edu.escuelaing.ecicare.retos.models.Module;
+import edu.escuelaing.ecicare.retos.models.dto.ModuleDTO;
+import edu.escuelaing.ecicare.retos.models.entity.Challenge;
+import edu.escuelaing.ecicare.retos.models.entity.Module;
 import edu.escuelaing.ecicare.retos.repositories.ModuleRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,27 +27,37 @@ public class ModuleServiceTest {
     @InjectMocks
     private ModuleService moduleService;
 
-    private Module createTestModule(String name, String description, List<Challenge> challenges) {
+    private Module createTestModule(String name, String description, List<Challenge> challenges, String imageUrl) {
         return Module.builder()
                 .name(name)
                 .description(description)
                 .challenges(challenges)
+                .imageUrl(imageUrl)
+                .build();
+    }
+
+    private ModuleDTO createTestModuleDto(String name, String description, String imageUrl) {
+        return ModuleDTO.builder()
+                .name(name)
+                .description(description)
+                .imageUrl(imageUrl)
                 .build();
     }
 
     @Test
     @DisplayName("Should save module when creating a new one")
     void createModule_whenCalledWithModule_shouldSaveModule() {
-        Module module = createTestModule("Module1", "Description1", Collections.emptyList());
-        moduleService.createModule(module);
+        Module module = createTestModule("Module1", "Description1", Collections.emptyList(), "imageUrl");
+        ModuleDTO moduleDto = createTestModuleDto("Module1", "Description1", "imageUrl");
+        moduleService.createModule(moduleDto);
         verify(moduleRepository, times(1)).save(module);
     }
 
     @Test
     @DisplayName("Should return all modules when they exist")
     void getAllModules_whenModulesExist_shouldReturnModuleList() {
-        Module module1 = createTestModule("Module1", "Description1", Collections.emptyList());
-        Module module2 = createTestModule("Module2", "Description2", Collections.emptyList());
+        Module module1 = createTestModule("Module1", "Description1", Collections.emptyList(), "imageUrl");
+        Module module2 = createTestModule("Module2", "Description2", Collections.emptyList(), "imageUrl");
         when(moduleRepository.findAll()).thenReturn(List.of(module1, module2));
 
         List<Module> result = moduleService.getAllModules();
@@ -77,7 +88,7 @@ public class ModuleServiceTest {
                 .module(new Module("Module1"))
                 .build();
 
-        Module module = createTestModule("Module1", "Description1", List.of(challenge));
+        Module module = createTestModule("Module1", "Description1", List.of(challenge), "imageUrl");
         when(moduleRepository.findById("Module1")).thenReturn(Optional.of(module));
 
         List<Challenge> result = moduleService.getChallengesByModule("Module1");
@@ -87,10 +98,11 @@ public class ModuleServiceTest {
     @Test
     @DisplayName("Should update description of existing module")
     void updateModuleDescription_whenModuleExists_shouldUpdateAndSave() {
-        Module module = createTestModule("Module1", "Old Description", Collections.emptyList());
+        ModuleDTO moduleDto = createTestModuleDto("Module1", "New Description", "imageUrl");
+        Module module = createTestModule("Module1", "Old Description", Collections.emptyList(), "imageUrl");
         when(moduleRepository.findById("Module1")).thenReturn(Optional.of(module));
 
-        Module updated = moduleService.updateModuleDescription("Module1", "New Description");
+        Module updated = moduleService.updateModuleByName(moduleDto);
 
         verify(moduleRepository, times(1)).save(module);
         assertThat(updated.getDescription()).isEqualTo("New Description");
@@ -99,7 +111,7 @@ public class ModuleServiceTest {
     @Test
     @DisplayName("Should delete module when it has no challenges")
     void deleteModule_whenNoChallenges_shouldDeleteAndReturnTrue() {
-        Module module = createTestModule("Module1", "Description1", Collections.emptyList());
+        Module module = createTestModule("Module1", "Description1", Collections.emptyList(), "imageUrl");
         when(moduleRepository.findById("Module1")).thenReturn(Optional.of(module));
 
         boolean result = moduleService.deleteModule("Module1");
@@ -119,7 +131,7 @@ public class ModuleServiceTest {
                 .module(new Module("Module1"))
                 .build();
 
-        Module module = createTestModule("Module1", "Description1", List.of(challenge));
+        Module module = createTestModule("Module1", "Description1", List.of(challenge), "imageUrl");
         when(moduleRepository.findById("Module1")).thenReturn(Optional.of(module));
 
         boolean result = moduleService.deleteModule("Module1");

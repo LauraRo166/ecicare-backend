@@ -1,4 +1,4 @@
-package edu.escuelaing.ecicare.services;
+package edu.escuelaing.ecicare.usuarios.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

@@ -10,6 +10,7 @@ import lombok.*;
 @Embeddable
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class RedeemableId implements Serializable {
 
     @Column(name = "challenge_name")

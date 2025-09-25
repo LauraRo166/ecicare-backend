@@ -1,6 +1,8 @@
 package edu.escuelaing.ecicare.premios.models.entity;
 
-import edu.escuelaing.ecicare.retos.models.Challenge;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
+import edu.escuelaing.ecicare.retos.models.entity.Challenge;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,12 +26,10 @@ public class Redeemable {
     @ManyToOne
     @MapsId("awardId")
     @JoinColumn(name = "award_id")
+    @JsonBackReference
     private Award award;
 
-    @Column(name = "required_qr")
-    private Integer requiredQR;
-
-    @Column(name = "limit_days")
+    @Column(name = "limit_days", nullable = false)
     private Integer limitDays;
 
 }

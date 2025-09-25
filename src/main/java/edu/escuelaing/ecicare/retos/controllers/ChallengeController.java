@@ -1,7 +1,8 @@
 package edu.escuelaing.ecicare.retos.controllers;
 
+import edu.escuelaing.ecicare.retos.models.dto.ChallengeDTO;
 import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
-import edu.escuelaing.ecicare.retos.models.Challenge;
+import edu.escuelaing.ecicare.retos.models.entity.Challenge;
 import edu.escuelaing.ecicare.retos.services.ChallengeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -38,13 +39,12 @@ public class ChallengeController {
     /**
      * Creates a new challenge.
      *
-     * @param challenge the {@link Challenge} to be created
+     * @param challengeDto the {@link Challenge} to be created
      * @return the created challenge
      */
     @PostMapping("/")
-    public Challenge createChallenge(@RequestBody Challenge challenge) {
-        challengeService.createChallenge(challenge);
-        return challenge;
+    public Challenge createChallenge(@RequestBody ChallengeDTO challengeDto) {
+        return challengeService.createChallenge(challengeDto);
     }
 
     /**
@@ -52,7 +52,7 @@ public class ChallengeController {
      *
      * @return a list of all {@link Challenge} entities
      */
-    @GetMapping("/all")
+    @GetMapping("/")
     public List<Challenge> getAllChallenges() {
         return challengeService.getAllChallenges();
     }
@@ -64,7 +64,7 @@ public class ChallengeController {
      * @return the {@link Challenge} with the specified name,
      *         or {@code null} if not found
      */
-    @GetMapping("/find/name/{name}")
+    @GetMapping("/{name}")
     public Challenge getChallengeByName(@PathVariable String name) {
         return challengeService.getChallengeByName(name);
     }
@@ -76,7 +76,7 @@ public class ChallengeController {
      * @return a list of {@link Challenge} entities matching the given duration
      *         or {@code null} if not found
      */
-    @GetMapping("/find/duration/{duration}")
+    @GetMapping("/duration/{duration}")
     public List<Challenge> getChallengeByDuration(@PathVariable LocalDateTime duration) {
         return challengeService.getChallengeByDuration(duration);
     }
@@ -89,24 +89,24 @@ public class ChallengeController {
      * identified by their email address.
      * </p>
      *
-     * @param user all {@link UserEcicare} of user
+     * @param userEmail email of user
      * @return a list of challenges where the user is registered
      */
-    @GetMapping("/find/user/challenge")
-    public List<Challenge> getAllChallengeByUser(@RequestBody UserEcicare user) {
-        return challengeService.getChallengesByUser(user);
+    @GetMapping("/user/{userEmail}")
+    public List<Challenge> getAllChallengeByUser(@PathVariable String userEmail) {
+        return challengeService.getChallengesByUserEmail(userEmail);
     }
 
     /**
      * Updates an existing challenge by its name.
      *
-     * @param name      the name of the challenge to update
-     * @param challenge the {@link Challenge} with updated values
+     * @param challengeDto the {@link Challenge} with updated values like:
+     * description, imageUrl, phrase, tips, goals, Module
      * @return the updated challenge
      */
-    @PutMapping("/update/{name}")
-    public Challenge updateChallenge(@PathVariable String name, @RequestBody Challenge challenge) {
-        return challengeService.updateChallenge(name, challenge);
+    @PutMapping("/{name}")
+    public Challenge updateChallenge(@RequestBody ChallengeDTO challengeDto) {
+        return challengeService.updateChallenge(challengeDto);
     }
 
     /**
@@ -114,7 +114,7 @@ public class ChallengeController {
      *
      * @param name the name of the challenge to delete
      */
-    @DeleteMapping("/delete/{name}")
+    @DeleteMapping("/{name}")
     public void deleteChallengeByName(@PathVariable String name) {
         challengeService.deleteChallenge(name);
     }
@@ -125,9 +125,20 @@ public class ChallengeController {
      * @param userEmail the {@link UserEcicare} to be added
      * @param name the name of the challenge
      */
-    @PutMapping("/update/user/{userEmail}/challenge/{name}")
+    @PutMapping("/users/{userEmail}/challenges/{name}")
     public void addUseByEmail(@PathVariable String userEmail, @PathVariable String name) {
         challengeService.addUserByEmail(userEmail, name);
+    }
+
+    /**
+     * Confirm a user to the list of registered participants for a challenge.
+     *
+     * @param userEmail the {@link UserEcicare} to be added
+     * @param name the name of the challenge
+     */
+    @PutMapping("/users/{userEmail}/challenges/{name}/confirm")
+    public void confirmUserByEmail(@PathVariable String userEmail, @PathVariable String name) {
+        challengeService.confirmUserByEmail(userEmail, name);
     }
 
 }

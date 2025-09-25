@@ -1,8 +1,12 @@
 package edu.escuelaing.ecicare.retos.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.escuelaing.ecicare.retos.models.Challenge;
-import edu.escuelaing.ecicare.retos.models.Module;
+import edu.escuelaing.ecicare.premios.models.entity.Award;
+import edu.escuelaing.ecicare.premios.models.entity.Redeemable;
+import edu.escuelaing.ecicare.premios.models.entity.RedeemableId;
+import edu.escuelaing.ecicare.retos.models.dto.ModuleDTO;
+import edu.escuelaing.ecicare.retos.models.entity.Challenge;
+import edu.escuelaing.ecicare.retos.models.entity.Module;
 import edu.escuelaing.ecicare.retos.services.ModuleService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,9 +17,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -38,24 +43,31 @@ class ModuleControllerTest {
     @Test
     @DisplayName("Should save module when creating a new one")
     void shouldCreateModule() throws Exception {
-        Module module = Module.builder()
+        ModuleDTO moduleDto = ModuleDTO.builder()
                 .name("Module1")
                 .description("Description1")
-                .challenges(new ArrayList<>())
+                .imageUrl("ImageUrl1")
                 .build();
 
-        doNothing().when(moduleService).createModule(any(Module.class));
+        when(moduleService.createModule(any(ModuleDTO.class)))
+                .thenReturn(Module.builder()
+                        .name("Module1")
+                        .description("Description1")
+                        .imageUrl("ImageUrl1")
+                        .challenges(Collections.emptyList())
+                        .build());
+
 
         mockMvc.perform(post("/modules/")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(module)))
+                        .content(objectMapper.writeValueAsString(moduleDto)))
                 .andExpect(status().isOk())
                 .andExpect(result -> {
                     Module response = objectMapper.readValue(result.getResponse().getContentAsString(),
                             Module.class);
-                    assert response.getName().equals(module.getName());
-                    assert response.getDescription().equals(module.getDescription());
-                    assert response.getChallenges().equals(module.getChallenges());
+                    assert response.getName().equals(moduleDto.getName());
+                    assert response.getDescription().equals(moduleDto.getDescription());
+                    assert response.getImageUrl().equals(moduleDto.getImageUrl());
                 });
     }
 
@@ -69,7 +81,7 @@ class ModuleControllerTest {
 
         when(moduleService.getAllModules()).thenReturn(modules);
 
-        mockMvc.perform(get("/modules/all"))
+        mockMvc.perform(get("/modules/"))
                 .andExpect(status().isOk())
                 .andExpect(result -> {
                     Module[] response = objectMapper.readValue(result.getResponse().getContentAsString(),
@@ -90,6 +102,22 @@ class ModuleControllerTest {
                 .description("Desc1")
                 .build();
 
+        Award award = Award.builder()
+                .name("Gold Medal")
+                .description("Special award")
+                .build();
+
+        // Crear un RedeemableId
+        RedeemableId redeemableId = new RedeemableId("Challenge1", award.getAwardId());
+
+        Redeemable redeemable = Redeemable.builder()
+                .id(redeemableId)
+                .award(award)
+                .limitDays(30)
+                .build();
+
+        Set<Redeemable> redeemables = Set.of(redeemable);
+
         List<Challenge> challenges = Arrays.asList(
                 Challenge.builder()
                         .name("Challenge1")
@@ -97,7 +125,7 @@ class ModuleControllerTest {
                         .phrase("Keep going!")
                         .duration(LocalDateTime.now().plusDays(5))
                         .goals(List.of("Goal1", "Goal2"))
-                        .reward("Medal")
+                        .redeemables(redeemables)
                         .module(module)
                         .build(),
                 Challenge.builder()
@@ -106,14 +134,14 @@ class ModuleControllerTest {
                         .phrase("Never give up!")
                         .duration(LocalDateTime.now().plusDays(10))
                         .goals(List.of("GoalA"))
-                        .reward("Certificate")
+                        .redeemables(redeemables)
                         .module(module)
                         .build()
         );
 
         when(moduleService.getChallengesByModule("Module1")).thenReturn(challenges);
 
-        mockMvc.perform(get("/modules/Module1/challenge"))
+        mockMvc.perform(get("/modules/challenge/Module1"))
                 .andExpect(status().isOk())
                 .andExpect(result -> {
                     Challenge[] response = objectMapper.readValue(result.getResponse().getContentAsString(),
@@ -131,17 +159,24 @@ class ModuleControllerTest {
     @Test
     @DisplayName("Should update module description when module exists")
     void shouldUpdateModuleDescription() throws Exception {
+        ModuleDTO moduleDto = ModuleDTO.builder()
+                .name("Module1")
+                .description("New Description")
+                .imageUrl("ImageUrl1")
+                .build();
+
         Module module = Module.builder()
                 .name("Module1")
                 .description("New Description")
+                .imageUrl("ImageUrl1")
                 .build();
 
-        when(moduleService.updateModuleDescription("Module1", "New Description"))
+        when(moduleService.updateModuleByName(moduleDto))
                 .thenReturn(module);
-        
-        mockMvc.perform(put("/modules/update/Module1/description")
+
+        mockMvc.perform(put("/modules/")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"description\":\"New Description\"}"))
+                        .content(objectMapper.writeValueAsString(moduleDto)))
                 .andExpect(status().isOk());
     }
 
@@ -150,7 +185,7 @@ class ModuleControllerTest {
     void shouldDeleteModule() throws Exception {
         when(moduleService.deleteModule("Module1")).thenReturn(true);
 
-        mockMvc.perform(delete("/modules/delete/Module1"))
+        mockMvc.perform(delete("/modules/Module1"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("true"));
     }

@@ -1,7 +1,7 @@
 package edu.escuelaing.ecicare.retos.repositories;
 
 import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
-import edu.escuelaing.ecicare.retos.models.Challenge;
+import edu.escuelaing.ecicare.retos.models.entity.Challenge;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

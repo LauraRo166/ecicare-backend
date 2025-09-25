@@ -28,6 +28,12 @@ public class RedeemableController {
         return ResponseEntity.ok(redeemableService.getRedeemableById(challengeName, awardId));
     }
 
+    @PostMapping
+    public ResponseEntity<Redeemable> createRedeemable(@RequestBody RedeemableDto redeemableDto) {
+        Redeemable created = redeemableService.createRedeemableToChallenge(redeemableDto);
+        return ResponseEntity.ok(created);
+    }
+
     @PutMapping("/{challengeName}/{awardId}")
     public ResponseEntity<Redeemable> updateRedeemable(
             @PathVariable String challengeName,

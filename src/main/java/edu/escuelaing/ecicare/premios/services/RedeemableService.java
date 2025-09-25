@@ -9,7 +9,8 @@ import edu.escuelaing.ecicare.premios.models.entity.Award;
 import edu.escuelaing.ecicare.premios.models.entity.Redeemable;
 import edu.escuelaing.ecicare.premios.models.entity.RedeemableId;
 import edu.escuelaing.ecicare.premios.repositories.RedeemableRepository;
-import edu.escuelaing.ecicare.retos.models.Challenge;
+import edu.escuelaing.ecicare.retos.models.entity.Challenge;
+import edu.escuelaing.ecicare.retos.services.ChallengeService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -18,6 +19,7 @@ public class RedeemableService {
 
     private final RedeemableRepository redeemableRepository;
     private final AwardService awardService;
+    private final ChallengeService challengeService;
 
     public List<Redeemable> getAllRedeemables() {
         return redeemableRepository.findAll();
@@ -30,15 +32,16 @@ public class RedeemableService {
         return redeemable.get();
     }
 
-    public List<Redeemable> createRedeemablesToChallenge(List<RedeemableDto> redeemables, Challenge challenge) {
+    public List<Redeemable> createRedeemablesToChallenge(List<RedeemableDto> redeemables) {
         List<Redeemable> redeemablesEntity = redeemables.stream()
-                .map(redeemable -> this.createRedeemableToChallenge(redeemable, challenge))
+                .map(redeemable -> this.createRedeemableToChallenge(redeemable))
                 .toList();
         return redeemableRepository.saveAll(redeemablesEntity);
     }
 
-    public Redeemable createRedeemableToChallenge(RedeemableDto redeemableDto, Challenge challenge) {
+    public Redeemable createRedeemableToChallenge(RedeemableDto redeemableDto) {
         Award award = awardService.getAwardById(redeemableDto.getAwardId());
+        Challenge challenge = challengeService.getChallengeByName(redeemableDto.getChallengeName());
         RedeemableId redeemableId = RedeemableId.builder()
                 .challengeName(challenge.getName())
                 .awardId(award.getAwardId())
@@ -47,7 +50,6 @@ public class RedeemableService {
                 .id(redeemableId)
                 .award(award)
                 .challenge(challenge)
-                .requiredQR(redeemableDto.getRequiredQR())
                 .limitDays(redeemableDto.getLimitDays())
                 .build();
         return redeemableRepository.save(redeemableEntity);
@@ -56,7 +58,6 @@ public class RedeemableService {
     public Redeemable updateRedeemable(String challengeName, Long awardId, RedeemableDto redeemableDto) {
         Redeemable existingRedeemable = this.getRedeemableById(challengeName, awardId);
 
-        existingRedeemable.setRequiredQR(redeemableDto.getRequiredQR());
         existingRedeemable.setLimitDays(redeemableDto.getLimitDays());
 
         return redeemableRepository.save(existingRedeemable);

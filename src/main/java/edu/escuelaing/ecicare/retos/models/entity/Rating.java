@@ -1,4 +1,4 @@
-package edu.escuelaing.ecicare.retos.models;
+package edu.escuelaing.ecicare.retos.models.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

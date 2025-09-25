@@ -1,7 +1,11 @@
 package edu.escuelaing.ecicare.retos.services;
 
-import edu.escuelaing.ecicare.retos.models.Challenge;
-import edu.escuelaing.ecicare.retos.models.Module;
+import edu.escuelaing.ecicare.premios.models.entity.Award;
+import edu.escuelaing.ecicare.premios.models.entity.Redeemable;
+import edu.escuelaing.ecicare.premios.models.entity.RedeemableId;
+import edu.escuelaing.ecicare.retos.models.dto.ChallengeDTO;
+import edu.escuelaing.ecicare.retos.models.entity.Challenge;
+import edu.escuelaing.ecicare.retos.models.entity.Module;
 import edu.escuelaing.ecicare.retos.repositories.ChallengeRepository;
 import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
 import edu.escuelaing.ecicare.usuarios.repositories.UserEcicareRepository;
@@ -17,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -34,13 +39,26 @@ class ChallengeServiceTest {
     @InjectMocks
     private ChallengeService challengeService;
 
+    private ChallengeDTO createTestChallengeDto(String name, Module module) {
+        return ChallengeDTO.builder()
+                .name(name)
+                .description("A test challenge description.")
+                .imageUrl("imageUrl")
+                .phrase("Go for it!")
+                .duration(LocalDateTime.now().plusDays(10))
+                .module(module)
+                .tips(List.of("Stay hydrated", "Warm-up first"))
+                .goals(List.of("Complete the main task", "Track your progress"))
+                .build();
+    }
+
     private Challenge createTestChallenge(String name, Module module) {
         return Challenge.builder()
                 .name(name)
                 .description("A test challenge description.")
                 .phrase("Go for it!")
                 .duration(LocalDateTime.now().plusDays(10))
-                .reward("100 XP")
+                .redeemables(createTestRedeemable(name))
                 .module(module)
                 .registered(new ArrayList<>())
                 .tips(List.of("Stay hydrated", "Warm-up first"))
@@ -49,17 +67,43 @@ class ChallengeServiceTest {
                 .build();
     }
 
+    private Set<Redeemable> createTestRedeemable(String name){
+        Award award = Award.builder()
+                .name("Gold Medal")
+                .description("Special award")
+                .build();
+
+        // Crear un RedeemableId
+        RedeemableId redeemableId = new RedeemableId(name, award.getAwardId());
+
+        Redeemable redeemable = Redeemable.builder()
+                .id(redeemableId)
+                .award(award)
+                .limitDays(30)
+                .build();
+
+        Set<Redeemable> redeemables = Set.of(redeemable);
+        return redeemables;
+    }
+
     @Test
     @DisplayName("Should save challenge when creating a new one")
     void createChallenge_whenCalledWithChallenge_shouldSaveChallenge() {
         // Arrange
-        Challenge challenge = createTestChallenge("New Fitness Challenge", new Module("Fitness"));
+        ChallengeDTO challengeDto = createTestChallengeDto("New Fitness Challenge", new Module("Fitness"));
 
         // Act
-        challengeService.createChallenge(challenge);
+        challengeService.createChallenge(challengeDto);
 
         // Assert
-        verify(challengeRepository, times(1)).save(challenge);
+        verify(challengeRepository).save(argThat(savedChallenge ->
+                savedChallenge.getName().equals(challengeDto.getName()) &&
+                        savedChallenge.getDescription().equals(challengeDto.getDescription()) &&
+                        savedChallenge.getPhrase().equals(challengeDto.getPhrase()) &&
+                        savedChallenge.getTips().equals(challengeDto.getTips()) &&
+                        savedChallenge.getGoals().equals(challengeDto.getGoals()) &&
+                        savedChallenge.getModule().getName().equals("Fitness")
+        ));
     }
 
     @Test
@@ -131,25 +175,30 @@ class ChallengeServiceTest {
         String originalName = "Original Challenge";
         Challenge oldChallenge = createTestChallenge(originalName, new Module("Old Module"));
         oldChallenge.setPhrase("Old Phrase");
-        oldChallenge.setReward("Old Reward");
+        Set<Redeemable> redeemables = createTestRedeemable(originalName);
+        oldChallenge.setRedeemables(redeemables);
 
-        Challenge updates = Challenge.builder()
+        ChallengeDTO updates = ChallengeDTO.builder()
+                .name(originalName)
                 .phrase("New Phrase")
-                .reward("New Reward")
                 .module(new Module("New Module"))
+                .tips(new ArrayList<>(List.of("tip1", "tip2")))
+                .goals(new ArrayList<>(List.of("goal1", "goal2")))
                 .build();
 
         when(challengeRepository.findByName(originalName)).thenReturn(oldChallenge);
 
         // Act
-        challengeService.updateChallenge(originalName, updates);
+        challengeService.updateChallenge(updates);
 
         // Assert
         verify(challengeRepository, times(1)).findByName(originalName);
         verify(challengeRepository, times(1)).save(oldChallenge);
         assertThat(oldChallenge.getPhrase()).isEqualTo("New Phrase");
-        assertThat(oldChallenge.getReward()).isEqualTo("New Reward");
+        assertThat(oldChallenge.getRedeemables()).isEqualTo(redeemables);
         assertThat(oldChallenge.getModule()).isEqualTo(new Module("New Module"));
+        assertThat(oldChallenge.getTips()).isEqualTo(List.of("tip1", "tip2"));
+        assertThat(oldChallenge.getGoals()).isEqualTo(List.of("goal1", "goal2"));
     }
 
     @Test
@@ -159,23 +208,24 @@ class ChallengeServiceTest {
         String originalName = "Original Challenge";
         Challenge oldChallenge = createTestChallenge(originalName, new Module("Old Module"));
         oldChallenge.setPhrase("Old Phrase");
-        oldChallenge.setReward("Old Reward");
+        Set<Redeemable> redeemables = createTestRedeemable(originalName);
+        oldChallenge.setRedeemables(redeemables);
 
-        Challenge updates = Challenge.builder()
-                .phrase("") // This should be ignored
-                .reward("New Reward")
+        ChallengeDTO updates = ChallengeDTO.builder()
+                .name(originalName)
+                .phrase("new phrase")
                 .module(null) // This should be ignored
                 .build();
 
         when(challengeRepository.findByName(originalName)).thenReturn(oldChallenge);
 
         // Act
-        challengeService.updateChallenge(originalName, updates);
+        challengeService.updateChallenge(updates);
 
         // Assert
         verify(challengeRepository, times(1)).save(oldChallenge);
-        assertThat(oldChallenge.getPhrase()).isEqualTo("Old Phrase"); // Unchanged
-        assertThat(oldChallenge.getReward()).isEqualTo("New Reward"); // Changed
+        assertThat(oldChallenge.getPhrase()).isEqualTo("new phrase"); // Changed
+        assertThat(oldChallenge.getRedeemables()).isEqualTo(redeemables); // Unchanged
         assertThat(oldChallenge.getModule()).isEqualTo(new Module("Old Module")); // Unchanged
     }
 
@@ -184,11 +234,11 @@ class ChallengeServiceTest {
     void updateChallenge_whenChallengeDoesNotExist_shouldNotCallSave() {
         // Arrange
         String nonExistentName = "Ghost Challenge";
-        Challenge updates = Challenge.builder().phrase("New phrase").build();
+        ChallengeDTO updates = ChallengeDTO.builder().name(nonExistentName).phrase("New phrase").build();
         when(challengeRepository.findByName(nonExistentName)).thenReturn(null);
 
         // Act
-        challengeService.updateChallenge(nonExistentName, updates);
+        challengeService.updateChallenge(updates);
 
         // Assert
         verify(challengeRepository, times(1)).findByName(nonExistentName);
@@ -260,18 +310,85 @@ class ChallengeServiceTest {
         user.setEmail("active@user.com");
 
         Challenge challenge1 = createTestChallenge("Challenge 1", new Module("Nutrition"));
+        challenge1.getRegistered().add(user);
         Challenge challenge2 = createTestChallenge("Challenge 2", new Module("Fitness"));
+        challenge2.getRegistered().add(user);
         List<Challenge> expectedChallenges = List.of(challenge1, challenge2);
 
         when(challengeRepository.findByRegistered(user)).thenReturn(expectedChallenges);
+        when(userEcicareRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
 
         // Act
-        List<Challenge> result = challengeService.getChallengesByUser(user);
+        List<Challenge> result = challengeService.getChallengesByUserEmail(user.getEmail());
 
         // Assert
         assertThat(result)
                 .isNotNull()
                 .hasSize(2)
                 .containsExactlyElementsOf(expectedChallenges);
+    }
+
+    @Test
+    @DisplayName("Should add user by email when not already registered")
+    void addUserByEmail_shouldRegisterUser() {
+        UserEcicare user = new UserEcicare();
+        user.setEmail("test@example.com");
+
+        Challenge challenge = Challenge.builder()
+                .name("Challenge1")
+                .registered(new ArrayList<>())
+                .module(new Module("Nutrition"))
+                .build();
+
+        when(challengeRepository.findByName("Challenge1")).thenReturn(challenge);
+        when(userEcicareRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+        when(challengeRepository.save(any(Challenge.class))).thenReturn(challenge);
+
+        Challenge result = challengeService.addUserByEmail("test@example.com", "Challenge1");
+
+        assertThat(result.getRegistered()).contains(user);
+        verify(challengeRepository).save(challenge);
+    }
+
+    @Test
+    @DisplayName("Should confirm user by email when already registered")
+    void confirmUserByEmail_shouldMoveUserToConfirmed() {
+        UserEcicare user = new UserEcicare();
+        user.setEmail("test@example.com");
+
+        Challenge challenge = Challenge.builder()
+                .name("Challenge1")
+                .module(new Module("Nutrition"))
+                .registered(new ArrayList<>(List.of(user)))
+                .confirmed(new ArrayList<>())
+                .build();
+
+        when(challengeRepository.findByName("Challenge1")).thenReturn(challenge);
+        when(userEcicareRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+        when(challengeRepository.save(any(Challenge.class))).thenReturn(challenge);
+
+        Challenge result = challengeService.confirmUserByEmail("test@example.com", "Challenge1");
+
+        assertThat(result.getRegistered()).doesNotContain(user);
+        assertThat(result.getConfirmed()).contains(user);
+        verify(challengeRepository).save(challenge);
+    }
+
+    @Test
+    @DisplayName("Should return challenges by duration")
+    void getChallengeByDuration_shouldReturnList() {
+        LocalDateTime duration = LocalDateTime.now().plusDays(7);
+        Challenge challenge = Challenge.builder()
+                .name("Challenge1")
+                .duration(duration)
+                .module(new Module("Nutrition"))
+                .build();
+
+        when(challengeRepository.findByDuration(duration)).thenReturn(List.of(challenge));
+
+        List<Challenge> result = challengeService.getChallengeByDuration(duration);
+
+        assertThat(result).hasSize(1).contains(challenge);
+        verify(challengeRepository).findByDuration(duration);
     }
 }

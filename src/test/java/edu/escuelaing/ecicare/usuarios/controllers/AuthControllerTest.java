@@ -1,4 +1,4 @@
-package edu.escuelaing.ecicare.controllers;
+package edu.escuelaing.ecicare.usuarios.controllers;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;

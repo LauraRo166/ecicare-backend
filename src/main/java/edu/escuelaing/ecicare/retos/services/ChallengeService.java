@@ -1,8 +1,8 @@
 package edu.escuelaing.ecicare.retos.services;
 
-import edu.escuelaing.ecicare.retos.repositories.ModuleRepository;
+import edu.escuelaing.ecicare.retos.models.dto.ChallengeDTO;
 import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
-import edu.escuelaing.ecicare.retos.models.Challenge;
+import edu.escuelaing.ecicare.retos.models.entity.Challenge;
 import edu.escuelaing.ecicare.retos.repositories.ChallengeRepository;
 import edu.escuelaing.ecicare.usuarios.repositories.UserEcicareRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,15 +31,25 @@ public class ChallengeService {
 
     private final ChallengeRepository challengeRepository;
     private final UserEcicareRepository userEcicareRepository;
-    private final ModuleRepository moduleRepository;
 
     /**
      * Creates and saves a new challenge in the repository.
      *
-     * @param challenge the {@link Challenge} to be created
+     * @param challengeDto the {@link Challenge} to be created
      */
-    public void createChallenge(Challenge challenge) {
+    public Challenge createChallenge(ChallengeDTO challengeDto) {
+        Challenge challenge = Challenge.builder()
+                .name(challengeDto.getName())
+                .description(challengeDto.getDescription())
+                .imageUrl(challengeDto.getImageUrl())
+                .phrase(challengeDto.getPhrase())
+                .tips(challengeDto.getTips())
+                .duration(challengeDto.getDuration())
+                .goals(challengeDto.getGoals())
+                .module(challengeDto.getModule())
+                .build();
         challengeRepository.save(challenge);
+        return challenge;
     }
 
     /**
@@ -77,20 +87,28 @@ public class ChallengeService {
      * Updates an existing challenge with new values for specific fields:
      * phrase, reward, and health module.
      *
-     * @param name      the name of the challenge to update
-     * @param challenge the {@link Challenge} containing updated values
+     * @param challengeDto the {@link Challenge} containing updated values
      */
-    public Challenge updateChallenge(String name, Challenge challenge) {
-        Challenge oldChallenge = getChallengeByName(name);
+    public Challenge updateChallenge(ChallengeDTO challengeDto) {
+        Challenge oldChallenge = getChallengeByName(challengeDto.getName());
         if (oldChallenge != null) {
-            if (!Objects.equals(challenge.getPhrase(), "")) {
-                oldChallenge.setPhrase(challenge.getPhrase());
+            if (!Objects.equals(challengeDto.getDescription(), "")) {
+                oldChallenge.setDescription(challengeDto.getDescription());
             }
-            if (!Objects.equals(challenge.getReward(), "")){
-                oldChallenge.setReward(challenge.getReward());
+            if (!Objects.equals(challengeDto.getImageUrl(), "")) {
+                oldChallenge.setImageUrl(challengeDto.getImageUrl());
             }
-            if (challenge.getModule() != null) {
-                oldChallenge.setModule(challenge.getModule());
+            if (!Objects.equals(challengeDto.getPhrase(), "")) {
+                oldChallenge.setPhrase(challengeDto.getPhrase());
+            }
+            if (!Objects.equals(challengeDto.getTips(), null)) {
+                oldChallenge.setTips(challengeDto.getTips());
+            }
+            if (!Objects.equals(challengeDto.getGoals(), null)) {
+                oldChallenge.setGoals(challengeDto.getGoals());
+            }
+            if (challengeDto.getModule() != null) {
+                oldChallenge.setModule(challengeDto.getModule());
             }
             challengeRepository.save(oldChallenge);
         }
@@ -127,12 +145,37 @@ public class ChallengeService {
     }
 
     /**
+     * Confirms a user to a specific challenge by adding them, removing from registered list.
+     * to the list of confirms participants.
+     *
+     * @param userEmail the {@link UserEcicare} to be added
+     * @param name the name of the challenge
+     */
+    public Challenge confirmUserByEmail(String userEmail, String name) {
+        Challenge challenge = getChallengeByName(name);
+        List<UserEcicare> registered = challenge.getRegistered();
+        List<UserEcicare> confirmed = challenge.getConfirmed();
+        UserEcicare user = userEcicareRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userEmail));
+        if (registered.contains(user)) {
+            registered.remove(user);
+            confirmed.add(user);
+            challenge.setRegistered(registered);
+            challenge.setConfirmed(confirmed);
+            challengeRepository.save(challenge);
+        }
+        return challenge;
+    }
+
+    /**
      * Retrieves all challenges in which a specific user is registered.
      *
-     * @param user the user whose challenges should be retrieved
+     * @param userEmail the user whose challenges should be retrieved
      * @return a list of {@link Challenge} entities containing the user
      */
-    public List<Challenge> getChallengesByUser(UserEcicare user) {
+    public List<Challenge> getChallengesByUserEmail(String userEmail) {
+        UserEcicare user = userEcicareRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userEmail));
         return challengeRepository.findByRegistered(user);
     }
 }
