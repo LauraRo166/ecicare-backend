@@ -1,23 +1,17 @@
-package edu.escuelaing.ecicare.retos.models.dto;
+package edu.escuelaing.ecicare.premios.models.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
-@Data
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class ModuleDTO {
+@NoArgsConstructor
+public class AwardResponse {
     private String name;
     private String description;
+    private Integer inStock;
     private String imageUrl;
-    private List<ChallengeResponse> challenges;
 }

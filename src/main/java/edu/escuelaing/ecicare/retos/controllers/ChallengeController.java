@@ -1,6 +1,7 @@
 package edu.escuelaing.ecicare.retos.controllers;
 
 import edu.escuelaing.ecicare.retos.models.dto.ChallengeDTO;
+import edu.escuelaing.ecicare.retos.models.dto.ChallengeResponse;
 import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
 import edu.escuelaing.ecicare.retos.models.entity.Challenge;
 import edu.escuelaing.ecicare.retos.services.ChallengeService;
@@ -42,8 +43,8 @@ public class ChallengeController {
      * @param challengeDto the {@link Challenge} to be created
      * @return the created challenge
      */
-    @PostMapping("/")
-    public Challenge createChallenge(@RequestBody ChallengeDTO challengeDto) {
+    @PostMapping("")
+    public ChallengeDTO createChallenge(@RequestBody ChallengeDTO challengeDto) {
         return challengeService.createChallenge(challengeDto);
     }
 
@@ -92,8 +93,8 @@ public class ChallengeController {
      * @param userEmail email of user
      * @return a list of challenges where the user is registered
      */
-    @GetMapping("/user/{userEmail}")
-    public List<Challenge> getAllChallengeByUser(@PathVariable String userEmail) {
+    @GetMapping("/users/{userEmail}")
+    public List<ChallengeResponse> getAllChallengeByUser(@PathVariable String userEmail) {
         return challengeService.getChallengesByUserEmail(userEmail);
     }
 
@@ -105,7 +106,7 @@ public class ChallengeController {
      * @return the updated challenge
      */
     @PutMapping("/{name}")
-    public Challenge updateChallenge(@RequestBody ChallengeDTO challengeDto) {
+    public ChallengeDTO updateChallenge(@RequestBody ChallengeDTO challengeDto) {
         return challengeService.updateChallenge(challengeDto);
     }
 
