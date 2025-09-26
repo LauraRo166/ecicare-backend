@@ -1,6 +1,7 @@
 package edu.escuelaing.ecicare.retos.models.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -32,6 +33,7 @@ public class Module {
     private String description; //Optional description providing additional information
 
     @OneToMany(mappedBy = "module", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Challenge> challenges; //List of challenges associated with this module.
 
     @Column(name = "image_url")

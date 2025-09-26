@@ -1,5 +1,6 @@
 package edu.escuelaing.ecicare.retos.services;
 
+import edu.escuelaing.ecicare.retos.models.dto.ChallengeResponse;
 import edu.escuelaing.ecicare.retos.models.dto.ModuleDTO;
 import edu.escuelaing.ecicare.retos.models.entity.Challenge;
 import edu.escuelaing.ecicare.retos.repositories.ModuleRepository;
@@ -47,10 +48,21 @@ public class ModuleService {
      *
      * @return a list of {@link Module} entities
      */
-    public List<Module> getAllModules() {
-        return moduleRepository.findAll();
+    public List<ModuleDTO> getAllModules() {
+        return moduleRepository
+                .findAll()
+                .stream()
+                .map(ModuleService::moduleToDTO)
+                .toList();
     }
 
+    public static ModuleDTO moduleToDTO(Module module){
+        List<ChallengeResponse> challenges = module.getChallenges()
+                .stream()
+                .map(ChallengeService::challengeToResponseDTO)
+                .toList();
+        return new ModuleDTO(module.getName(), module.getDescription(), module.getImageUrl(), challenges);
+    }
     /**
      * Retrieves all challenges associated with a given module.
      *
@@ -70,8 +82,9 @@ public class ModuleService {
      * @return the updated {@link Module} entity after the change has been saved
      * @throws java.util.NoSuchElementException if no module with the given name exists
      */
-    public Module updateModuleByName(ModuleDTO moduleDto) {
-        Module module = moduleRepository.findById(moduleDto.getName()).get();
+    public ModuleDTO updateModuleByName(ModuleDTO moduleDto) {
+        Module module = moduleRepository.findById(moduleDto.getName())
+                .orElseThrow(() -> new IllegalArgumentException("Module not exists"));
         if (moduleDto.getDescription() != null) {
             module.setDescription(moduleDto.getDescription());
         }
@@ -79,7 +92,7 @@ public class ModuleService {
             module.setImageUrl(moduleDto.getImageUrl());
         }
         moduleRepository.save(module);
-        return module;
+        return new ModuleDTO(module.getName(), module.getDescription(), module.getImageUrl(), null);
     }
 
     /**

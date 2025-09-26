@@ -1,5 +1,6 @@
 package edu.escuelaing.ecicare.retos.models.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import edu.escuelaing.ecicare.premios.models.entity.Redeemable;
 import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
 import jakarta.persistence.*;
@@ -75,6 +76,7 @@ public class Challenge {
 
     @ManyToOne
     @JoinColumn(name = "module_name", nullable = false)
+    @JsonBackReference
     private Module module; // module to which the challenge belongs
 
     //challenge rating
