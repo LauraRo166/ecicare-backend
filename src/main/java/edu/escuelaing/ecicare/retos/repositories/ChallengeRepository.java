@@ -51,4 +51,15 @@ public interface ChallengeRepository extends JpaRepository<Challenge, String> {
      * @return a list of challenges where the given user is registered
      */
     List<Challenge> findByRegistered(UserEcicare user);
+
+    /**
+     * Finds ALL challenges by name using case-insensitive partial matching without
+     * pagination.
+     * Perfect for search functionality where all matching results are needed
+     * and will be grouped by modules.
+     * 
+     * @param name the search term to match (case-insensitive, partial matching)
+     * @return a list of ALL challenges matching the search criteria, sorted by name
+     */
+    List<Challenge> findByNameContainingIgnoreCaseOrderByNameAsc(String name);
 }

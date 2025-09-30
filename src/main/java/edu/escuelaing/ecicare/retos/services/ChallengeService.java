@@ -1,6 +1,7 @@
 package edu.escuelaing.ecicare.retos.services;
 
 import edu.escuelaing.ecicare.retos.models.dto.ChallengeDTO;
+import edu.escuelaing.ecicare.retos.models.dto.ModuleWithChallengesDTO;
 import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
 import edu.escuelaing.ecicare.retos.models.entity.Challenge;
 import edu.escuelaing.ecicare.retos.repositories.ChallengeRepository;
@@ -14,7 +15,9 @@ import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Service class that provides business logic for managing {@link Challenge}
@@ -75,16 +78,51 @@ public class ChallengeService {
      * @return a {@link Page} of {@link Challenge} entities
      */
     public Page<Challenge> getAllChallengesPaginated(int page, int size) {
-        // Validate input parameters
         if (page < 0) {
             page = 0;
         }
         if (size <= 0) {
-            size = 10; // Default page size
+            size = 10;
         }
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
         return challengeRepository.findAll(pageable);
+    }
+
+    /**
+     * Searches challenges by name and groups them by their modules.
+     * 
+     * @param name the search term to match in challenge names (required)
+     * @return a {@link List} of {@link ModuleWithChallengesDTO} containing modules
+     *         with their matching challenges
+     * @throws IllegalArgumentException if name is null or empty
+     */
+    public List<ModuleWithChallengesDTO> searchChallengesGroupedByModule(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Search term cannot be null or empty");
+        }
+
+        List<Challenge> matchingChallenges = challengeRepository
+                .findByNameContainingIgnoreCaseOrderByNameAsc(name.trim());
+
+        Map<String, List<Challenge>> challengesByModule = matchingChallenges.stream()
+                .filter(challenge -> challenge.getModule() != null)
+                .collect(Collectors.groupingBy(challenge -> challenge.getModule().getName()));
+
+        return challengesByModule.entrySet().stream()
+                .map(entry -> {
+                    List<Challenge> challenges = entry.getValue();
+
+                    var module = challenges.get(0).getModule();
+
+                    return ModuleWithChallengesDTO.builder()
+                            .module(module)
+                            .challenges(challenges)
+                            .totalChallenges(challenges.size())
+                            .build();
+                })
+                .sorted((dto1, dto2) -> dto1.getModule().getName().compareToIgnoreCase(dto2.getModule().getName()))
+                .collect(Collectors.toList());
     }
 
     /**

@@ -1,6 +1,7 @@
 package edu.escuelaing.ecicare.retos.controllers;
 
 import edu.escuelaing.ecicare.retos.models.dto.ChallengeDTO;
+import edu.escuelaing.ecicare.retos.models.dto.ModuleWithChallengesDTO;
 import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
 import edu.escuelaing.ecicare.retos.models.entity.Challenge;
 import edu.escuelaing.ecicare.retos.services.ChallengeService;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -65,16 +67,37 @@ public class ChallengeController {
     public ResponseEntity<?> getAllChallenges(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
-
-        // If both page and size are provided, use pagination
         if (page != null && size != null) {
             Page<Challenge> challengePage = challengeService.getAllChallengesPaginated(page, size);
             return ResponseEntity.ok(challengePage);
         }
-
-        // Otherwise, return all challenges
         List<Challenge> allChallenges = challengeService.getAllChallenges();
         return ResponseEntity.ok(allChallenges);
+    }
+
+    /**
+     * Search challenges by name and group them by modules - Perfect for organized
+     * display.
+     * Returns challenges grouped by their respective modules, showing which module
+     * each challenge belongs to. This provides better UX organization.
+     * 
+     * @param q the search query (what the user is typing)
+     * @return ResponseEntity containing:
+     *         - Empty list if no search query
+     *         - List<ModuleWithChallengesDTO> with challenges grouped by modules
+     * 
+     */
+    @GetMapping("/search")
+    public ResponseEntity<List<ModuleWithChallengesDTO>> searchChallenges(
+            @RequestParam(required = false) String q) {
+
+        if (q == null || q.trim().isEmpty()) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+
+        List<ModuleWithChallengesDTO> groupedResults = challengeService.searchChallengesGroupedByModule(q);
+
+        return ResponseEntity.ok(groupedResults);
     }
 
     /**
