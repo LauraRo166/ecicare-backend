@@ -5,6 +5,8 @@ import edu.escuelaing.ecicare.retos.models.entity.Challenge;
 import edu.escuelaing.ecicare.retos.services.ModuleService;
 import edu.escuelaing.ecicare.retos.models.entity.Module;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,9 +14,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * REST controller that exposes endpoints for managing {@link Module} entities
@@ -26,7 +31,7 @@ import java.util.List;
 @RequestMapping("/modules")
 public class ModuleController {
 
-    //Service layer for handling module-related operations.
+    // Service layer for handling module-related operations.
     @Autowired
     private ModuleService moduleService;
 
@@ -42,13 +47,39 @@ public class ModuleController {
     }
 
     /**
-     * Retrieves all modules stored in the database.
+     * Retrieves the total number of modules in the database.
+     * This endpoint is useful for frontend to determine whether to use pagination
+     * or not.
      *
-     * @return a list of {@link Module} entities
+     * @return a map containing the total count of modules
+     */
+    @GetMapping("/total")
+    public ResponseEntity<Map<String, Integer>> getTotalModules() {
+        int total = moduleService.getTotalModules();
+        return ResponseEntity.ok(Collections.singletonMap("total", total));
+    }
+
+    /**
+     * Retrieves all modules with optional pagination.
+     * 
+     * If page and size parameters are provided, returns paginated results.
+     * If no pagination parameters are provided, returns all modules.
+     *
+     * @param page the page number (0-based, optional)
+     * @param size the page size (optional)
+     * @return ResponseEntity containing either a paginated Page of modules or a
+     *         List of all modules
      */
     @GetMapping("/")
-    public List<Module> getAllModules() {
-        return moduleService.getAllModules();
+    public ResponseEntity<?> getAllModules(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        if (page != null && size != null) {
+            Page<Module> modulePage = moduleService.getAllModulesPaginated(page, size);
+            return ResponseEntity.ok(modulePage);
+        }
+        List<Module> allModules = moduleService.getAllModules();
+        return ResponseEntity.ok(allModules);
     }
 
     /**
