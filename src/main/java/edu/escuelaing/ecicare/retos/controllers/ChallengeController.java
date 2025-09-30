@@ -12,7 +12,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -48,13 +51,30 @@ public class ChallengeController {
     }
 
     /**
-     * Retrieves all challenges.
+     * Retrieves all challenges with optional pagination.
+     * 
+     * If page and size parameters are provided, returns paginated results.
+     * If no pagination parameters are provided, returns all challenges.
      *
-     * @return a list of all {@link Challenge} entities
+     * @param page the page number (0-based, optional)
+     * @param size the page size (optional)
+     * @return ResponseEntity containing either a paginated Page of challenges or a
+     *         List of all challenges
      */
     @GetMapping("/")
-    public List<Challenge> getAllChallenges() {
-        return challengeService.getAllChallenges();
+    public ResponseEntity<?> getAllChallenges(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+
+        // If both page and size are provided, use pagination
+        if (page != null && size != null) {
+            Page<Challenge> challengePage = challengeService.getAllChallengesPaginated(page, size);
+            return ResponseEntity.ok(challengePage);
+        }
+
+        // Otherwise, return all challenges
+        List<Challenge> allChallenges = challengeService.getAllChallenges();
+        return ResponseEntity.ok(allChallenges);
     }
 
     /**
@@ -101,7 +121,7 @@ public class ChallengeController {
      * Updates an existing challenge by its name.
      *
      * @param challengeDto the {@link Challenge} with updated values like:
-     * description, imageUrl, phrase, tips, goals, Module
+     *                     description, imageUrl, phrase, tips, goals, Module
      * @return the updated challenge
      */
     @PutMapping("/{name}")
@@ -123,7 +143,7 @@ public class ChallengeController {
      * Adds a user to the list of registered participants for a challenge.
      *
      * @param userEmail the {@link UserEcicare} to be added
-     * @param name the name of the challenge
+     * @param name      the name of the challenge
      */
     @PutMapping("/users/{userEmail}/challenges/{name}")
     public void addUseByEmail(@PathVariable String userEmail, @PathVariable String name) {
@@ -134,7 +154,7 @@ public class ChallengeController {
      * Confirm a user to the list of registered participants for a challenge.
      *
      * @param userEmail the {@link UserEcicare} to be added
-     * @param name the name of the challenge
+     * @param name      the name of the challenge
      */
     @PutMapping("/users/{userEmail}/challenges/{name}/confirm")
     public void confirmUserByEmail(@PathVariable String userEmail, @PathVariable String name) {

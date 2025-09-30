@@ -7,13 +7,18 @@ import edu.escuelaing.ecicare.retos.repositories.ChallengeRepository;
 import edu.escuelaing.ecicare.usuarios.repositories.UserEcicareRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
 /**
- * Service class that provides business logic for managing {@link Challenge} entities.
+ * Service class that provides business logic for managing {@link Challenge}
+ * entities.
  *
  * This service interacts with the {@link ChallengeRepository} to handle
  * creation, retrieval, updating, and deletion of challenges, as well as
@@ -21,7 +26,8 @@ import java.util.Objects;
  *
  * It is annotated with {@link Service} to indicate that it belongs to
  * the service layer of the application. The {@link RequiredArgsConstructor}
- * Lombok annotation generates a constructor for injecting the repository dependency.
+ * Lombok annotation generates a constructor for injecting the repository
+ * dependency.
  *
  * @author Byte Programming
  */
@@ -59,6 +65,26 @@ public class ChallengeService {
      */
     public List<Challenge> getAllChallenges() {
         return challengeRepository.findAll();
+    }
+
+    /**
+     * Retrieves all challenges from the repository with pagination.
+     *
+     * @param page the page number (0-based)
+     * @param size the page size
+     * @return a {@link Page} of {@link Challenge} entities
+     */
+    public Page<Challenge> getAllChallengesPaginated(int page, int size) {
+        // Validate input parameters
+        if (page < 0) {
+            page = 0;
+        }
+        if (size <= 0) {
+            size = 10; // Default page size
+        }
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
+        return challengeRepository.findAll(pageable);
     }
 
     /**
@@ -129,7 +155,7 @@ public class ChallengeService {
      * to the list of registered participants.
      *
      * @param userEmail the {@link UserEcicare} to be added
-     * @param name the name of the challenge
+     * @param name      the name of the challenge
      */
     public Challenge addUserByEmail(String userEmail, String name) {
         Challenge challenge = getChallengeByName(name);
@@ -145,11 +171,12 @@ public class ChallengeService {
     }
 
     /**
-     * Confirms a user to a specific challenge by adding them, removing from registered list.
+     * Confirms a user to a specific challenge by adding them, removing from
+     * registered list.
      * to the list of confirms participants.
      *
      * @param userEmail the {@link UserEcicare} to be added
-     * @param name the name of the challenge
+     * @param name      the name of the challenge
      */
     public Challenge confirmUserByEmail(String userEmail, String name) {
         Challenge challenge = getChallengeByName(name);
