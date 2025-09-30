@@ -4,9 +4,7 @@ import edu.escuelaing.ecicare.premios.models.dto.AwardDto;
 import edu.escuelaing.ecicare.premios.models.entity.Award;
 import edu.escuelaing.ecicare.premios.repositories.AwardRepository;
 import edu.escuelaing.ecicare.services.MapperService;
-import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
 import edu.escuelaing.ecicare.utils.exceptions.notfound.AwardNotFoundException;
-import edu.escuelaing.ecicare.utils.models.entity.enums.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,7 +13,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +21,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,22 +38,9 @@ class AwardServiceTest {
 
     private Award testAward;
     private AwardDto testAwardDto;
-    private UserEcicare testUser;
-    private LocalDateTime testDateTime;
 
     @BeforeEach
     void setUp() {
-        testDateTime = LocalDateTime.now();
-        
-        testUser = UserEcicare.builder()
-                .idEci(1L)
-                .name("Test User")
-                .email("test@escuelaing.edu.co")
-                .password("password123")
-                .role(Role.ADMINISTRATION)
-                .registrationDate(testDateTime)
-                .hasMedicalApprove(true)
-                .build();
 
         testAward = Award.builder()
                 .awardId(1L)
@@ -65,10 +48,6 @@ class AwardServiceTest {
                 .description("Test Award Description")
                 .inStock(10)
                 .imageUrl("/images/test-award.png")
-                .creationDate(testDateTime)
-                .updateDate(testDateTime)
-                .createdBy(testUser)
-                .updatedBy(testUser)
                 .build();
 
         testAwardDto = AwardDto.builder()
@@ -76,7 +55,6 @@ class AwardServiceTest {
                 .description("Test Award DTO Description")
                 .inStock(15)
                 .imageUrl("/images/test-award-dto.png")
-                .updatedBy(testUser)
                 .build();
     }
 
@@ -207,9 +185,7 @@ class AwardServiceTest {
             return award.getName().equals("Test Award DTO") &&
                    award.getDescription().equals("Test Award DTO Description") &&
                    award.getInStock().equals(15) &&
-                   award.getImageUrl().equals("/images/test-award-dto.png") &&
-                   award.getCreatedBy().equals(testUser) &&
-                   award.getUpdatedBy().equals(testUser);
+                   award.getImageUrl().equals("/images/test-award-dto.png");
         }));
     }
 
@@ -221,7 +197,6 @@ class AwardServiceTest {
                 .name("Award Without Image")
                 .description("Description")
                 .inStock(5)
-                .updatedBy(testUser)
                 .build();
 
         when(awardRepository.save(any(Award.class))).thenReturn(testAward);
@@ -244,7 +219,6 @@ class AwardServiceTest {
                 .description("Description")
                 .inStock(5)
                 .imageUrl("")
-                .updatedBy(testUser)
                 .build();
 
         when(awardRepository.save(any(Award.class))).thenReturn(testAward);
@@ -267,7 +241,6 @@ class AwardServiceTest {
                 .description("Description")
                 .inStock(5)
                 .imageUrl("   ")
-                .updatedBy(testUser)
                 .build();
 
         when(awardRepository.save(any(Award.class))).thenReturn(testAward);
@@ -426,50 +399,6 @@ class AwardServiceTest {
         verify(awardRepository, never()).findAll();
     }
 
-    @Test
-    @DisplayName("Should create award with all timestamp fields set")
-    void shouldCreateAwardWithAllTimestampFieldsSet() {
-        // Given
-        when(awardRepository.save(any(Award.class))).thenReturn(testAward);
-
-        // When
-        awardService.createAward(testAwardDto);
-
-        // Then
-        verify(awardRepository).save(argThat(award -> {
-            return award.getCreationDate() != null &&
-                   award.getUpdateDate() != null &&
-                   award.getCreatedBy() != null &&
-                   award.getUpdatedBy() != null;
-        }));
-    }
-
-    @Test
-    @DisplayName("Should preserve creation data when updating award")
-    void shouldPreserveCreationDataWhenUpdatingAward() {
-        // Given
-        LocalDateTime originalCreationDate = testAward.getCreationDate();
-        UserEcicare originalCreator = testAward.getCreatedBy();
-        
-        Map<String, Object> dtoMap = new HashMap<>();
-        dtoMap.put("name", "Updated Name");
-
-        when(awardRepository.findById(1L)).thenReturn(Optional.of(testAward));
-        when(mapperService.covertDtoToMap(testAwardDto)).thenReturn(dtoMap);
-        when(awardRepository.save(any(Award.class))).thenReturn(testAward);
-
-        // When
-        awardService.updateAwardDetails(1L, testAwardDto);
-
-        // Then
-        verify(awardRepository).save(argThat(award -> {
-            return award.getCreationDate().equals(originalCreationDate) &&
-                   award.getCreatedBy().equals(originalCreator) &&
-                   award.getUpdateDate() != null &&
-                   award.getUpdatedBy().equals(testAwardDto.getUpdatedBy());
-        }));
-    }
-
     private Award createAnotherAward() {
         return Award.builder()
                 .awardId(2L)
@@ -477,10 +406,6 @@ class AwardServiceTest {
                 .description("Another Description")
                 .inStock(5)
                 .imageUrl("/images/another-award.png")
-                .creationDate(testDateTime)
-                .updateDate(testDateTime)
-                .createdBy(testUser)
-                .updatedBy(testUser)
                 .build();
     }
 
@@ -491,10 +416,6 @@ class AwardServiceTest {
                 .description("Third Description")
                 .inStock(3)
                 .imageUrl("/images/third-award.png")
-                .creationDate(testDateTime)
-                .updateDate(testDateTime)
-                .createdBy(testUser)
-                .updatedBy(testUser)
                 .build();
     }
 }

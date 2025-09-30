@@ -3,15 +3,12 @@ package edu.escuelaing.ecicare.premios.models;
 import edu.escuelaing.ecicare.premios.models.dto.AwardDto;
 import edu.escuelaing.ecicare.premios.models.entity.Award;
 import edu.escuelaing.ecicare.premios.models.entity.Redeemable;
-import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
-import edu.escuelaing.ecicare.utils.models.entity.enums.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,22 +19,9 @@ import static org.junit.jupiter.api.Assertions.*;
 class AwardModelTest {
 
     private Award award;
-    private UserEcicare testUser;
-    private LocalDateTime testDateTime;
 
     @BeforeEach
     void setUp() {
-        testDateTime = LocalDateTime.now();
-        
-        testUser = UserEcicare.builder()
-                .idEci(1L)
-                .name("Test User")
-                .email("test@escuelaing.edu.co")
-                .password("password123")
-                .role(Role.ADMINISTRATION)
-                .registrationDate(testDateTime)
-                .hasMedicalApprove(true)
-                .build();
 
         award = Award.builder()
                 .awardId(1L)
@@ -45,10 +29,6 @@ class AwardModelTest {
                 .description("Test Award Description")
                 .inStock(10)
                 .imageUrl("/images/test-award.png")
-                .creationDate(testDateTime)
-                .updateDate(testDateTime)
-                .createdBy(testUser)
-                .updatedBy(testUser)
                 .redeemables(new HashSet<>())
                 .build();
     }
@@ -62,10 +42,6 @@ class AwardModelTest {
         assertEquals("Test Award Description", award.getDescription());
         assertEquals(10, award.getInStock());
         assertEquals("/images/test-award.png", award.getImageUrl());
-        assertEquals(testDateTime, award.getCreationDate());
-        assertEquals(testDateTime, award.getUpdateDate());
-        assertEquals(testUser, award.getCreatedBy());
-        assertEquals(testUser, award.getUpdatedBy());
         assertNotNull(award.getRedeemables());
         assertTrue(award.getRedeemables().isEmpty());
     }
@@ -83,10 +59,6 @@ class AwardModelTest {
         assertNull(minimalAward.getDescription());
         assertNull(minimalAward.getInStock());
         assertNull(minimalAward.getImageUrl());
-        assertNull(minimalAward.getCreationDate());
-        assertNull(minimalAward.getUpdateDate());
-        assertNull(minimalAward.getCreatedBy());
-        assertNull(minimalAward.getUpdatedBy());
         assertNull(minimalAward.getRedeemables());
     }
 
@@ -137,33 +109,15 @@ class AwardModelTest {
     @Test
     @DisplayName("Should update award fields correctly")
     void shouldUpdateAwardFieldsCorrectly() {
-        LocalDateTime newDateTime = LocalDateTime.now().plusDays(1);
-        UserEcicare newUser = UserEcicare.builder()
-                .idEci(2L)
-                .name("New User")
-                .email("newuser@escuelaing.edu.co")
-                .password("newpassword")
-                .role(Role.STUDENT)
-                .registrationDate(newDateTime)
-                .hasMedicalApprove(false)
-                .build();
-
         award.setName("Updated Award");
         award.setDescription("Updated Description");
         award.setInStock(20);
         award.setImageUrl("/images/updated-award.png");
-        award.setUpdateDate(newDateTime);
-        award.setUpdatedBy(newUser);
 
         assertEquals("Updated Award", award.getName());
         assertEquals("Updated Description", award.getDescription());
         assertEquals(20, award.getInStock());
         assertEquals("/images/updated-award.png", award.getImageUrl());
-        assertEquals(newDateTime, award.getUpdateDate());
-        assertEquals(newUser, award.getUpdatedBy());
-        // Los campos de creación no deben cambiar
-        assertEquals(testDateTime, award.getCreationDate());
-        assertEquals(testUser, award.getCreatedBy());
     }
 
     @Test
@@ -243,11 +197,7 @@ class AwardModelTest {
                 "Constructor Award", 
                 "Constructor Description", 
                 5, 
-                "/images/constructor.png", 
-                testDateTime, 
-                testDateTime, 
-                testUser, 
-                testUser, 
+                "/images/constructor.png",
                 redeemables
         );
 
@@ -257,10 +207,6 @@ class AwardModelTest {
         assertEquals("Constructor Description", fullAward.getDescription());
         assertEquals(5, fullAward.getInStock());
         assertEquals("/images/constructor.png", fullAward.getImageUrl());
-        assertEquals(testDateTime, fullAward.getCreationDate());
-        assertEquals(testDateTime, fullAward.getUpdateDate());
-        assertEquals(testUser, fullAward.getCreatedBy());
-        assertEquals(testUser, fullAward.getUpdatedBy());
         assertEquals(redeemables, fullAward.getRedeemables());
     }
 
@@ -272,7 +218,6 @@ class AwardModelTest {
                 .description("DTO Description")
                 .inStock(15)
                 .imageUrl("/images/dto-award.png")
-                .updatedBy(testUser)
                 .build();
 
         assertNotNull(awardDto);
@@ -280,7 +225,6 @@ class AwardModelTest {
         assertEquals("DTO Description", awardDto.getDescription());
         assertEquals(15, awardDto.getInStock());
         assertEquals("/images/dto-award.png", awardDto.getImageUrl());
-        assertEquals(testUser, awardDto.getUpdatedBy());
     }
 
     @Test
@@ -336,7 +280,6 @@ class AwardModelTest {
         assertNull(emptyDto.getDescription());
         assertNull(emptyDto.getInStock());
         assertNull(emptyDto.getImageUrl());
-        assertNull(emptyDto.getUpdatedBy());
     }
 
     @Test
@@ -346,8 +289,7 @@ class AwardModelTest {
                 "Constructor DTO",
                 "Constructor Description",
                 25,
-                "/images/constructor-dto.png",
-                testUser
+                "/images/constructor-dto.png"
         );
 
         assertNotNull(fullDto);
@@ -355,6 +297,5 @@ class AwardModelTest {
         assertEquals("Constructor Description", fullDto.getDescription());
         assertEquals(25, fullDto.getInStock());
         assertEquals("/images/constructor-dto.png", fullDto.getImageUrl());
-        assertEquals(testUser, fullDto.getUpdatedBy());
     }
 }

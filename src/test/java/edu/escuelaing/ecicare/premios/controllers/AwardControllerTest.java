@@ -4,9 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.escuelaing.ecicare.premios.models.dto.AwardDto;
 import edu.escuelaing.ecicare.premios.models.entity.Award;
 import edu.escuelaing.ecicare.premios.services.AwardService;
-import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
 import edu.escuelaing.ecicare.utils.exceptions.notfound.AwardNotFoundException;
-import edu.escuelaing.ecicare.utils.models.entity.enums.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,7 +16,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -45,26 +42,12 @@ class AwardControllerTest {
 
     private Award testAward;
     private AwardDto testAwardDto;
-    private UserEcicare testUser;
-    private LocalDateTime testDateTime;
 
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(awardController).build();
         objectMapper = new ObjectMapper();
         objectMapper.findAndRegisterModules();
-        
-        testDateTime = LocalDateTime.now();
-        
-        testUser = UserEcicare.builder()
-                .idEci(1L)
-                .name("Test User")
-                .email("test@escuelaing.edu.co")
-                .password("password123")
-                .role(Role.ADMINISTRATION)
-                .registrationDate(testDateTime)
-                .hasMedicalApprove(true)
-                .build();
 
         testAward = Award.builder()
                 .awardId(1L)
@@ -72,10 +55,6 @@ class AwardControllerTest {
                 .description("Test Award Description")
                 .inStock(10)
                 .imageUrl("/images/test-award.png")
-                .creationDate(testDateTime)
-                .updateDate(testDateTime)
-                .createdBy(testUser)
-                .updatedBy(testUser)
                 .build();
 
         testAwardDto = AwardDto.builder()
@@ -83,7 +62,6 @@ class AwardControllerTest {
                 .description("Test Award DTO Description")
                 .inStock(15)
                 .imageUrl("/images/test-award-dto.png")
-                .updatedBy(testUser)
                 .build();
     }
 
@@ -215,10 +193,6 @@ class AwardControllerTest {
                 .description("Updated Description")
                 .inStock(20)
                 .imageUrl("/images/updated-award.png")
-                .creationDate(testDateTime)
-                .updateDate(LocalDateTime.now())
-                .createdBy(testUser)
-                .updatedBy(testUser)
                 .build();
 
         when(awardService.updateAwardDetails(eq(1L), any(AwardDto.class))).thenReturn(updatedAward);
@@ -396,10 +370,6 @@ class AwardControllerTest {
                 .description("Another Description")
                 .inStock(5)
                 .imageUrl("/images/another-award.png")
-                .creationDate(testDateTime)
-                .updateDate(testDateTime)
-                .createdBy(testUser)
-                .updatedBy(testUser)
                 .build();
     }
 }

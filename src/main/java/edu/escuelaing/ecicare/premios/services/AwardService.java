@@ -1,7 +1,6 @@
 package edu.escuelaing.ecicare.premios.services;
 
 import java.lang.reflect.Field;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -60,10 +59,6 @@ public class AwardService {
                 .description(awardDto.getDescription())
                 .inStock(awardDto.getInStock())
                 .imageUrl(imageUrl)
-                .creationDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now())
-                .createdBy(awardDto.getUpdatedBy())
-                .updatedBy(awardDto.getUpdatedBy())
                 .build();
         return awardRepository.save(award);
     }
@@ -78,8 +73,6 @@ public class AwardService {
                         ReflectionUtils.setField(field, existingAward, value);
                     }
                 });
-        existingAward.setUpdateDate(LocalDateTime.now());
-        existingAward.setUpdatedBy(awardDto.getUpdatedBy());
         return awardRepository.save(existingAward);
     }
 

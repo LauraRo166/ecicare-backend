@@ -7,9 +7,7 @@ import edu.escuelaing.ecicare.premios.models.entity.RedeemableId;
 import edu.escuelaing.ecicare.premios.repositories.RedeemableRepository;
 import edu.escuelaing.ecicare.retos.models.entity.Challenge;
 import edu.escuelaing.ecicare.retos.services.ChallengeService;
-import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
 import edu.escuelaing.ecicare.utils.exceptions.notfound.RedeemableNotFoundException;
-import edu.escuelaing.ecicare.utils.models.entity.enums.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,7 +16,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -47,22 +44,10 @@ class RedeemableServiceTest {
     private RedeemableDto testRedeemableDto;
     private Challenge testChallenge;
     private Award testAward;
-    private UserEcicare testUser;
     private RedeemableId testRedeemableId;
 
     @BeforeEach
     void setUp() {
-        LocalDateTime testDateTime = LocalDateTime.now();
-        
-        testUser = UserEcicare.builder()
-                .idEci(1L)
-                .name("Test User")
-                .email("test@escuelaing.edu.co")
-                .password("password123")
-                .role(Role.ADMINISTRATION)
-                .registrationDate(testDateTime)
-                .hasMedicalApprove(true)
-                .build();
 
         testChallenge = Challenge.builder()
                 .name("Test Challenge")
@@ -77,10 +62,6 @@ class RedeemableServiceTest {
                 .description("Test Award Description")
                 .inStock(10)
                 .imageUrl("/images/test-award.png")
-                .creationDate(testDateTime)
-                .updateDate(testDateTime)
-                .createdBy(testUser)
-                .updatedBy(testUser)
                 .build();
 
         testRedeemableId = RedeemableId.builder()
@@ -500,10 +481,6 @@ class RedeemableServiceTest {
                 .description("Another Description")
                 .inStock(5)
                 .imageUrl("/images/another-award.png")
-                .creationDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now())
-                .createdBy(testUser)
-                .updatedBy(testUser)
                 .build();
     }
 }

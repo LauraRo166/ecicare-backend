@@ -5,15 +5,12 @@ import edu.escuelaing.ecicare.premios.models.entity.Award;
 import edu.escuelaing.ecicare.premios.models.entity.Redeemable;
 import edu.escuelaing.ecicare.premios.models.entity.RedeemableId;
 import edu.escuelaing.ecicare.retos.models.entity.Challenge;
-import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
-import edu.escuelaing.ecicare.utils.models.entity.enums.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,21 +23,9 @@ class RedeemableModelTest {
     private RedeemableId redeemableId;
     private Challenge testChallenge;
     private Award testAward;
-    private UserEcicare testUser;
 
     @BeforeEach
     void setUp() {
-        LocalDateTime testDateTime = LocalDateTime.now();
-        
-        testUser = UserEcicare.builder()
-                .idEci(1L)
-                .name("Test User")
-                .email("test@escuelaing.edu.co")
-                .password("password123")
-                .role(Role.ADMINISTRATION)
-                .registrationDate(testDateTime)
-                .hasMedicalApprove(true)
-                .build();
 
         testChallenge = Challenge.builder()
                 .name("Test Challenge")
@@ -56,10 +41,6 @@ class RedeemableModelTest {
                 .description("Test Award Description")
                 .inStock(10)
                 .imageUrl("/images/test-award.png")
-                .creationDate(testDateTime)
-                .updateDate(testDateTime)
-                .createdBy(testUser)
-                .updatedBy(testUser)
                 .build();
 
         redeemableId = RedeemableId.builder()
