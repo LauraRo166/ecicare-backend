@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +31,32 @@ public class AwardController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(awardService.getAwardPagination(page, size));
+    }
+
+    /**
+     * Search awards by name - Perfect for real-time search functionality.
+     * Only performs search when user actually types something.
+     * When search is empty, returns empty result to maintain existing pagination.
+     * 
+     * @param q    the search query (what the user is typing)
+     * @param page the page number (optional, defaults to 0)
+     * @param size the page size (optional, defaults to 8 for UI grid)
+     * @return ResponseEntity containing search results only when there's actual
+     *         search text
+     */
+    @GetMapping("/search")
+    public ResponseEntity<?> searchAwards(
+            @RequestParam(required = false) String q,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "8") int size) {
+
+        if (q == null || q.trim().isEmpty()) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+
+        Page<Award> searchResults = awardService.searchAwardsByNamePaginated(q, page, size);
+
+        return ResponseEntity.ok(searchResults);
     }
 
     @GetMapping("/{id}")

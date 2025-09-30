@@ -4,6 +4,10 @@ import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ReflectionUtils;
 import edu.escuelaing.ecicare.utils.exceptions.notfound.AwardNotFoundException;
@@ -39,7 +43,8 @@ public class AwardService {
 
     public Award getAwardById(Long awardId) {
         Optional<Award> award = awardRepository.findById(awardId);
-        if (!award.isPresent()) throw new AwardNotFoundException(awardId);
+        if (!award.isPresent())
+            throw new AwardNotFoundException(awardId);
         return award.get();
     }
 
@@ -49,7 +54,7 @@ public class AwardService {
         if (imageUrl == null || imageUrl.trim().isEmpty()) {
             imageUrl = "/images/awards/default-award.png";
         }
-        
+
         Award award = Award.builder()
                 .name(awardDto.getName())
                 .description(awardDto.getDescription())
@@ -86,4 +91,29 @@ public class AwardService {
         awardRepository.save(award);
     }
 
+    /**
+     * Searches awards by name with pagination support.
+     * Optimized for real-time search with large datasets.
+     * 
+     * @param searchQuery the text to search for in award names
+     * @param page        the page number (0-based)
+     * @param size        the page size
+     * @return page of awards matching the search criteria
+     */
+    public Page<Award> searchAwardsByNamePaginated(String searchQuery, int page, int size) {
+        if (page < 0) {
+            page = 0;
+        }
+        if (size <= 0 || size > 100) {
+            size = 8;
+        }
+        if (searchQuery == null || searchQuery.trim().isEmpty()) {
+            return Page.empty(PageRequest.of(page, size));
+        }
+        if (searchQuery.trim().length() > 50) {
+            searchQuery = searchQuery.trim().substring(0, 50);
+        }
+        Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
+        return awardRepository.findByNameContainingIgnoreCase(searchQuery.trim(), pageable);
+    }
 }
