@@ -7,8 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @Data
 @Getter
 @Setter
@@ -19,5 +17,4 @@ public class ModuleDTO {
     private String name;
     private String description;
     private String imageUrl;
-    private List<ChallengeResponse> challenges;
 }

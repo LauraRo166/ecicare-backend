@@ -46,8 +46,8 @@ public class ModuleController {
      *
      * @return a list of {@link Module} entities
      */
-    @GetMapping("")
-    public List<ModuleDTO> getAllModules() {
+    @GetMapping("/")
+    public List<Module> getAllModules() {
         return moduleService.getAllModules();
     }
 
@@ -68,8 +68,8 @@ public class ModuleController {
      * @param module the new description for the module
      * @return the updated {@link Module}
      */
-    @PutMapping
-    public ModuleDTO updateModule(@RequestBody ModuleDTO module) {
+    @PutMapping("/")
+    public Module updateModuleDescription(@RequestBody ModuleDTO module) {
         return moduleService.updateModuleByName(module);
     }
 
