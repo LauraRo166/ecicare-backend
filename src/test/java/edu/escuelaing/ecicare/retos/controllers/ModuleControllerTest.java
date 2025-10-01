@@ -183,10 +183,9 @@ class ModuleControllerTest {
     @Test
     @DisplayName("Should call deleteModule when deleting a challenge")
     void shouldDeleteModule() throws Exception {
-        when(moduleService.deleteModule("Module1")).thenReturn(true);
+        doNothing().when(moduleService).deleteModule("Module1");
 
         mockMvc.perform(delete("/modules/Module1"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("true"));
+                .andExpect(status().isOk());
     }
 }

@@ -2,6 +2,8 @@ package edu.escuelaing.ecicare.retos.services;
 
 import edu.escuelaing.ecicare.retos.models.dto.ChallengeDTO;
 import edu.escuelaing.ecicare.retos.models.dto.ModuleWithChallengesDTO;
+import edu.escuelaing.ecicare.retos.models.entity.Module;
+import edu.escuelaing.ecicare.retos.repositories.ModuleRepository;
 import edu.escuelaing.ecicare.usuarios.models.entity.UserEcicare;
 import edu.escuelaing.ecicare.retos.models.entity.Challenge;
 import edu.escuelaing.ecicare.retos.repositories.ChallengeRepository;
@@ -17,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -40,6 +43,7 @@ public class ChallengeService {
 
     private final ChallengeRepository challengeRepository;
     private final UserEcicareRepository userEcicareRepository;
+    private final ModuleRepository moduleRepository;
 
     /**
      * Creates and saves a new challenge in the repository.
@@ -47,6 +51,8 @@ public class ChallengeService {
      * @param challengeDto the {@link Challenge} to be created
      */
     public Challenge createChallenge(ChallengeDTO challengeDto) {
+        Module module = moduleRepository.findById(challengeDto.getModuleName())
+                .orElseThrow(() -> new RuntimeException("Módulo no encontrado"));
         Challenge challenge = Challenge.builder()
                 .name(challengeDto.getName())
                 .description(challengeDto.getDescription())
@@ -55,7 +61,7 @@ public class ChallengeService {
                 .tips(challengeDto.getTips())
                 .duration(challengeDto.getDuration())
                 .goals(challengeDto.getGoals())
-                .module(challengeDto.getModule())
+                .module(module)
                 .build();
         challengeRepository.save(challenge);
         return challenge;
@@ -154,29 +160,33 @@ public class ChallengeService {
      * @param challengeDto the {@link Challenge} containing updated values
      */
     public Challenge updateChallenge(ChallengeDTO challengeDto) {
-        Challenge oldChallenge = getChallengeByName(challengeDto.getName());
-        if (oldChallenge != null) {
-            if (!Objects.equals(challengeDto.getDescription(), "")) {
-                oldChallenge.setDescription(challengeDto.getDescription());
-            }
-            if (!Objects.equals(challengeDto.getImageUrl(), "")) {
-                oldChallenge.setImageUrl(challengeDto.getImageUrl());
-            }
-            if (!Objects.equals(challengeDto.getPhrase(), "")) {
-                oldChallenge.setPhrase(challengeDto.getPhrase());
-            }
-            if (!Objects.equals(challengeDto.getTips(), null)) {
-                oldChallenge.setTips(challengeDto.getTips());
-            }
-            if (!Objects.equals(challengeDto.getGoals(), null)) {
-                oldChallenge.setGoals(challengeDto.getGoals());
-            }
-            if (challengeDto.getModule() != null) {
-                oldChallenge.setModule(challengeDto.getModule());
-            }
-            challengeRepository.save(oldChallenge);
+        Challenge oldChallenge = challengeRepository.findByName(challengeDto.getName());
+        if (oldChallenge == null) {
+            throw new RuntimeException("Challenge no encontrado");
         }
-        return oldChallenge;
+
+        if (challengeDto.getDescription() != null && !challengeDto.getDescription().isBlank()) {
+            oldChallenge.setDescription(challengeDto.getDescription());
+        }
+        if (challengeDto.getImageUrl() != null && !challengeDto.getImageUrl().isBlank()) {
+            oldChallenge.setImageUrl(challengeDto.getImageUrl());
+        }
+        if (challengeDto.getPhrase() != null && !challengeDto.getPhrase().isBlank()) {
+            oldChallenge.setPhrase(challengeDto.getPhrase());
+        }
+        if (challengeDto.getTips() != null) {
+            oldChallenge.setTips(challengeDto.getTips());
+        }
+        if (challengeDto.getGoals() != null) {
+            oldChallenge.setGoals(challengeDto.getGoals());
+        }
+        if (challengeDto.getModuleName() != null && !challengeDto.getModuleName().isBlank()) {
+            Module module = moduleRepository.findById(challengeDto.getModuleName())
+                    .orElseThrow(() -> new RuntimeException("Módulo no encontrado"));
+            oldChallenge.setModule(module);
+        }
+
+        return challengeRepository.save(oldChallenge);
     }
 
     /**

@@ -2,6 +2,7 @@ package edu.escuelaing.ecicare.retos.services;
 
 import edu.escuelaing.ecicare.retos.models.dto.ModuleDTO;
 import edu.escuelaing.ecicare.retos.models.entity.Challenge;
+import edu.escuelaing.ecicare.retos.repositories.ChallengeRepository;
 import edu.escuelaing.ecicare.retos.repositories.ModuleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,6 +32,7 @@ public class ModuleService {
 
     // Repository for performing CRUD operations on {@link Module} entities.
     private final ModuleRepository moduleRepository;
+    private final ChallengeRepository challengeRepository;
 
     /**
      * Persists a new module in the database.
@@ -128,15 +130,14 @@ public class ModuleService {
      * @throws java.util.NoSuchElementException if no module with the given name
      *                                          exists
      */
-    public boolean deleteModule(String name) {
+    public void deleteModule(String name) {
         Module module = moduleRepository.findById(name).get();
-        if (module.getChallenges().isEmpty()) {
-            moduleRepository.delete(module);
-            return true;
-        } else {
-            return false;
+        if (module.getChallenges() != null && !module.getChallenges().isEmpty()) {
+            for (Challenge challenge : module.getChallenges()) {
+                challengeRepository.delete(challenge);
+            }
         }
-
+        moduleRepository.delete(module);
     }
 
 }

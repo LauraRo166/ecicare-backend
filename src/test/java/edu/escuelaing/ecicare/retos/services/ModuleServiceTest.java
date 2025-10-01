@@ -3,6 +3,7 @@ package edu.escuelaing.ecicare.retos.services;
 import edu.escuelaing.ecicare.retos.models.dto.ModuleDTO;
 import edu.escuelaing.ecicare.retos.models.entity.Challenge;
 import edu.escuelaing.ecicare.retos.models.entity.Module;
+import edu.escuelaing.ecicare.retos.repositories.ChallengeRepository;
 import edu.escuelaing.ecicare.retos.repositories.ModuleRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,9 @@ public class ModuleServiceTest {
 
     @Mock
     private ModuleRepository moduleRepository;
+
+    @Mock
+    private ChallengeRepository challengeRepository;
 
     @InjectMocks
     private ModuleService moduleService;
@@ -114,10 +118,10 @@ public class ModuleServiceTest {
         Module module = createTestModule("Module1", "Description1", Collections.emptyList(), "imageUrl");
         when(moduleRepository.findById("Module1")).thenReturn(Optional.of(module));
 
-        boolean result = moduleService.deleteModule("Module1");
+        moduleService.deleteModule("Module1");
 
         verify(moduleRepository, times(1)).delete(module);
-        assertThat(result).isTrue();
+        verify(challengeRepository, never()).delete(any());
     }
 
     @Test
@@ -134,8 +138,9 @@ public class ModuleServiceTest {
         Module module = createTestModule("Module1", "Description1", List.of(challenge), "imageUrl");
         when(moduleRepository.findById("Module1")).thenReturn(Optional.of(module));
 
-        boolean result = moduleService.deleteModule("Module1");
-        verify(moduleRepository, never()).delete(module);
-        assertThat(result).isFalse();
+        moduleService.deleteModule("Module1");
+
+        verify(challengeRepository, times(1)).delete(challenge);
+        verify(moduleRepository, times(1)).delete(module);
     }
 }

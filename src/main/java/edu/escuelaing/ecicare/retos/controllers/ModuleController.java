@@ -112,7 +112,7 @@ public class ModuleController {
      *         {@code false} if it still contains challenges
      */
     @DeleteMapping("/{name}")
-    public boolean deleteModule(@PathVariable String name) {
-        return moduleService.deleteModule(name);
+    public void deleteModule(@PathVariable String name) {
+        moduleService.deleteModule(name);
     }
 }
