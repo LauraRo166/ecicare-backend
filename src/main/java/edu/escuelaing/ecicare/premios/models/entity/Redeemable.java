@@ -21,7 +21,6 @@ public class Redeemable {
     @ManyToOne
     @MapsId("challengeName")
     @JoinColumn(name = "challenge_name")
-    @JsonBackReference
     private Challenge challenge;
 
     @ManyToOne

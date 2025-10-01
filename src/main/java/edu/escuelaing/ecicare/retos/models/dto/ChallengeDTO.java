@@ -25,5 +25,5 @@ public class ChallengeDTO {
     private List<String> tips;
     private LocalDateTime duration;
     private List<String> goals;
-    private String moduleName;
+    private Module module;
 }
