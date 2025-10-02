@@ -6,6 +6,8 @@ import lombok.*;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * Represents a training or learning module within the Ecicare system.
  * A module serves as a container for a set of {@link Challenge} entities
@@ -32,6 +34,7 @@ public class Module {
     private String description; //Optional description providing additional information
 
     @OneToMany(mappedBy = "module", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Challenge> challenges; //List of challenges associated with this module.
 
     @Column(name = "image_url")
