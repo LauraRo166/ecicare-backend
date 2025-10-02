@@ -142,14 +142,9 @@ public class ChallengeController {
      * @param userEmail email of user
      * @return a list of challenges where the user is registered
      */
-    @GetMapping("/user/{userEmail}")
-    public List<Challenge> getAllChallengeByUser(@PathVariable String userEmail) {
-        return challengeService.getChallengesByUserEmail(userEmail);
-    }
-
     @GetMapping("/users/{userEmail}")
     public List<ChallengeResponse> getUserChallenges(@PathVariable String userEmail) {
-        return challengeService.getUserChallenges(userEmail);
+        return challengeService.getChallengesByUserEmail(userEmail);
     }
 
     /**

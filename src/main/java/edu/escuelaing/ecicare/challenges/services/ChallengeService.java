@@ -248,13 +248,7 @@ public class ChallengeService {
      * @param userEmail the user whose challenges should be retrieved
      * @return a list of {@link Challenge} entities containing the user
      */
-    public List<Challenge> getChallengesByUserEmail(String userEmail) {
-        UserEcicare user = userEcicareRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userEmail));
-        return challengeRepository.findByRegistered(user);
-    }
-
-    public List<ChallengeResponse> getUserChallenges(String userEmail){
+    public List<ChallengeResponse> getChallengesByUserEmail(String userEmail) {
         UserEcicare user = userEcicareRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userEmail));
         List<Challenge> challenges = challengeRepository.findByRegistered(user);
@@ -263,11 +257,11 @@ public class ChallengeService {
                 .toList();
     }
     public static ChallengeResponse challengeToResponse(Challenge challenge){
-        List<AwardDto> redeemables = challenge.getRedeemables()
+        List<AwardDto> redeemables = challenge.getRedeemables() != null ? challenge.getRedeemables()
                 .stream()
                 .map(r -> new AwardDto(r.getAward().getName(), r.getAward().getDescription(),
                         r.getAward().getInStock(), r.getAward().getImageUrl()))
-                .toList();
+                .toList(): null;
         return new ChallengeResponse(challenge.getName(), challenge.getDescription(), challenge.getImageUrl(),
                 challenge.getPhrase(), challenge.getTips(), challenge.getDuration(),challenge.getGoals(), challenge.getModule().getName(), redeemables);
     }
