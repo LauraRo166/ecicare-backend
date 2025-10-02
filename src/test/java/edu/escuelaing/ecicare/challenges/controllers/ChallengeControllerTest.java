@@ -5,6 +5,7 @@ import edu.escuelaing.ecicare.awards.models.entity.Award;
 import edu.escuelaing.ecicare.awards.models.entity.Redeemable;
 import edu.escuelaing.ecicare.awards.models.entity.RedeemableId;
 import edu.escuelaing.ecicare.challenges.models.dto.ChallengeDTO;
+import edu.escuelaing.ecicare.challenges.models.dto.ChallengeResponse;
 import edu.escuelaing.ecicare.challenges.models.dto.ModuleWithChallengesDTO;
 import edu.escuelaing.ecicare.challenges.models.entity.Challenge;
 import edu.escuelaing.ecicare.challenges.models.entity.Module;
@@ -24,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -154,12 +156,16 @@ public class ChallengeControllerTest {
                 UserEcicare user = new UserEcicare();
                 user.setEmail("test@eci.edu.co");
 
-                List<Challenge> challenges = List.of(
-                                Challenge.builder().name("Challenge1").build());
+                List<ChallengeResponse> challenges = Stream.of(
+                                Challenge.builder().name("Challenge1")
+                                        .module(Module.builder().name("Module").build())
+                                        .build())
+                        .map(ChallengeService::challengeToResponse)
+                        .toList();
 
                 when(challengeService.getChallengesByUserEmail(user.getEmail())).thenReturn(challenges);
 
-                mockMvc.perform(get("/challenges/user/" + user.getEmail())
+                mockMvc.perform(get("/challenges/users/" + user.getEmail())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(user)))
                                 .andExpect(status().isOk())
@@ -424,9 +430,14 @@ public class ChallengeControllerTest {
     @DisplayName("Should get confirmed challenges by user email")
     void shouldGetConfirmedChallengesByUserEmail() throws Exception {
         String userEmail = "test@eci.edu.co";
-        List<Challenge> confirmedChallenges = Arrays.asList(
-                Challenge.builder().name("Challenge1").description("Completed Desc").build()
-        );
+        List<ChallengeResponse> confirmedChallenges = Arrays.asList(
+                Challenge.builder().name("Challenge1").description("Completed Desc")
+                        .module(Module.builder().name("Module").build())
+                        .build()
+        )
+                .stream()
+                .map(ChallengeService::challengeToResponse)
+                .toList();
 
         when(challengeService.getChallengesCompletedByUserEmail(userEmail))
                 .thenReturn(confirmedChallenges);

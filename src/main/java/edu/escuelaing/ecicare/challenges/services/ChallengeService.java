@@ -1,8 +1,10 @@
 package edu.escuelaing.ecicare.challenges.services;
 
+import edu.escuelaing.ecicare.awards.models.dto.AwardDto;
 import edu.escuelaing.ecicare.awards.models.entity.Redeemable;
 import edu.escuelaing.ecicare.awards.repositories.RedeemableRepository;
 import edu.escuelaing.ecicare.challenges.models.dto.ChallengeDTO;
+import edu.escuelaing.ecicare.challenges.models.dto.ChallengeResponse;
 import edu.escuelaing.ecicare.challenges.models.dto.ModuleWithChallengesDTO;
 import edu.escuelaing.ecicare.challenges.models.entity.Module;
 import edu.escuelaing.ecicare.challenges.repositories.ModuleRepository;
@@ -267,21 +269,35 @@ public class ChallengeService {
      * @param userEmail the user whose challenges should be retrieved
      * @return a list of {@link Challenge} entities containing the user
      */
-    public List<Challenge> getChallengesByUserEmail(String userEmail) {
+    public List<ChallengeResponse> getChallengesByUserEmail(String userEmail) {
         UserEcicare user = userEcicareRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userEmail));
-        return challengeRepository.findByRegistered(user);
+        List<Challenge> challenges = challengeRepository.findByRegistered(user);
+        return challenges.stream()
+                .map(ChallengeService::challengeToResponse)
+                .toList();
     }
-
+    public static ChallengeResponse challengeToResponse(Challenge challenge){
+        List<AwardDto> redeemables = challenge.getRedeemables() != null ? challenge.getRedeemables()
+                .stream()
+                .map(r -> new AwardDto(r.getAward().getName(), r.getAward().getDescription(),
+                        r.getAward().getInStock(), r.getAward().getImageUrl()))
+                .toList(): null;
+        return new ChallengeResponse(challenge.getName(), challenge.getDescription(), challenge.getImageUrl(),
+                challenge.getPhrase(), challenge.getTips(), challenge.getDuration(),challenge.getGoals(), challenge.getModule().getName(), redeemables);
+    }
     /**
      * Retrieves all challenges completes in which a specific user is registered.
      *
      * @param userEmail the user whose challenges should be retrieved
      * @return a list of {@link Challenge} entities
      */
-    public List<Challenge> getChallengesCompletedByUserEmail(String userEmail) {
+    public List<ChallengeResponse> getChallengesCompletedByUserEmail(String userEmail) {
         UserEcicare user = userEcicareRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userEmail));
-        return user.getChallengesConfirmed();
+        return user.getChallengesConfirmed()
+                .stream()
+                .map(ChallengeService::challengeToResponse)
+                .toList();
     }
 }

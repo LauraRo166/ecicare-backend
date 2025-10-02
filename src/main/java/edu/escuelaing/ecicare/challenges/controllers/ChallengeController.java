@@ -1,6 +1,7 @@
 package edu.escuelaing.ecicare.challenges.controllers;
 
 import edu.escuelaing.ecicare.challenges.models.dto.ChallengeDTO;
+import edu.escuelaing.ecicare.challenges.models.dto.ChallengeResponse;
 import edu.escuelaing.ecicare.challenges.models.dto.ModuleWithChallengesDTO;
 import edu.escuelaing.ecicare.users.models.entity.UserEcicare;
 import edu.escuelaing.ecicare.challenges.models.entity.Challenge;
@@ -109,7 +110,7 @@ public class ChallengeController {
      * @return a list of challenges where the user is confirmed
      */
     @GetMapping("/confirmed/{userEmail}")
-    public List<Challenge> getChallengesConfirmedByUserEmail(@PathVariable String userEmail) {
+    public List<ChallengeResponse> getChallengesConfirmedByUserEmail(@PathVariable String userEmail) {
         return challengeService.getChallengesCompletedByUserEmail(userEmail);
     }
 
@@ -157,8 +158,8 @@ public class ChallengeController {
      * @param userEmail email of user
      * @return a list of challenges where the user is registered
      */
-    @GetMapping("/user/{userEmail}")
-    public List<Challenge> getAllChallengeByUser(@PathVariable String userEmail) {
+    @GetMapping("/users/{userEmail}")
+    public List<ChallengeResponse> getUserChallenges(@PathVariable String userEmail) {
         return challengeService.getChallengesByUserEmail(userEmail);
     }
 

@@ -4,6 +4,7 @@ import edu.escuelaing.ecicare.awards.models.entity.Award;
 import edu.escuelaing.ecicare.awards.models.entity.Redeemable;
 import edu.escuelaing.ecicare.awards.models.entity.RedeemableId;
 import edu.escuelaing.ecicare.challenges.models.dto.ChallengeDTO;
+import edu.escuelaing.ecicare.challenges.models.dto.ChallengeResponse;
 import edu.escuelaing.ecicare.challenges.models.dto.ModuleWithChallengesDTO;
 import edu.escuelaing.ecicare.challenges.models.entity.Challenge;
 import edu.escuelaing.ecicare.challenges.models.entity.Module;
@@ -318,18 +319,20 @@ class ChallengeServiceTest {
         Challenge challenge2 = createTestChallenge("Challenge 2", new Module("Fitness"));
         challenge2.getRegistered().add(user);
         List<Challenge> expectedChallenges = List.of(challenge1, challenge2);
-
+        List<ChallengeResponse> expected = expectedChallenges.stream()
+                        .map(ChallengeService::challengeToResponse)
+                                .toList();
         when(challengeRepository.findByRegistered(user)).thenReturn(expectedChallenges);
         when(userEcicareRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
 
         // Act
-        List<Challenge> result = challengeService.getChallengesByUserEmail(user.getEmail());
+        List<ChallengeResponse> result = challengeService.getChallengesByUserEmail(user.getEmail());
 
         // Assert
         assertThat(result)
                 .isNotNull()
                 .hasSize(2)
-                .containsExactlyElementsOf(expectedChallenges);
+                .containsExactlyElementsOf(expected);
     }
 
     @Test
@@ -612,17 +615,21 @@ class ChallengeServiceTest {
         UserEcicare user = UserEcicare.builder()
                 .email(userEmail)
                 .challengesConfirmed(Arrays.asList(
-                        Challenge.builder().name("Challenge1").build()
+                        Challenge.builder().name("Challenge1").
+                         module(Module
+                                .builder()
+                                 .name("Module1")
+                                 .build())
+                        .build()
                 ))
                 .build();
 
         when(userEcicareRepository.findByEmail(userEmail))
                 .thenReturn(Optional.of(user));
 
-        List<Challenge> result = challengeService.getChallengesCompletedByUserEmail(userEmail);
-
+        List<ChallengeResponse> result = challengeService.getChallengesCompletedByUserEmail(userEmail);
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals("Challenge1", result.get(0).getName());
+        assertEquals("Challenge1", result.get(0).name());
     }
 }

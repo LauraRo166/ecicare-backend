@@ -1,6 +1,7 @@
 package edu.escuelaing.ecicare.challenges.services;
 
 import edu.escuelaing.ecicare.challenges.models.dto.ModuleDTO;
+import edu.escuelaing.ecicare.challenges.models.dto.ModuleResponse;
 import edu.escuelaing.ecicare.challenges.models.entity.Challenge;
 import edu.escuelaing.ecicare.challenges.repositories.ChallengeRepository;
 import edu.escuelaing.ecicare.challenges.repositories.ModuleRepository;
@@ -60,6 +61,17 @@ public class ModuleService {
         return moduleRepository.findAll();
     }
 
+    public List<ModuleResponse> getModules(){
+        List<Module> modules = moduleRepository.findAll();
+        return modules.stream()
+                .map(m -> new ModuleResponse(m.getName(), m.getDescription(), m.getImageUrl(),
+                        m.getChallenges()
+                                .stream()
+                                .map(ChallengeService::challengeToResponse)
+                                .toList()
+                ))
+                .toList();
+    }
     /**
      * Retrieves the total number of modules in the database.
      *
