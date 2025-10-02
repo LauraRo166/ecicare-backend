@@ -6,6 +6,7 @@ import edu.escuelaing.ecicare.challenges.models.dto.ChallengeDTO;
 import edu.escuelaing.ecicare.challenges.models.dto.ModuleWithChallengesDTO;
 import edu.escuelaing.ecicare.challenges.models.entity.Module;
 import edu.escuelaing.ecicare.challenges.repositories.ModuleRepository;
+import edu.escuelaing.ecicare.awards.models.entity.Award;
 import edu.escuelaing.ecicare.users.models.entity.UserEcicare;
 import edu.escuelaing.ecicare.challenges.models.entity.Challenge;
 import edu.escuelaing.ecicare.challenges.repositories.ChallengeRepository;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Sort;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,6 +47,7 @@ public class ChallengeService {
     private final ChallengeRepository challengeRepository;
     private final UserEcicareRepository userEcicareRepository;
     private final ModuleRepository moduleRepository;
+    private final RedeemableRepository redeemableRepository;
 
     /**
      * Creates and saves a new challenge in the repository.
@@ -141,6 +144,21 @@ public class ChallengeService {
      */
     public Challenge getChallengeByName(String name) {
         return challengeRepository.findByName(name);
+    }
+
+    /**
+     * Gets all the Awards associated with a specific challenge.
+     * The search is performed through the Redeemables linked to the challenge.
+     *
+     * @param challengeName is the unique name of the challenge to query.
+     * @return a list of distinct Awards associated with that challenge.
+     */
+    public List<Award> getAwardsByChallenge(String challengeName) {
+        return redeemableRepository.findByChallenge_Name(challengeName).stream()
+                .map(Redeemable::getAward)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
     }
 
     /**
