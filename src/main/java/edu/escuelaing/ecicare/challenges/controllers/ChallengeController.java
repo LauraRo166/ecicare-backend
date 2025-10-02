@@ -101,6 +101,17 @@ public class ChallengeController {
     }
 
     /**
+     * Retrieves all confirmed challenges in which a user with the given email was registered.
+     *
+     * @param userEmail email of user
+     * @return a list of challenges where the user is confirmed
+     */
+    @GetMapping("/confirmed/{userEmail}")
+    public List<Challenge> getChallengesConfirmedByUserEmail(@PathVariable String userEmail) {
+        return challengeService.getChallengesCompletedByUserEmail(userEmail);
+    }
+
+    /**
      * Retrieves a challenge by its unique name.
      *
      * @param name the name of the challenge
@@ -126,11 +137,6 @@ public class ChallengeController {
 
     /**
      * Retrieves all challenges in which a user with the given email is registered.
-     *
-     * <p>
-     * This endpoint searches for challenges that include the user
-     * identified by their email address.
-     * </p>
      *
      * @param userEmail email of user
      * @return a list of challenges where the user is registered

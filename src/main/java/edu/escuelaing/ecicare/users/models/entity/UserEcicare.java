@@ -30,12 +30,13 @@ public class UserEcicare {
     private String name;
 
     @Email(message = "Invalid email format")
-    @Column(name = "email", nullable = false, updatable = false)
+    @Column(name = "email", nullable = false, updatable = false, unique = true)
     private String email;
 
     @Column(name = "password", nullable = false)
     private String password;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false, updatable = false)
     private Role role;
 

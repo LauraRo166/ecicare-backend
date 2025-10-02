@@ -420,4 +420,27 @@ public class ChallengeControllerTest {
                                         assert response[0].getChallenges().get(0).getName().equals("Caminar Diario");
                                 });
         }
+    @Test
+    @DisplayName("Should get confirmed challenges by user email")
+    void shouldGetConfirmedChallengesByUserEmail() throws Exception {
+        String userEmail = "test@eci.edu.co";
+        List<Challenge> confirmedChallenges = Arrays.asList(
+                Challenge.builder().name("Challenge1").description("Completed Desc").build()
+        );
+
+        when(challengeService.getChallengesCompletedByUserEmail(userEmail))
+                .thenReturn(confirmedChallenges);
+
+        mockMvc.perform(get("/challenges/confirmed/" + userEmail))
+                .andExpect(status().isOk())
+                .andExpect(result -> {
+                    Challenge[] response = objectMapper.readValue(
+                            result.getResponse().getContentAsString(),
+                            Challenge[].class
+                    );
+                    assert response.length == 1;
+                    assert response[0].getName().equals("Challenge1");
+                });
+    }
+
 }

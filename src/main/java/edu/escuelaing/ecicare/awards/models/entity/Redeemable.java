@@ -20,12 +20,12 @@ public class Redeemable {
 
     @ManyToOne
     @MapsId("challengeName")
-    @JoinColumn(name = "challenge_name")
+    @JoinColumn(name = "challenge_name", nullable = false)
     private Challenge challenge;
 
     @ManyToOne
     @MapsId("awardId")
-    @JoinColumn(name = "award_id")
+    @JoinColumn(name = "award_id", nullable = false)
     @JsonBackReference
     private Award award;
 

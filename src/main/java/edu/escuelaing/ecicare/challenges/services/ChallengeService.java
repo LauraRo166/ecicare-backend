@@ -251,4 +251,16 @@ public class ChallengeService {
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userEmail));
         return challengeRepository.findByRegistered(user);
     }
+
+    /**
+     * Retrieves all challenges completes in which a specific user is registered.
+     *
+     * @param userEmail the user whose challenges should be retrieved
+     * @return a list of {@link Challenge} entities
+     */
+    public List<Challenge> getChallengesCompletedByUserEmail(String userEmail) {
+        UserEcicare user = userEcicareRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userEmail));
+        return user.getChallengesConfirmed();
+    }
 }

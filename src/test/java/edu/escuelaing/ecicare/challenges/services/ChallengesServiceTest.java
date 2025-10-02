@@ -20,11 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -609,4 +605,24 @@ class ChallengeServiceTest {
         verify(challengeRepository).save(result);
     }
 
+    @Test
+    @DisplayName("Should return confirmed challenges when user exists")
+    void shouldReturnConfirmedChallengesWhenUserExists() {
+        String userEmail = "test@eci.edu.co";
+        UserEcicare user = UserEcicare.builder()
+                .email(userEmail)
+                .challengesConfirmed(Arrays.asList(
+                        Challenge.builder().name("Challenge1").build()
+                ))
+                .build();
+
+        when(userEcicareRepository.findByEmail(userEmail))
+                .thenReturn(Optional.of(user));
+
+        List<Challenge> result = challengeService.getChallengesCompletedByUserEmail(userEmail);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Challenge1", result.get(0).getName());
+    }
 }

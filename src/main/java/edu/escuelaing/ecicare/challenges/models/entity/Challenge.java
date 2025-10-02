@@ -41,15 +41,18 @@ public class Challenge {
     private String phrase; // Motivational phrase or slogan associated with the challenge.
 
     @ManyToMany
-    @JoinTable(name = "user_challenges", joinColumns = @JoinColumn(name = "challenge_name"),
-            inverseJoinColumns = @JoinColumn(name = "user_idEci")
+    @JoinTable(
+            name = "user_challenges_registered",
+            joinColumns = @JoinColumn(name = "challenge_name"),
+            inverseJoinColumns = @JoinColumn(name = "user_id_eci")
     )
-    //cuadrar con el modulo de usuarios para hacer el join con algun atributo.
     private List<UserEcicare> registered; // List of users registered for the challenge.
 
     @ManyToMany
-    @JoinTable(name = "user_challenges", joinColumns = @JoinColumn(name = "challenge_name"),
-            inverseJoinColumns = @JoinColumn(name = "user_idEci")
+    @JoinTable(
+            name = "user_challenges_confirmed",
+            joinColumns = @JoinColumn(name = "challenge_name"),
+            inverseJoinColumns = @JoinColumn(name = "user_id_eci")
     )
     private List<UserEcicare> confirmed; // List of users confirmed for the challenge done.
 
