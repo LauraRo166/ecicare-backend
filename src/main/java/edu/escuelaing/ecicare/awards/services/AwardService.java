@@ -16,6 +16,12 @@ import edu.escuelaing.ecicare.services.MapperService;
 import edu.escuelaing.ecicare.awards.repositories.AwardRepository;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Service layer for handling business logic related to {@link Award} entities.
+ *
+ * Provides CRUD operations, pagination, search capabilities, and mapping
+ * between {@link AwardDto} and {@link Award}.
+ */
 @Service
 @RequiredArgsConstructor
 public class AwardService {
@@ -23,10 +29,23 @@ public class AwardService {
     private final AwardRepository awardRepository;
     private final MapperService mapperService;
 
+    /**
+     * Retrieves the total number of awards in the repository.
+     *
+     * @return total count of awards
+     */
     public int getAllAwardsLength() {
         return awardRepository.findAll().size();
     }
 
+    /**
+     * Retrieves a paginated list of awards based on custom skip/limit logic.
+     *
+     * @param page the page number (1-based index)
+     * @param size the number of awards per page
+     * @return a list of awards for the specified page
+     * @throws IllegalArgumentException if page or size are less than 1
+     */
     public List<Award> getAwardPagination(int page, int size) {
         if (page < 1) {
             throw new IllegalArgumentException("Page number must be 1 or greater");
@@ -40,6 +59,13 @@ public class AwardService {
                 .toList();
     }
 
+    /**
+     * Retrieves an award by its unique identifier.
+     *
+     * @param awardId the ID of the award
+     * @return the {@link Award} entity
+     * @throws AwardNotFoundException if the award does not exist
+     */
     public Award getAwardById(Long awardId) {
         Optional<Award> award = awardRepository.findById(awardId);
         if (!award.isPresent())
@@ -47,9 +73,16 @@ public class AwardService {
         return award.get();
     }
 
+    /**
+     * Creates a new award from the provided DTO.
+     *
+     * If no image URL is provided, a default image path is assigned.
+     *
+     * @param awardDto the DTO containing award details
+     * @return the created {@link Award}
+     */
     public Award createAward(AwardDto awardDto) {
         String imageUrl = awardDto.getImageUrl();
-        // Si no se proporciona una URL de imagen, usar la imagen por defecto
         if (imageUrl == null || imageUrl.trim().isEmpty()) {
             imageUrl = "/images/awards/default-award.png";
         }
@@ -63,6 +96,16 @@ public class AwardService {
         return awardRepository.save(award);
     }
 
+    /**
+     * Updates an existing award with new details from the DTO.
+     *
+     * Fields are updated dynamically using reflection.
+     *
+     * @param awardId  the ID of the award to update
+     * @param awardDto the DTO with updated details
+     * @return the updated {@link Award}
+     * @throws AwardNotFoundException if the award does not exist
+     */
     public Award updateAwardDetails(Long awardId, AwardDto awardDto) {
         Award existingAward = this.getAwardById(awardId);
         mapperService.covertDtoToMap(awardDto)
@@ -76,22 +119,33 @@ public class AwardService {
         return awardRepository.save(existingAward);
     }
 
+    /**
+     * Deletes an award by its unique identifier.
+     *
+     * @param awardId the ID of the award to delete
+     */
     public void deleteAwardById(Long awardId) {
         awardRepository.deleteById(awardId);
     }
 
+    /**
+     * Saves or updates an award in the repository.
+     *
+     * @param award the award to persist
+     */
     public void saveAward(Award award) {
         awardRepository.save(award);
     }
 
     /**
      * Searches awards by name with pagination support.
-     * Optimized for real-time search with large datasets.
-     * 
+     *
+     * Ensures query validation, trimming, and length constraints.
+     *
      * @param searchQuery the text to search for in award names
-     * @param page        the page number (0-based)
-     * @param size        the page size
-     * @return page of awards matching the search criteria
+     * @param page        the page number (0-based index)
+     * @param size        the number of results per page
+     * @return a {@link Page} of awards matching the search criteria
      */
     public Page<Award> searchAwardsByNamePaginated(String searchQuery, int page, int size) {
         if (page < 0) {

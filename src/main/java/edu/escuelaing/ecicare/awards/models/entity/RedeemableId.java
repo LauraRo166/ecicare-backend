@@ -13,9 +13,11 @@ import lombok.*;
 @EqualsAndHashCode
 public class RedeemableId implements Serializable {
 
+    // The name of the challenge (part of the composite primary key).
     @Column(name = "challenge_name")
     private String challengeName;
 
+    // The ID of the award (part of the composite primary key).
     @Column(name = "award_id")
     private Long awardId;
 

@@ -9,6 +9,14 @@ import edu.escuelaing.ecicare.awards.models.entity.Redeemable;
 import edu.escuelaing.ecicare.awards.services.RedeemableService;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * REST Controller that manages operations related to {@link Redeemable} entities
+ * in the Ecicare system.
+ *
+ * This controller delegates business logic to {@link RedeemableService}.
+ *
+ * @author Byte programming
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/redeemables")
@@ -16,11 +24,24 @@ public class RedeemableController {
 
     private final RedeemableService redeemableService;
 
+    /**
+     * Retrieves all redeemables in the system.
+     *
+     * @return a {@link ResponseEntity} containing a list of {@link Redeemable}.
+     */
     @GetMapping
     public ResponseEntity<List<Redeemable>> getAllRedeemables() {
         return ResponseEntity.ok(redeemableService.getAllRedeemables());
     }
 
+    /**
+     * Retrieves a redeemable by its composite identifier
+     * consisting of {@code challengeName} and {@code awardId}.
+     *
+     * @param challengeName the challenge name associated with the redeemable.
+     * @param awardId the award identifier associated with the redeemable.
+     * @return a {@link ResponseEntity} containing the {@link Redeemable}.
+     */
     @GetMapping("/{challengeName}/{awardId}")
     public ResponseEntity<Redeemable> getRedeemableById(
             @PathVariable String challengeName,
@@ -28,12 +49,26 @@ public class RedeemableController {
         return ResponseEntity.ok(redeemableService.getRedeemableById(challengeName, awardId));
     }
 
+    /**
+     * Creates a new redeemable linked to a challenge.
+     *
+     * @param redeemableDto the DTO containing redeemable creation data.
+     * @return a {@link ResponseEntity} containing the created {@link Redeemable}.
+     */
     @PostMapping
     public ResponseEntity<Redeemable> createRedeemable(@RequestBody RedeemableDto redeemableDto) {
         Redeemable created = redeemableService.createRedeemableToChallenge(redeemableDto);
         return ResponseEntity.ok(created);
     }
 
+    /**
+     * Updates an existing redeemable identified by {@code challengeName} and {@code awardId}.
+     *
+     * @param challengeName the challenge name of the redeemable.
+     * @param awardId the award identifier of the redeemable.
+     * @param redeemableDto the DTO containing updated redeemable data.
+     * @return a {@link ResponseEntity} containing the updated {@link Redeemable}.
+     */
     @PutMapping("/{challengeName}/{awardId}")
     public ResponseEntity<Redeemable> updateRedeemable(
             @PathVariable String challengeName,
@@ -42,6 +77,13 @@ public class RedeemableController {
         return ResponseEntity.ok(redeemableService.updateRedeemable(challengeName, awardId, redeemableDto));
     }
 
+    /**
+     * Deletes a redeemable by its composite identifier.
+     *
+     * @param challengeName the challenge name of the redeemable.
+     * @param awardId the award identifier of the redeemable.
+     * @return a {@link ResponseEntity} with HTTP status {@code 204 No Content}.
+     */
     @DeleteMapping("/{challengeName}/{awardId}")
     public ResponseEntity<Void> deleteRedeemable(
             @PathVariable String challengeName,
