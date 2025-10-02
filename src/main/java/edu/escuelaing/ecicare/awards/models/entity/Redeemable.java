@@ -22,6 +22,7 @@ public class Redeemable {
     @ManyToOne
     @MapsId("challengeName")
     @JoinColumn(name = "challenge_name", nullable = false)
+    @JsonIgnore
     private Challenge challenge;
 
     @ManyToOne

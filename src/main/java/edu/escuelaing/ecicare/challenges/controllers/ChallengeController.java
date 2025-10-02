@@ -6,6 +6,8 @@ import edu.escuelaing.ecicare.challenges.models.dto.ModuleWithChallengesDTO;
 import edu.escuelaing.ecicare.users.models.entity.UserEcicare;
 import edu.escuelaing.ecicare.challenges.models.entity.Challenge;
 import edu.escuelaing.ecicare.challenges.services.ChallengeService;
+import edu.escuelaing.ecicare.awards.models.entity.Award;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -122,6 +124,20 @@ public class ChallengeController {
     @GetMapping("/{name}")
     public Challenge getChallengeByName(@PathVariable String name) {
         return challengeService.getChallengeByName(name);
+    }
+
+    /**
+     * Returns all awards associated to a challenge (via redeemables).
+     * GET /challenges/{name}/awards
+     */
+    @GetMapping("/{name}/awards")
+    public ResponseEntity<List<Award>> getAwardsByChallenge(@PathVariable String name) {
+        Challenge existing = challengeService.getChallengeByName(name);
+        if (existing == null) {
+            return ResponseEntity.notFound().build();
+        }
+        List<Award> awards = challengeService.getAwardsByChallenge(name);
+        return ResponseEntity.ok(awards);
     }
 
     /**

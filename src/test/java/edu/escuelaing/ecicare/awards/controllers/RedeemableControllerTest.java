@@ -135,8 +135,9 @@ class RedeemableControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id.challengeName", is("Test Challenge")))
                 .andExpect(jsonPath("$.id.awardId", is(1)))
-                .andExpect(jsonPath("$.limitDays", is(30)))
-                .andExpect(jsonPath("$.challenge.name", is("Test Challenge")));
+                .andExpect(jsonPath("$.limitDays", is(30)));
+                // .andExpect(jsonPath("$.challenge.name", is("Test Challenge")));
+                // Note: challenge field is not included due to @JsonIgnore annotation
                 // Note: award field is not included due to @JsonBackReference annotation
 
         verify(redeemableService, times(1)).getRedeemableById("Test Challenge", 1L);
