@@ -4,6 +4,9 @@ import edu.escuelaing.ecicare.awards.models.entity.Redeemable;
 import edu.escuelaing.ecicare.users.models.entity.UserEcicare;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -74,6 +77,7 @@ public class Challenge {
     private List<String> goals; // List of goals that participants should achieve during the challenge.
 
     @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<Redeemable> redeemables;
 
     @ManyToOne

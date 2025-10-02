@@ -1,5 +1,7 @@
 package edu.escuelaing.ecicare.challenges.services;
 
+import edu.escuelaing.ecicare.awards.models.entity.Redeemable;
+import edu.escuelaing.ecicare.awards.repositories.RedeemableRepository;
 import edu.escuelaing.ecicare.challenges.models.dto.ChallengeDTO;
 import edu.escuelaing.ecicare.challenges.models.dto.ModuleWithChallengesDTO;
 import edu.escuelaing.ecicare.challenges.models.entity.Module;
@@ -18,6 +20,7 @@ import org.springframework.data.domain.Sort;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
