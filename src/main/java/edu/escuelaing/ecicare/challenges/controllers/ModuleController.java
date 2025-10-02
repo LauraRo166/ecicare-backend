@@ -73,10 +73,14 @@ public class ModuleController {
     @GetMapping("/")
     public ResponseEntity<?> getAllModules(
             @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size) {
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String view) {
         if (page != null && size != null) {
             Page<Module> modulePage = moduleService.getAllModulesPaginated(page, size);
             return ResponseEntity.ok(modulePage);
+        }
+        if (view != null && view.equals("MOBILE")){
+            return ResponseEntity.ok(moduleService.getModules());
         }
         List<Module> allModules = moduleService.getAllModules();
         return ResponseEntity.ok(allModules);
