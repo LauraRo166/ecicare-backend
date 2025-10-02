@@ -7,6 +7,9 @@ import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -21,6 +24,10 @@ import java.util.Set;
  *
  * @author ByteProgramming
  */
+@JsonIdentityInfo(
+    generator = ObjectIdGenerators.PropertyGenerator.class,
+    property = "name"
+)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

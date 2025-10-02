@@ -3,6 +3,10 @@ package edu.escuelaing.ecicare.users.models.entity;
 import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import edu.escuelaing.ecicare.utils.models.entity.enums.Role;
 import jakarta.persistence.*;
 import edu.escuelaing.ecicare.challenges.models.entity.Challenge;
@@ -16,6 +20,10 @@ import jakarta.validation.constraints.Size;
  *
  * The class is mapped to the "usersEcicare" database table.
  */
+@JsonIdentityInfo(
+    generator = ObjectIdGenerators.PropertyGenerator.class,
+    property = "idEci"
+)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
