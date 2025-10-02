@@ -1,5 +1,6 @@
 package edu.escuelaing.ecicare.challenges.models.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -36,6 +37,7 @@ public class Rating {
 
     @ManyToOne
     @JoinColumn(name = "challenge_name", nullable = false)
+    @JsonIgnore
     private Challenge challenge; //Challenge to which the rating belongs
 }
 

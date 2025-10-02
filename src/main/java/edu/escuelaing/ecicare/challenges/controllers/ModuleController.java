@@ -88,7 +88,7 @@ public class ModuleController {
      * @param name the unique name of the module
      * @return a list of {@link Challenge} entities belonging to the module
      */
-    @GetMapping("/challenge/{name}")
+    @GetMapping("/challenges/{name}")
     public List<Challenge> getModuleChallenges(@PathVariable String name) {
         return moduleService.getChallengesByModule(name);
     }

@@ -2,6 +2,7 @@ package edu.escuelaing.ecicare.awards.models.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import edu.escuelaing.ecicare.challenges.models.entity.Challenge;
 import jakarta.persistence.*;
 import lombok.*;
@@ -27,6 +28,7 @@ public class Redeemable {
     @MapsId("awardId")
     @JoinColumn(name = "award_id", nullable = false)
     @JsonBackReference
+    @JsonIgnore
     private Award award;
 
     @Column(name = "limit_days", nullable = false)

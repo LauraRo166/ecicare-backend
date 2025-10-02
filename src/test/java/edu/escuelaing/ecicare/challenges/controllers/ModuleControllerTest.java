@@ -141,7 +141,7 @@ class ModuleControllerTest {
 
         when(moduleService.getChallengesByModule("Module1")).thenReturn(challenges);
 
-        mockMvc.perform(get("/modules/challenge/Module1"))
+        mockMvc.perform(get("/modules/challenges/Module1"))
                 .andExpect(status().isOk())
                 .andExpect(result -> {
                     Challenge[] response = objectMapper.readValue(result.getResponse().getContentAsString(),
