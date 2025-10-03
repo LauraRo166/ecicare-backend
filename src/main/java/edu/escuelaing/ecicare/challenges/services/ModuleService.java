@@ -33,7 +33,7 @@ public class ModuleService {
 
     // Repository for performing CRUD operations on {@link Module} entities.
     private final ModuleRepository moduleRepository;
-    private final ChallengeRepository challengeRepository;
+    private final ChallengeService challengeService;
 
     /**
      * Persists a new module in the database.
@@ -143,10 +143,11 @@ public class ModuleService {
      *                                          exists
      */
     public void deleteModule(String name) {
-        Module module = moduleRepository.findById(name).get();
+        Module module = moduleRepository.findById(name)
+                .orElseThrow(() -> new RuntimeException("Module not found"));
         if (module.getChallenges() != null && !module.getChallenges().isEmpty()) {
             for (Challenge challenge : module.getChallenges()) {
-                challengeRepository.delete(challenge);
+                challengeService.deleteChallenge(challenge.getName());
             }
         }
         moduleRepository.delete(module);

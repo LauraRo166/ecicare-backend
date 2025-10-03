@@ -5,6 +5,8 @@ import edu.escuelaing.ecicare.awards.models.entity.RedeemableId;
 
 import java.util.List;
 import java.util.Optional;
+
+import edu.escuelaing.ecicare.challenges.models.entity.Challenge;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -35,4 +37,6 @@ public interface RedeemableRepository extends JpaRepository<Redeemable, Redeemab
      * @return a list of {@link Redeemable} linked to the specified challenge
      */
     List<Redeemable> findByChallenge_Name(String challengeName);
+
+    void deleteAllByChallenge(Challenge challenge);
 }

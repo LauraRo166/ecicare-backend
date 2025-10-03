@@ -13,6 +13,7 @@ import edu.escuelaing.ecicare.users.models.entity.UserEcicare;
 import edu.escuelaing.ecicare.challenges.models.entity.Challenge;
 import edu.escuelaing.ecicare.challenges.repositories.ChallengeRepository;
 import edu.escuelaing.ecicare.users.repositories.UserEcicareRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
@@ -211,12 +212,20 @@ public class ChallengeService {
     }
 
     /**
-     * Deletes a challenge by its unique name.
+     * Deletes a challenge by its unique name, along with its associated redeemables.
      *
      * @param name the name of the challenge to delete
      */
+    @Transactional
     public void deleteChallenge(String name) {
-        challengeRepository.deleteById(name);
+        Challenge challenge = challengeRepository.findById(name)
+                .orElseThrow(() -> new RuntimeException("Challenge not found"));
+
+        // Borrar todos los redeemables asociados a este challenge
+        redeemableRepository.deleteAllByChallenge(challenge);
+
+        // Ahora sí eliminar el challenge
+        challengeRepository.delete(challenge);
     }
 
     /**
