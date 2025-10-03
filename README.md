@@ -42,7 +42,7 @@ docker-compose exec app bash
 4. Ejecute:
 ```bash
 mvn clean verify
-mvn springboot:run
+mvn spring-boot:run
 ```
 
 ## Licencia 📄
