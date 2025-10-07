@@ -38,6 +38,19 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(apiError, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+        public ResponseEntity<ApiErrorDto> handleIllegalArgumentException(IllegalArgumentException exception,
+                HttpServletRequest request) {
+        ApiErrorDto apiError = ApiErrorDto.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .message(exception.getMessage())
+                .path(request.getServletPath())
+                .build();
+        return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+        }
+
     @ExceptionHandler(RedeemAwardException.class)
     public ResponseEntity<ApiErrorDto> handleRedeemAwardException(RedeemAwardException exception,
             HttpServletRequest request) {

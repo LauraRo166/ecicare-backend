@@ -14,7 +14,8 @@ import edu.escuelaing.ecicare.challenges.services.ChallengeService;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Service layer for handling business logic related to {@link Redeemable} entities.
+ * Service layer for handling business logic related to {@link Redeemable}
+ * entities.
  *
  * Provides CRUD operations, creation of relationships between {@link Challenge}
  * and {@link Award}, and repository access methods.
@@ -59,7 +60,7 @@ public class RedeemableService {
      */
     public List<Redeemable> createRedeemablesToChallenge(List<RedeemableDto> redeemables) {
         List<Redeemable> redeemablesEntity = redeemables.stream()
-                .map(redeemable -> this.createRedeemableToChallenge(redeemable))
+                .map(this::createRedeemableToChallenge)
                 .toList();
         return redeemableRepository.saveAll(redeemablesEntity);
     }
@@ -100,7 +101,9 @@ public class RedeemableService {
      */
     public Redeemable updateRedeemable(String challengeName, Long awardId, RedeemableDto redeemableDto) {
         Redeemable existingRedeemable = this.getRedeemableById(challengeName, awardId);
-        existingRedeemable.setLimitDays(redeemableDto.getLimitDays());
+        if (redeemableDto.getLimitDays() != null) {
+            existingRedeemable.setLimitDays(redeemableDto.getLimitDays());
+        }
         return redeemableRepository.save(existingRedeemable);
     }
 
