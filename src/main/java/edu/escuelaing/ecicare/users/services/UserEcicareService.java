@@ -62,6 +62,7 @@ public class UserEcicareService {
      *
      * @param id The unique identifier of the user to delete.
      */
+    @Transactional
     public void deleteEcicareUserById(Long id) {
         log.info("Deleting User with ID: {}", id);
         if (!userEcicareRepository.existsById(id)) {
@@ -77,6 +78,7 @@ public class UserEcicareService {
      * @param id The unique identifier of the user.
      * @return A {@link UserEcicareResponseDTO} with the user details.
      */
+
     public UserEcicareResponseDTO getUserEcicareById(Long id) {
         UserEcicare userEcicare = userEcicareRepository.findById(id)
                 .orElseThrow(() -> ResourceNotFoundException.create("User", id));
@@ -89,6 +91,7 @@ public class UserEcicareService {
      *
      * @param id The unique identifier of the user to approve.
      */
+    @Transactional
     public void setHasMedicalApproveUserEcicare(Long id) {
         UserEcicare userEcicare = userEcicareRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
