@@ -20,6 +20,9 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -295,26 +298,14 @@ class AwardServiceTest {
     @DisplayName("Should delete award by id")
     void shouldDeleteAwardById() {
         // Given
-        doNothing().when(awardRepository).deleteById(1L);
+        when(awardRepository.findById(1L)).thenReturn(Optional.of(testAward));
+        doNothing().when(awardRepository).delete(testAward);
 
         // When
         awardService.deleteAwardById(1L);
 
         // Then
-        verify(awardRepository, times(1)).deleteById(1L);
-    }
-
-    @Test
-    @DisplayName("Should save award successfully")
-    void shouldSaveAwardSuccessfully() {
-        // Given
-        when(awardRepository.save(testAward)).thenReturn(testAward);
-
-        // When
-        awardService.saveAward(testAward);
-
-        // Then
-        verify(awardRepository, times(1)).save(testAward);
+        verify(awardRepository, times(1)).delete(testAward);
     }
 
     @Test

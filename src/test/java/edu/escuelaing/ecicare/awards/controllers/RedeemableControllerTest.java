@@ -101,8 +101,8 @@ class RedeemableControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].id.challengeName", is("Test Challenge")))
-                .andExpect(jsonPath("$[0].id.awardId", is(1)))
+                .andExpect(jsonPath("$[0].challengeName", is("Test Challenge")))
+                .andExpect(jsonPath("$[0].awardId", is(1)))
                 .andExpect(jsonPath("$[0].limitDays", is(30)));
 
         verify(redeemableService, times(1)).getAllRedeemables();
@@ -133,8 +133,8 @@ class RedeemableControllerTest {
         mockMvc.perform(get("/redeemables/Test Challenge/1"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id.challengeName", is("Test Challenge")))
-                .andExpect(jsonPath("$.id.awardId", is(1)))
+                .andExpect(jsonPath("$.challengeName", is("Test Challenge")))
+                .andExpect(jsonPath("$.awardId", is(1)))
                 .andExpect(jsonPath("$.limitDays", is(30)));
                 // .andExpect(jsonPath("$.challenge.name", is("Test Challenge")));
                 // Note: challenge field is not included due to @JsonIgnore annotation
@@ -181,7 +181,7 @@ class RedeemableControllerTest {
         mockMvc.perform(get("/redeemables/{challengeName}/{awardId}", challengeNameWithSpaces, 1L))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id.challengeName", is(challengeNameWithSpaces)))
+                .andExpect(jsonPath("$.challengeName", is(challengeNameWithSpaces)))
                 .andExpect(jsonPath("$.limitDays", is(15)));
 
         verify(redeemableService, times(1)).getRedeemableById(challengeNameWithSpaces, 1L);
@@ -207,8 +207,8 @@ class RedeemableControllerTest {
                 .content(objectMapper.writeValueAsString(testRedeemableDto)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id.challengeName", is("Test Challenge")))
-                .andExpect(jsonPath("$.id.awardId", is(1)))
+                .andExpect(jsonPath("$.challengeName", is("Test Challenge")))
+                .andExpect(jsonPath("$.awardId", is(1)))
                 .andExpect(jsonPath("$.limitDays", is(60)));
 
         verify(redeemableService, times(1)).updateRedeemable(eq("Test Challenge"), eq(1L), any(RedeemableDto.class));
