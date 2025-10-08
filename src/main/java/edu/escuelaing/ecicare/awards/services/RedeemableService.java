@@ -72,7 +72,7 @@ public class RedeemableService {
      */
     public Redeemable createRedeemableToChallenge(RedeemableDto redeemableDto) {
         Award award = awardService.getAwardById(redeemableDto.getAwardId());
-        Challenge challenge = challengeService.getChallengeByName(redeemableDto.getChallengeName());
+        Challenge challenge = challengeService.getChallengeEntityByName(redeemableDto.getChallengeName());
 
         RedeemableId redeemableId = RedeemableId.builder()
                 .challengeName(challenge.getName())

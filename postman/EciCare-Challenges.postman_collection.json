@@ -1,0 +1,1283 @@
+{
+	"info": {
+		"_postman_id": "ecicare-challenges-collection",
+		"name": "EciCare - Challenges & Modules API",
+		"description": "Colección completa para probar los endpoints de Challenges y Modules, incluyendo pruebas de borrado en cascada (cuando se borra un módulo, se borran todos sus challenges asociados).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Modules",
+			"item": [
+				{
+					"name": "Create Module",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Module created successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('name');",
+									"    pm.expect(jsonData).to.have.property('description');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{test_module_name}}\",\n    \"description\": \"Módulo de prueba para testing\",\n    \"imageUrl\": \"https://example.com/module-image.jpg\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/modules/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"modules",
+								""
+							]
+						},
+						"description": "Crea un nuevo módulo en el sistema"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Modules",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/modules/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"modules",
+								""
+							]
+						},
+						"description": "Obtiene todos los módulos sin paginación"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Modules (Paginated)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has pagination structure\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('content');",
+									"    pm.expect(jsonData).to.have.property('totalElements');",
+									"    pm.expect(jsonData).to.have.property('totalPages');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/modules/?page=0&size=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"modules",
+								""
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Obtiene módulos con paginación"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Modules (Mobile View)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/modules/?view=MOBILE",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"modules",
+								""
+							],
+							"query": [
+								{
+									"key": "view",
+									"value": "MOBILE"
+								}
+							]
+						},
+						"description": "Obtiene módulos con vista optimizada para móviles"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Total Modules",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has total property\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('total');",
+									"    pm.expect(jsonData.total).to.be.a('number');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/modules/total",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"modules",
+								"total"
+							]
+						},
+						"description": "Obtiene el total de módulos en el sistema"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Challenges by Module",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/modules/challenges/{{test_module_name}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"modules",
+								"challenges",
+								"{{test_module_name}}"
+							]
+						},
+						"description": "Obtiene todos los challenges asociados a un módulo específico"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Module",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Module updated successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('description');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{test_module_name}}\",\n    \"description\": \"Descripción actualizada del módulo\",\n    \"imageUrl\": \"https://example.com/updated-module-image.jpg\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/modules/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"modules",
+								""
+							]
+						},
+						"description": "Actualiza la descripción de un módulo existente"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Module (Cascade Delete)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Module deleted successfully\", function () {",
+									"    // El módulo y todos sus challenges asociados deben ser eliminados",
+									"    console.log(\"Módulo eliminado junto con todos sus challenges\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"console.log(\"⚠️ IMPORTANTE: Este endpoint eliminará el módulo y TODOS los challenges asociados\");",
+									"console.log(\"Módulo a eliminar: \" + pm.collectionVariables.get(\"test_module_name\"));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/modules/{{test_module_name}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"modules",
+								"{{test_module_name}}"
+							]
+						},
+						"description": "⚠️ **BORRADO EN CASCADA**: Elimina un módulo y TODOS los challenges asociados a él. Este es el endpoint principal para probar el borrado en cascada."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints relacionados con la gestión de módulos"
+		},
+		{
+			"name": "Challenges",
+			"item": [
+				{
+					"name": "Create Challenge",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Challenge created successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('name');",
+									"    pm.expect(jsonData).to.have.property('description');",
+									"    pm.expect(jsonData).to.have.property('module');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{test_challenge_name}}\",\n    \"description\": \"Challenge de prueba para testing\",\n    \"imageUrl\": \"https://example.com/challenge-image.jpg\",\n    \"phrase\": \"¡Acepta el desafío!\",\n    \"tips\": [\n        \"Tip 1: Mantén la constancia\",\n        \"Tip 2: Establece metas claras\",\n        \"Tip 3: Celebra tus logros\"\n    ],\n    \"duration\": \"2025-12-31T23:59:59\",\n    \"goals\": [\n        \"Completar 10 ejercicios\",\n        \"Mantener racha de 7 días\"\n    ],\n    \"moduleName\": \"{{test_module_name}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/challenges/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"challenges",
+								""
+							]
+						},
+						"description": "Crea un nuevo challenge asociado a un módulo"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Challenges",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/challenges/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"challenges",
+								""
+							]
+						},
+						"description": "Obtiene todos los challenges sin paginación"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Challenges (Paginated)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has pagination structure\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('content');",
+									"    pm.expect(jsonData).to.have.property('totalElements');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/challenges/?page=0&size=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"challenges",
+								""
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Obtiene challenges con paginación"
+					},
+					"response": []
+				},
+				{
+					"name": "Search Challenges",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/challenges/search?q=test",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"challenges",
+								"search"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "test"
+								}
+							]
+						},
+						"description": "Busca challenges por nombre y los agrupa por módulos"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Challenge by Name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Challenge retrieved successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('name');",
+									"    pm.expect(jsonData.name).to.equal(pm.collectionVariables.get('test_challenge_name'));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/challenges/{{test_challenge_name}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"challenges",
+								"{{test_challenge_name}}"
+							]
+						},
+						"description": "Obtiene un challenge específico por su nombre"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Awards by Challenge",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 404\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    pm.test(\"Response is an array\", function () {",
+									"        var jsonData = pm.response.json();",
+									"        pm.expect(jsonData).to.be.an('array');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/challenges/{{test_challenge_name}}/awards",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"challenges",
+								"{{test_challenge_name}}",
+								"awards"
+							]
+						},
+						"description": "Obtiene todos los premios asociados a un challenge"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Challenges by Duration",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/challenges/duration/2025-12-31T23:59:59",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"challenges",
+								"duration",
+								"2025-12-31T23:59:59"
+							]
+						},
+						"description": "Obtiene challenges que tienen una duración específica (formato: YYYY-MM-DDTHH:mm:ss)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Challenges by User Email",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/challenges/users/{{test_user_email}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"challenges",
+								"users",
+								"{{test_user_email}}"
+							]
+						},
+						"description": "Obtiene todos los challenges en los que está registrado un usuario"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Confirmed Challenges by User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/challenges/confirmed/{{test_user_email}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"challenges",
+								"confirmed",
+								"{{test_user_email}}"
+							]
+						},
+						"description": "Obtiene todos los challenges confirmados/completados por un usuario"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Challenge",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Challenge updated successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('description');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{test_challenge_name}}\",\n    \"description\": \"Descripción actualizada del challenge\",\n    \"imageUrl\": \"https://example.com/updated-challenge.jpg\",\n    \"phrase\": \"¡Desafío actualizado!\",\n    \"tips\": [\n        \"Nuevo tip 1\",\n        \"Nuevo tip 2\"\n    ],\n    \"duration\": \"2025-12-31T23:59:59\",\n    \"goals\": [\n        \"Nueva meta 1\",\n        \"Nueva meta 2\"\n    ],\n    \"moduleName\": \"{{test_module_name}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/challenges/{{test_challenge_name}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"challenges",
+								"{{test_challenge_name}}"
+							]
+						},
+						"description": "Actualiza un challenge existente"
+					},
+					"response": []
+				},
+				{
+					"name": "Add User to Challenge",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is a ChallengeResponse object\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('name');",
+									"    pm.expect(jsonData).to.have.property('description');",
+									"    pm.expect(jsonData).to.have.property('moduleName');",
+									"});",
+									"",
+									"console.log(\"Usuario añadido al challenge exitosamente\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/challenges/users/{{test_user_email}}/challenges/{{test_challenge_name}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"challenges",
+								"users",
+								"{{test_user_email}}",
+								"challenges",
+								"{{test_challenge_name}}"
+							]
+						},
+						"description": "Registra un usuario en un challenge"
+					},
+					"response": []
+				},
+				{
+					"name": "Confirm User in Challenge",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is a ChallengeResponse object\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('name');",
+									"    pm.expect(jsonData).to.have.property('description');",
+									"    pm.expect(jsonData).to.have.property('moduleName');",
+									"});",
+									"",
+									"console.log(\"Usuario confirmado en el challenge exitosamente\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/challenges/users/{{test_user_email}}/challenges/{{test_challenge_name}}/confirm",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"challenges",
+								"users",
+								"{{test_user_email}}",
+								"challenges",
+								"{{test_challenge_name}}",
+								"confirm"
+							]
+						},
+						"description": "Confirma/completa un challenge para un usuario"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Challenge",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"console.log(\"Challenge eliminado exitosamente\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/challenges/{{test_challenge_name}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"challenges",
+								"{{test_challenge_name}}"
+							]
+						},
+						"description": "Elimina un challenge específico por su nombre"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints relacionados con la gestión de challenges"
+		},
+		{
+			"name": "Test Scenarios",
+			"item": [
+				{
+					"name": "Cascade Delete Test Flow",
+					"item": [
+						{
+							"name": "1. Create Test Module",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Module created\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"console.log(\"✅ Paso 1: Módulo de prueba creado\");"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"{{test_module_name}}\",\n    \"description\": \"Módulo para probar borrado en cascada\",\n    \"imageUrl\": \"https://example.com/test-module.jpg\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/modules/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"modules",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "2. Create Challenge 1",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Challenge 1 created\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"console.log(\"✅ Paso 2: Challenge 1 creado\");"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"test-challenge-1\",\n    \"description\": \"Primer challenge de prueba\",\n    \"imageUrl\": \"https://example.com/challenge1.jpg\",\n    \"phrase\": \"Challenge 1\",\n    \"tips\": [\"Tip 1\"],\n    \"duration\": \"2025-12-31T23:59:59\",\n    \"goals\": [\"Meta 1\"],\n    \"moduleName\": \"{{test_module_name}}\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/challenges/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"challenges",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3. Create Challenge 2",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Challenge 2 created\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"console.log(\"✅ Paso 3: Challenge 2 creado\");"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"test-challenge-2\",\n    \"description\": \"Segundo challenge de prueba\",\n    \"imageUrl\": \"https://example.com/challenge2.jpg\",\n    \"phrase\": \"Challenge 2\",\n    \"tips\": [\"Tip 2\"],\n    \"duration\": \"2025-12-31T23:59:59\",\n    \"goals\": [\"Meta 2\"],\n    \"moduleName\": \"{{test_module_name}}\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/challenges/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"challenges",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "4. Create Challenge 3",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Challenge 3 created\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"console.log(\"✅ Paso 4: Challenge 3 creado\");"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"test-challenge-3\",\n    \"description\": \"Tercer challenge de prueba\",\n    \"imageUrl\": \"https://example.com/challenge3.jpg\",\n    \"phrase\": \"Challenge 3\",\n    \"tips\": [\"Tip 3\"],\n    \"duration\": \"2025-12-31T23:59:59\",\n    \"goals\": [\"Meta 3\"],\n    \"moduleName\": \"{{test_module_name}}\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/challenges/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"challenges",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "5. Verify Challenges Exist",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Challenges retrieved\", function () {",
+											"    pm.response.to.have.status(200);",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.be.an('array');",
+											"    pm.expect(jsonData.length).to.be.at.least(3);",
+											"});",
+											"console.log(\"✅ Paso 5: Verificado que los 3 challenges existen\");"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/modules/challenges/{{test_module_name}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"modules",
+										"challenges",
+										"{{test_module_name}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "6. DELETE MODULE (Cascade)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Module deleted\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"console.log(\"✅ Paso 6: Módulo eliminado (debería eliminar todos los challenges)\");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"console.log(\"⚠️⚠️⚠️ BORRADO EN CASCADA ⚠️⚠️⚠️\");",
+											"console.log(\"Se eliminará el módulo: \" + pm.collectionVariables.get('test_module_name'));",
+											"console.log(\"Y TODOS los challenges asociados: test-challenge-1, test-challenge-2, test-challenge-3\");"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/modules/{{test_module_name}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"modules",
+										"{{test_module_name}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "7. Verify Challenge 1 Deleted",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Challenge 1 should be deleted (null or 404)\", function () {",
+											"    // El challenge debería haber sido eliminado en cascada",
+											"    var response = pm.response.json();",
+											"    pm.expect(response).to.be.null;",
+											"});",
+											"console.log(\"✅ Paso 7: Verificado que Challenge 1 fue eliminado\");"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/challenges/test-challenge-1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"challenges",
+										"test-challenge-1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "8. Verify Challenge 2 Deleted",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Challenge 2 should be deleted (null or 404)\", function () {",
+											"    var response = pm.response.json();",
+											"    pm.expect(response).to.be.null;",
+											"});",
+											"console.log(\"✅ Paso 8: Verificado que Challenge 2 fue eliminado\");"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/challenges/test-challenge-2",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"challenges",
+										"test-challenge-2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "9. Verify Challenge 3 Deleted",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Challenge 3 should be deleted (null or 404)\", function () {",
+											"    var response = pm.response.json();",
+											"    pm.expect(response).to.be.null;",
+											"});",
+											"console.log(\"✅ Paso 9: Verificado que Challenge 3 fue eliminado\");",
+											"console.log(\"\\n🎉 PRUEBA DE BORRADO EN CASCADA COMPLETADA 🎉\");",
+											"console.log(\"Todos los challenges fueron eliminados junto con el módulo\");"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/challenges/test-challenge-3",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"challenges",
+										"test-challenge-3"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "**Flujo completo de prueba de borrado en cascada:**\n\n1. Crea un módulo de prueba\n2. Crea 3 challenges asociados al módulo\n3. Verifica que los challenges existen\n4. **ELIMINA EL MÓDULO** (esto debería eliminar todos los challenges)\n5. Verifica que todos los challenges fueron eliminados\n\n**Ejecuta esta carpeta completa usando \"Run folder\" para probar el borrado en cascada automáticamente.**"
+				}
+			],
+			"description": "Escenarios de prueba completos, especialmente para el borrado en cascada"
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080/api",
+			"type": "string"
+		},
+		{
+			"key": "test_module_name",
+			"value": "test-module-cascade",
+			"type": "string"
+		},
+		{
+			"key": "test_challenge_name",
+			"value": "test-challenge-example",
+			"type": "string"
+		},
+		{
+			"key": "test_user_email",
+			"value": "test@example.com",
+			"type": "string"
+		}
+	]
+}

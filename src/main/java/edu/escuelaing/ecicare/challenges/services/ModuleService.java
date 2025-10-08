@@ -1,9 +1,9 @@
 package edu.escuelaing.ecicare.challenges.services;
 
+import edu.escuelaing.ecicare.challenges.models.dto.ChallengeResponse;
 import edu.escuelaing.ecicare.challenges.models.dto.ModuleDTO;
 import edu.escuelaing.ecicare.challenges.models.dto.ModuleResponse;
 import edu.escuelaing.ecicare.challenges.models.entity.Challenge;
-import edu.escuelaing.ecicare.challenges.repositories.ChallengeRepository;
 import edu.escuelaing.ecicare.challenges.repositories.ModuleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -38,9 +38,10 @@ public class ModuleService {
     /**
      * Persists a new module in the database.
      *
-     * @param moduleDto the {@link Module} to be created
+     * @param moduleDto the {@link ModuleDTO} to be created
+     * @return the created module as {@link ModuleResponse}
      */
-    public Module createModule(ModuleDTO moduleDto) {
+    public ModuleResponse createModule(ModuleDTO moduleDto) {
         Module module = Module.builder()
                 .name(moduleDto.getName())
                 .description(moduleDto.getDescription())
@@ -49,16 +50,18 @@ public class ModuleService {
                 .build();
 
         moduleRepository.save(module);
-        return module;
+        return toModuleResponse(module);
     }
 
     /**
      * Retrieves all modules stored in the database.
      *
-     * @return a list of {@link Module} entities
+     * @return a list of {@link ModuleResponse} DTOs
      */
-    public List<Module> getAllModules() {
-        return moduleRepository.findAll();
+    public List<ModuleResponse> getAllModules() {
+        return moduleRepository.findAll().stream()
+                .map(this::toModuleResponse)
+                .toList();
     }
 
     public List<ModuleResponse> getModules(){
@@ -86,9 +89,9 @@ public class ModuleService {
      * 
      * @param page the page number (0-based)
      * @param size the page size
-     * @return a {@link Page} of {@link Module} entities
+     * @return a {@link Page} of {@link ModuleResponse} DTOs
      */
-    public Page<Module> getAllModulesPaginated(int page, int size) {
+    public Page<ModuleResponse> getAllModulesPaginated(int page, int size) {
         if (page < 0) {
             page = 0;
         }
@@ -96,32 +99,35 @@ public class ModuleService {
             size = 10;
         }
         Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
-        return moduleRepository.findAll(pageable);
+        return moduleRepository.findAll(pageable)
+                .map(this::toModuleResponse);
     }
 
     /**
      * Retrieves all challenges associated with a given module.
      *
      * @param name the unique name of the module
-     * @return a list of {@link Challenge} entities belonging to the specified
+     * @return a list of {@link ChallengeResponse} DTOs belonging to the specified
      *         module
      * @throws java.util.NoSuchElementException if no module with the given name
      *                                          exists
      */
-    public List<Challenge> getChallengesByModule(String name) {
+    public List<ChallengeResponse> getChallengesByModule(String name) {
         Module module = moduleRepository.findById(name).get();
-        return module.getChallenges();
+        return module.getChallenges().stream()
+                .map(ChallengeService::challengeToResponse)
+                .toList();
     }
 
     /**
      * Updates the description of an existing {@link Module}.
      *
      * @param moduleDto a DTO from Module, for update description and imageUrl
-     * @return the updated {@link Module} entity after the change has been saved
+     * @return the updated {@link ModuleResponse} DTO after the change has been saved
      * @throws java.util.NoSuchElementException if no module with the given name
      *                                          exists
      */
-    public Module updateModuleByName(ModuleDTO moduleDto) {
+    public ModuleResponse updateModuleByName(ModuleDTO moduleDto) {
         Module module = moduleRepository.findById(moduleDto.getName()).get();
         if (moduleDto.getDescription() != null) {
             module.setDescription(moduleDto.getDescription());
@@ -129,8 +135,8 @@ public class ModuleService {
         if (moduleDto.getImageUrl() != null) {
             module.setImageUrl(moduleDto.getImageUrl());
         }
-        moduleRepository.save(module);
-        return module;
+        Module savedModule = moduleRepository.save(module);
+        return toModuleResponse(savedModule);
     }
 
     /**
@@ -153,4 +159,24 @@ public class ModuleService {
         moduleRepository.delete(module);
     }
 
+    /**
+     * Maps a Module entity to a ModuleResponse DTO.
+     *
+     * @param module the Module entity
+     * @return the ModuleResponse DTO
+     */
+    private ModuleResponse toModuleResponse(Module module) {
+        List<ChallengeResponse> challenges = module.getChallenges() != null
+                ? module.getChallenges().stream()
+                        .map(ChallengeService::challengeToResponse)
+                        .toList()
+                : Collections.emptyList();
+
+        return new ModuleResponse(
+                module.getName(),
+                module.getDescription(),
+                module.getImageUrl(),
+                challenges
+        );
+    }
 }

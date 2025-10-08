@@ -1,6 +1,8 @@
 package edu.escuelaing.ecicare.challenges.controllers;
 
+import edu.escuelaing.ecicare.challenges.models.dto.ChallengeResponse;
 import edu.escuelaing.ecicare.challenges.models.dto.ModuleDTO;
+import edu.escuelaing.ecicare.challenges.models.dto.ModuleResponse;
 import edu.escuelaing.ecicare.challenges.models.entity.Challenge;
 import edu.escuelaing.ecicare.challenges.services.ModuleService;
 import edu.escuelaing.ecicare.challenges.models.entity.Module;
@@ -42,7 +44,7 @@ public class ModuleController {
      * @return the created {@link Module}
      */
     @PostMapping("/")
-    public Module createModule(@RequestBody ModuleDTO module) {
+    public ModuleResponse createModule(@RequestBody ModuleDTO module) {
         return moduleService.createModule(module);
     }
 
@@ -76,13 +78,13 @@ public class ModuleController {
             @RequestParam(required = false) Integer size,
             @RequestParam(required = false) String view) {
         if (page != null && size != null) {
-            Page<Module> modulePage = moduleService.getAllModulesPaginated(page, size);
+            Page<ModuleResponse> modulePage = moduleService.getAllModulesPaginated(page, size);
             return ResponseEntity.ok(modulePage);
         }
         if (view != null && view.equals("MOBILE")){
             return ResponseEntity.ok(moduleService.getModules());
         }
-        List<Module> allModules = moduleService.getAllModules();
+        List<ModuleResponse> allModules = moduleService.getAllModules();
         return ResponseEntity.ok(allModules);
     }
 
@@ -93,7 +95,7 @@ public class ModuleController {
      * @return a list of {@link Challenge} entities belonging to the module
      */
     @GetMapping("/challenges/{name}")
-    public List<Challenge> getModuleChallenges(@PathVariable String name) {
+    public List<ChallengeResponse> getModuleChallenges(@PathVariable String name) {
         return moduleService.getChallengesByModule(name);
     }
 
@@ -104,7 +106,7 @@ public class ModuleController {
      * @return the updated {@link Module}
      */
     @PutMapping("/")
-    public Module updateModuleDescription(@RequestBody ModuleDTO module) {
+    public ModuleResponse updateModuleDescription(@RequestBody ModuleDTO module) {
         return moduleService.updateModuleByName(module);
     }
 
