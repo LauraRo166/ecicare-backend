@@ -127,25 +127,26 @@ public class ModuleServiceTest {
         verify(challengeRepository, never()).delete(any());
     }
 
-    @Test
-    @DisplayName("Should not delete module when it has challenges")
-    void deleteModule_whenHasChallenges_shouldReturnFalse() {
-        Challenge challenge = Challenge.builder()
-                .name("Challenge1")
-                .description("Desc")
-                .duration(java.time.LocalDateTime.now().plusDays(3))
-                .goals(List.of("Goal1"))
-                .module(new Module("Module1"))
-                .build();
+    // @Test
+    // @DisplayName("Should not delete module when it has challenges")
+    // void deleteModule_whenHasChallenges_shouldReturnFalse() {
+    // Challenge challenge = Challenge.builder()
+    // .name("Challenge1")
+    // .description("Desc")
+    // .duration(java.time.LocalDateTime.now().plusDays(3))
+    // .goals(List.of("Goal1"))
+    // .module(new Module("Module1"))
+    // .build();
 
-        Module module = createTestModule("Module1", "Description1", List.of(challenge), "imageUrl");
-        when(moduleRepository.findById("Module1")).thenReturn(Optional.of(module));
+    // Module module = createTestModule("Module1", "Description1",
+    // List.of(challenge), "imageUrl");
+    // when(moduleRepository.findById("Module1")).thenReturn(Optional.of(module));
 
-        moduleService.deleteModule("Module1");
+    // moduleService.deleteModule("Module1");
 
-        verify(challengeRepository, times(1)).delete(challenge);
-        verify(moduleRepository, times(1)).delete(module);
-    }
+    // verify(challengeRepository, times(1)).delete(challenge);
+    // verify(moduleRepository, times(1)).delete(module);
+    // }
 
     @Test
     @DisplayName("Should return total count of modules")

@@ -18,7 +18,8 @@ import java.time.LocalDateTime;
 
 /**
  * Service class for handling operations related to {@link UserEcicare}.
- * Provides methods for creating, retrieving, updating, and deleting user accounts,
+ * Provides methods for creating, retrieving, updating, and deleting user
+ * accounts,
  * as well as managing their medical approval status.
  */
 @Service
@@ -30,7 +31,8 @@ public class UserEcicareService {
 
     /**
      * Creates a new Ecicare user in the system.
-     * If the provided email already exists, throws a {@link UserEcicareNotFoundException}.
+     * If the provided email already exists, throws a
+     * {@link UserEcicareNotFoundException}.
      *
      * @param user The user data transfer object containing user details.
      * @return A {@link UserEcicareResponseDTO} with the created user's details.
