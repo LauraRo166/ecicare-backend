@@ -74,60 +74,67 @@ public class ChallengeControllerTest {
                                 .duration(LocalDateTime.now().plusDays(5))
                                 .build();
 
+                ChallengeResponse challengeResponse = new ChallengeResponse(
+                                "Challenge1",
+                                "Description1",
+                                "imageUrl1",
+                                null,
+                                null,
+                                LocalDateTime.now().plusDays(5),
+                                null,
+                                null,
+                                null
+                );
+
                 when(challengeService.createChallenge(any(ChallengeDTO.class)))
-                                .thenReturn(Challenge.builder()
-                                                .name("Challenge1")
-                                                .description("Description1")
-                                                .imageUrl("imageUrl1")
-                                                .duration(LocalDateTime.now().plusDays(5))
-                                                .build());
+                                .thenReturn(challengeResponse);
 
                 mockMvc.perform(post("/challenges/")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(challengeDto)))
                                 .andExpect(status().isOk())
                                 .andExpect(result -> {
-                                        Challenge response = objectMapper.readValue(
-                                                        result.getResponse().getContentAsString(), Challenge.class);
-                                        assert response.getName().equals(challengeDto.getName());
-                                        assert response.getImageUrl().equals(challengeDto.getImageUrl());
-                                        assert response.getDescription().equals(challengeDto.getDescription());
+                                        ChallengeResponse response = objectMapper.readValue(
+                                                        result.getResponse().getContentAsString(), ChallengeResponse.class);
+                                        assert response.name().equals(challengeDto.getName());
+                                        assert response.imageUrl().equals(challengeDto.getImageUrl());
+                                        assert response.description().equals(challengeDto.getDescription());
                                 });
         }
 
         @Test
         @DisplayName("Should get all challenges")
         void shouldGetAllChallenges() throws Exception {
-                List<Challenge> challenges = Arrays.asList(
-                                Challenge.builder().name("Challenge1").description("Desc1").build(),
-                                Challenge.builder().name("Challenge2").description("Desc2").build());
+                List<ChallengeResponse> challenges = Arrays.asList(
+                                new ChallengeResponse("Challenge1", "Desc1", null, null, null, null, null, null, null),
+                                new ChallengeResponse("Challenge2", "Desc2", null, null, null, null, null, null, null));
 
                 when(challengeService.getAllChallenges()).thenReturn(challenges);
 
                 mockMvc.perform(get("/challenges/"))
                                 .andExpect(status().isOk())
                                 .andExpect(result -> {
-                                        Challenge[] response = objectMapper.readValue(
-                                                        result.getResponse().getContentAsString(), Challenge[].class);
+                                        ChallengeResponse[] response = objectMapper.readValue(
+                                                        result.getResponse().getContentAsString(), ChallengeResponse[].class);
                                         assert response.length == challenges.size();
-                                        assert response[0].getName().equals(challenges.get(0).getName());
-                                        assert response[1].getName().equals(challenges.get(1).getName());
+                                        assert response[0].name().equals("Challenge1");
+                                        assert response[1].name().equals("Challenge2");
                                 });
         }
 
         @Test
         @DisplayName("Should get challenge by name")
         void shouldGetChallengeByName() throws Exception {
-                Challenge challenge = Challenge.builder().name("Challenge1").description("Desc1").build();
+                ChallengeResponse challenge = new ChallengeResponse("Challenge1", "Desc1", null, null, null, null, null, null, null);
 
                 when(challengeService.getChallengeByName("Challenge1")).thenReturn(challenge);
 
                 mockMvc.perform(get("/challenges/Challenge1"))
                                 .andExpect(status().isOk())
                                 .andExpect(result -> {
-                                        Challenge response = objectMapper.readValue(
-                                                        result.getResponse().getContentAsString(), Challenge.class);
-                                        assert response.getName().equals("Challenge1");
+                                        ChallengeResponse response = objectMapper.readValue(
+                                                        result.getResponse().getContentAsString(), ChallengeResponse.class);
+                                        assert response.name().equals("Challenge1");
                                 });
         }
 
@@ -135,18 +142,18 @@ public class ChallengeControllerTest {
         @DisplayName("Should get challenges by duration")
         void shouldGetChallengesByDuration() throws Exception {
                 LocalDateTime duration = LocalDateTime.now().plusDays(7);
-                List<Challenge> challenges = List.of(
-                                Challenge.builder().name("Challenge1").duration(duration).build());
+                List<ChallengeResponse> challenges = List.of(
+                                new ChallengeResponse("Challenge1", null, null, null, null, duration, null, null, null));
 
                 when(challengeService.getChallengeByDuration(duration)).thenReturn(challenges);
 
                 mockMvc.perform(get("/challenges/duration/" + duration))
                                 .andExpect(status().isOk())
                                 .andExpect(result -> {
-                                        Challenge[] response = objectMapper.readValue(
-                                                        result.getResponse().getContentAsString(), Challenge[].class);
+                                        ChallengeResponse[] response = objectMapper.readValue(
+                                                        result.getResponse().getContentAsString(), ChallengeResponse[].class);
                                         assert response.length == 1;
-                                        assert response[0].getName().equals("Challenge1");
+                                        assert response[0].name().equals("Challenge1");
                                 });
         }
 
@@ -170,10 +177,10 @@ public class ChallengeControllerTest {
                                 .content(objectMapper.writeValueAsString(user)))
                                 .andExpect(status().isOk())
                                 .andExpect(result -> {
-                                        Challenge[] response = objectMapper.readValue(
-                                                        result.getResponse().getContentAsString(), Challenge[].class);
+                                        ChallengeResponse[] response = objectMapper.readValue(
+                                                        result.getResponse().getContentAsString(), ChallengeResponse[].class);
                                         assert response.length == 1;
-                                        assert response[0].getName().equals("Challenge1");
+                                        assert response[0].name().equals("Challenge1");
                                 });
         }
 
@@ -185,11 +192,11 @@ public class ChallengeControllerTest {
                                 .description("Updated Desc")
                                 .imageUrl("imageUrl1")
                                 .build();
-                Challenge challenge = Challenge.builder()
-                                .name("Challenge1")
-                                .description("Updated Desc")
-                                .imageUrl("imageUrl1")
-                                .build();
+                ChallengeResponse challenge = new ChallengeResponse(
+                                "Challenge1",
+                                "Updated Desc",
+                                "imageUrl1",
+                                null, null, null, null, null, null);
 
                 when(challengeService.updateChallenge(updated)).thenReturn(challenge);
 
@@ -198,10 +205,10 @@ public class ChallengeControllerTest {
                                 .content(objectMapper.writeValueAsString(updated)))
                                 .andExpect(status().isOk())
                                 .andExpect(result -> {
-                                        Challenge response = objectMapper.readValue(
-                                                        result.getResponse().getContentAsString(), Challenge.class);
-                                        assert response.getDescription().equals("Updated Desc");
-                                        assert response.getImageUrl().equals("imageUrl1");
+                                        ChallengeResponse response = objectMapper.readValue(
+                                                        result.getResponse().getContentAsString(), ChallengeResponse.class);
+                                        assert response.description().equals("Updated Desc");
+                                        assert response.imageUrl().equals("imageUrl1");
                                 });
         }
 
@@ -221,9 +228,8 @@ public class ChallengeControllerTest {
                 String challengeName = "Challenge1";
 
                 // Mock service
-                Challenge mockChallenge = new Challenge();
-                mockChallenge.setName(challengeName);
-                mockChallenge.setRegistered(new ArrayList<>());
+                ChallengeResponse mockChallenge = new ChallengeResponse(
+                                challengeName, null, null, null, null, null, null, null, null);
 
                 when(challengeService.addUserByEmail(userEmail, challengeName)).thenReturn(mockChallenge);
 
@@ -271,13 +277,21 @@ public class ChallengeControllerTest {
                 // Crear DTOs agrupados
                 List<ModuleWithChallengesDTO> groupedResults = Arrays.asList(
                                 ModuleWithChallengesDTO.builder()
-                                                .module(hydrationModule)
-                                                .challenges(Arrays.asList(waterChallenge, lemonWaterChallenge))
+                                                .moduleName(hydrationModule.getName())
+                                                .moduleDescription(hydrationModule.getDescription())
+                                                .moduleImageUrl(hydrationModule.getImageUrl())
+                                                .challenges(Arrays.asList(waterChallenge, lemonWaterChallenge).stream()
+                                                                .map(ChallengeService::challengeToResponse)
+                                                                .toList())
                                                 .totalChallenges(2)
                                                 .build(),
                                 ModuleWithChallengesDTO.builder()
-                                                .module(exerciseModule)
-                                                .challenges(Arrays.asList(walkingChallenge))
+                                                .moduleName(exerciseModule.getName())
+                                                .moduleDescription(exerciseModule.getDescription())
+                                                .moduleImageUrl(exerciseModule.getImageUrl())
+                                                .challenges(Arrays.asList(walkingChallenge).stream()
+                                                                .map(ChallengeService::challengeToResponse)
+                                                                .toList())
                                                 .totalChallenges(1)
                                                 .build());
 
@@ -291,9 +305,9 @@ public class ChallengeControllerTest {
                                                         result.getResponse().getContentAsString(),
                                                         ModuleWithChallengesDTO[].class);
                                         assert response.length == 2;
-                                        assert response[0].getModule().getName().equals("Hidratación");
+                                        assert response[0].getModuleName().equals("Hidratación");
                                         assert response[0].getTotalChallenges() == 2;
-                                        assert response[1].getModule().getName().equals("Ejercicio");
+                                        assert response[1].getModuleName().equals("Ejercicio");
                                         assert response[1].getTotalChallenges() == 1;
                                 });
         }
@@ -369,8 +383,12 @@ public class ChallengeControllerTest {
 
                 List<ModuleWithChallengesDTO> groupedResults = Arrays.asList(
                                 ModuleWithChallengesDTO.builder()
-                                                .module(hydrationModule)
-                                                .challenges(Arrays.asList(waterChallenge))
+                                                .moduleName(hydrationModule.getName())
+                                                .moduleDescription(hydrationModule.getDescription())
+                                                .moduleImageUrl(hydrationModule.getImageUrl())
+                                                .challenges(Arrays.asList(waterChallenge).stream()
+                                                                .map(ChallengeService::challengeToResponse)
+                                                                .toList())
                                                 .totalChallenges(1)
                                                 .build());
 
@@ -384,10 +402,10 @@ public class ChallengeControllerTest {
                                                         result.getResponse().getContentAsString(),
                                                         ModuleWithChallengesDTO[].class);
                                         assert response.length == 1;
-                                        assert response[0].getModule().getName().equals("Hidratación");
+                                        assert response[0].getModuleName().equals("Hidratación");
                                         assert response[0].getTotalChallenges() == 1;
                                         assert response[0].getChallenges().size() == 1;
-                                        assert response[0].getChallenges().get(0).getName().equals("Reto Agua Diaria");
+                                        assert response[0].getChallenges().get(0).name().equals("Reto Agua Diaria");
                                 });
         }
 
@@ -408,8 +426,12 @@ public class ChallengeControllerTest {
 
                 List<ModuleWithChallengesDTO> groupedResults = Arrays.asList(
                                 ModuleWithChallengesDTO.builder()
-                                                .module(exerciseModule)
-                                                .challenges(Arrays.asList(walkingChallenge))
+                                                .moduleName(exerciseModule.getName())
+                                                .moduleDescription(exerciseModule.getDescription())
+                                                .moduleImageUrl(exerciseModule.getImageUrl())
+                                                .challenges(Arrays.asList(walkingChallenge).stream()
+                                                                .map(ChallengeService::challengeToResponse)
+                                                                .toList())
                                                 .totalChallenges(1)
                                                 .build());
 
@@ -423,7 +445,7 @@ public class ChallengeControllerTest {
                                                         result.getResponse().getContentAsString(),
                                                         ModuleWithChallengesDTO[].class);
                                         assert response.length == 1;
-                                        assert response[0].getChallenges().get(0).getName().equals("Caminar Diario");
+                                        assert response[0].getChallenges().get(0).name().equals("Caminar Diario");
                                 });
         }
     @Test
@@ -445,12 +467,12 @@ public class ChallengeControllerTest {
         mockMvc.perform(get("/challenges/confirmed/" + userEmail))
                 .andExpect(status().isOk())
                 .andExpect(result -> {
-                    Challenge[] response = objectMapper.readValue(
+                    ChallengeResponse[] response = objectMapper.readValue(
                             result.getResponse().getContentAsString(),
-                            Challenge[].class
+                            ChallengeResponse[].class
                     );
                     assert response.length == 1;
-                    assert response[0].getName().equals("Challenge1");
+                    assert response[0].name().equals("Challenge1");
                 });
     }
 

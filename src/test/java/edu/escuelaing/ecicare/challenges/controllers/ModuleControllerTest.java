@@ -4,9 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.escuelaing.ecicare.awards.models.entity.Award;
 import edu.escuelaing.ecicare.awards.models.entity.Redeemable;
 import edu.escuelaing.ecicare.awards.models.entity.RedeemableId;
+import edu.escuelaing.ecicare.challenges.models.dto.ChallengeResponse;
 import edu.escuelaing.ecicare.challenges.models.dto.ModuleDTO;
+import edu.escuelaing.ecicare.challenges.models.dto.ModuleResponse;
 import edu.escuelaing.ecicare.challenges.models.entity.Challenge;
 import edu.escuelaing.ecicare.challenges.models.entity.Module;
+import edu.escuelaing.ecicare.challenges.services.ChallengeService;
 import edu.escuelaing.ecicare.challenges.services.ModuleService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -49,34 +52,34 @@ class ModuleControllerTest {
                 .imageUrl("ImageUrl1")
                 .build();
 
-        when(moduleService.createModule(any(ModuleDTO.class)))
-                .thenReturn(Module.builder()
-                        .name("Module1")
-                        .description("Description1")
-                        .imageUrl("ImageUrl1")
-                        .challenges(Collections.emptyList())
-                        .build());
+        ModuleResponse moduleResponse = new ModuleResponse(
+                "Module1",
+                "Description1",
+                "ImageUrl1",
+                Collections.emptyList());
 
+        when(moduleService.createModule(any(ModuleDTO.class)))
+                .thenReturn(moduleResponse);
 
         mockMvc.perform(post("/modules/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(moduleDto)))
                 .andExpect(status().isOk())
                 .andExpect(result -> {
-                    Module response = objectMapper.readValue(result.getResponse().getContentAsString(),
-                            Module.class);
-                    assert response.getName().equals(moduleDto.getName());
-                    assert response.getDescription().equals(moduleDto.getDescription());
-                    assert response.getImageUrl().equals(moduleDto.getImageUrl());
+                    ModuleResponse response = objectMapper.readValue(result.getResponse().getContentAsString(),
+                            ModuleResponse.class);
+                    assert response.name().equals(moduleDto.getName());
+                    assert response.description().equals(moduleDto.getDescription());
+                    assert response.imageUrl().equals(moduleDto.getImageUrl());
                 });
     }
 
     @Test
     @DisplayName("Should return all modules when they exist")
     void shouldGetAllModules() throws Exception {
-        List<Module> modules = Arrays.asList(
-                Module.builder().name("Module1").description("Desc1").build(),
-                Module.builder().name("Module2").description("Desc2").build()
+        List<ModuleResponse> modules = Arrays.asList(
+                new ModuleResponse("Module1", "Desc1", null, Collections.emptyList()),
+                new ModuleResponse("Module2", "Desc2", null, Collections.emptyList())
         );
 
         when(moduleService.getAllModules()).thenReturn(modules);
@@ -84,13 +87,13 @@ class ModuleControllerTest {
         mockMvc.perform(get("/modules/"))
                 .andExpect(status().isOk())
                 .andExpect(result -> {
-                    Module[] response = objectMapper.readValue(result.getResponse().getContentAsString(),
-                            Module[].class);
+                    ModuleResponse[] response = objectMapper.readValue(result.getResponse().getContentAsString(),
+                            ModuleResponse[].class);
                     assert response.length == modules.size();
-                    assert response[0].getName().equals(modules.get(0).getName());
-                    assert response[0].getDescription().equals(modules.get(0).getDescription());
-                    assert response[1].getName().equals(modules.get(1).getName());
-                    assert response[1].getDescription().equals(modules.get(1).getDescription());
+                    assert response[0].name().equals("Module1");
+                    assert response[0].description().equals("Desc1");
+                    assert response[1].name().equals("Module2");
+                    assert response[1].description().equals("Desc2");
                 });
     }
 
@@ -139,20 +142,24 @@ class ModuleControllerTest {
                         .build()
         );
 
-        when(moduleService.getChallengesByModule("Module1")).thenReturn(challenges);
+        List<ChallengeResponse> challengeResponses = challenges.stream()
+                .map(ChallengeService::challengeToResponse)
+                .toList();
+
+        when(moduleService.getChallengesByModule("Module1")).thenReturn(challengeResponses);
 
         mockMvc.perform(get("/modules/challenges/Module1"))
                 .andExpect(status().isOk())
                 .andExpect(result -> {
-                    Challenge[] response = objectMapper.readValue(result.getResponse().getContentAsString(),
-                            Challenge[].class);
-                    assert response.length == challenges.size();
-                    assert response[0].getName().equals(challenges.get(0).getName());
-                    assert response[0].getDescription().equals(challenges.get(0).getDescription());
-                    assert response[0].getModule().getName().equals("Module1");
-                    assert response[1].getName().equals(challenges.get(1).getName());
-                    assert response[1].getDescription().equals(challenges.get(1).getDescription());
-                    assert response[1].getModule().getName().equals("Module1");
+                    ChallengeResponse[] response = objectMapper.readValue(result.getResponse().getContentAsString(),
+                            ChallengeResponse[].class);
+                    assert response.length == challengeResponses.size();
+                    assert response[0].name().equals("Challenge1");
+                    assert response[0].description().equals("Desc1");
+                    assert response[0].moduleName().equals("Module1");
+                    assert response[1].name().equals("Challenge2");
+                    assert response[1].description().equals("Desc2");
+                    assert response[1].moduleName().equals("Module1");
                 });
     }
 
@@ -165,14 +172,14 @@ class ModuleControllerTest {
                 .imageUrl("ImageUrl1")
                 .build();
 
-        Module module = Module.builder()
-                .name("Module1")
-                .description("New Description")
-                .imageUrl("ImageUrl1")
-                .build();
+        ModuleResponse moduleResponse = new ModuleResponse(
+                "Module1",
+                "New Description",
+                "ImageUrl1",
+                Collections.emptyList());
 
         when(moduleService.updateModuleByName(moduleDto))
-                .thenReturn(module);
+                .thenReturn(moduleResponse);
 
         mockMvc.perform(put("/modules/")
                         .contentType(MediaType.APPLICATION_JSON)

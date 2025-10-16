@@ -42,6 +42,7 @@ public class AuthService {
         }
 
         return AuthResponseDTO.builder()
+                .idEci(userEcicare.getIdEci())
                 .email(userEcicare.getEmail())
                 .name(userEcicare.getName())
                 .build();

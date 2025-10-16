@@ -92,7 +92,7 @@ class AwardControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].awardId", is(1)))
+                .andExpect(jsonPath("$[0].id", is(1)))
                 .andExpect(jsonPath("$[0].name", is("Test Award")))
                 .andExpect(jsonPath("$[0].description", is("Test Award Description")))
                 .andExpect(jsonPath("$[0].inStock", is(10)));
@@ -114,7 +114,7 @@ class AwardControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].awardId", is(1)));
+                .andExpect(jsonPath("$[0].id", is(1)));
 
         verify(awardService, times(1)).getAwardPagination(2, 5);
     }
@@ -129,7 +129,7 @@ class AwardControllerTest {
         mockMvc.perform(get("/awards/1"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.awardId", is(1)))
+                .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.name", is("Test Award")))
                 .andExpect(jsonPath("$.description", is("Test Award Description")))
                 .andExpect(jsonPath("$.inStock", is(10)))
@@ -163,7 +163,7 @@ class AwardControllerTest {
                 .content(objectMapper.writeValueAsString(testAwardDto)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.awardId", is(1)))
+                .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.name", is("Test Award")))
                 .andExpect(jsonPath("$.description", is("Test Award Description")))
                 .andExpect(jsonPath("$.inStock", is(10)));
@@ -203,7 +203,7 @@ class AwardControllerTest {
                 .content(objectMapper.writeValueAsString(testAwardDto)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.awardId", is(1)))
+                .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.name", is("Updated Award")))
                 .andExpect(jsonPath("$.description", is("Updated Description")))
                 .andExpect(jsonPath("$.inStock", is(20)));
@@ -323,7 +323,7 @@ class AwardControllerTest {
                 .content(objectMapper.writeValueAsString(minimalDto)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.awardId", is(2)))
+                .andExpect(jsonPath("$.id", is(2)))
                 .andExpect(jsonPath("$.name", is("Minimal Award")));
 
         verify(awardService, times(1)).createAward(any(AwardDto.class));

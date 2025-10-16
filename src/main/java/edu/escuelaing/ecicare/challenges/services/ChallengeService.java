@@ -55,9 +55,10 @@ public class ChallengeService {
     /**
      * Creates and saves a new challenge in the repository.
      *
-     * @param challengeDto the {@link Challenge} to be created
+     * @param challengeDto the {@link ChallengeDTO} to be created
+     * @return the created challenge as {@link ChallengeResponse}
      */
-    public Challenge createChallenge(ChallengeDTO challengeDto) {
+    public ChallengeResponse createChallenge(ChallengeDTO challengeDto) {
         Module module = moduleRepository.findById(challengeDto.getModuleName())
                 .orElseThrow(() -> new RuntimeException("Módulo no encontrado"));
         Challenge challenge = Challenge.builder()
@@ -71,16 +72,29 @@ public class ChallengeService {
                 .module(module)
                 .build();
         challengeRepository.save(challenge);
-        return challenge;
+        return challengeToResponse(challenge);
     }
 
     /**
      * Retrieves all challenges from the repository.
      *
-     * @return a list of all {@link Challenge} entities
+     * @return a list of all {@link ChallengeResponse} DTOs
      */
-    public List<Challenge> getAllChallenges() {
-        return challengeRepository.findAll();
+    public List<ChallengeResponse> getAllChallenges() {
+        return challengeRepository.findAll().stream()
+                .map(ChallengeService::challengeToResponse)
+                .toList();
+    }
+
+    /**
+     * Retrieves a challenge entity by its name (for internal use).
+     * pruebasssssssssssssssss
+     *
+     * @param name the name of the challenge
+     * @return the {@link Challenge} entity, or null if not found
+     */
+    public Challenge getChallengeEntityByName(String name) {
+        return challengeRepository.findByName(name);
     }
 
     /**
@@ -88,9 +102,9 @@ public class ChallengeService {
      *
      * @param page the page number (0-based)
      * @param size the page size
-     * @return a {@link Page} of {@link Challenge} entities
+     * @return a {@link Page} of {@link ChallengeResponse} DTOs
      */
-    public Page<Challenge> getAllChallengesPaginated(int page, int size) {
+    public Page<ChallengeResponse> getAllChallengesPaginated(int page, int size) {
         if (page < 0) {
             page = 0;
         }
@@ -99,7 +113,8 @@ public class ChallengeService {
         }
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
-        return challengeRepository.findAll(pageable);
+        return challengeRepository.findAll(pageable)
+                .map(ChallengeService::challengeToResponse);
     }
 
     /**
@@ -125,16 +140,22 @@ public class ChallengeService {
         return challengesByModule.entrySet().stream()
                 .map(entry -> {
                     List<Challenge> challenges = entry.getValue();
+                    Module module = challenges.get(0).getModule();
 
-                    var module = challenges.get(0).getModule();
+                    // Convert challenges to DTOs
+                    List<ChallengeResponse> challengeResponses = challenges.stream()
+                            .map(ChallengeService::challengeToResponse)
+                            .toList();
 
                     return ModuleWithChallengesDTO.builder()
-                            .module(module)
-                            .challenges(challenges)
+                            .moduleName(module.getName())
+                            .moduleDescription(module.getDescription())
+                            .moduleImageUrl(module.getImageUrl())
+                            .challenges(challengeResponses)
                             .totalChallenges(challenges.size())
                             .build();
                 })
-                .sorted((dto1, dto2) -> dto1.getModule().getName().compareToIgnoreCase(dto2.getModule().getName()))
+                .sorted((dto1, dto2) -> dto1.getModuleName().compareToIgnoreCase(dto2.getModuleName()))
                 .collect(Collectors.toList());
     }
 
@@ -142,11 +163,12 @@ public class ChallengeService {
      * Retrieves a challenge by its unique name.
      *
      * @param name the name of the challenge
-     * @return the {@link Challenge} with the specified name,
+     * @return the {@link ChallengeResponse} with the specified name,
      *         or {@code null} if no such challenge exists
      */
-    public Challenge getChallengeByName(String name) {
-        return challengeRepository.findByName(name);
+    public ChallengeResponse getChallengeByName(String name) {
+        Challenge challenge = challengeRepository.findByName(name);
+        return challenge != null ? challengeToResponse(challenge) : null;
     }
 
     /**
@@ -154,13 +176,14 @@ public class ChallengeService {
      * The search is performed through the Redeemables linked to the challenge.
      *
      * @param challengeName is the unique name of the challenge to query.
-     * @return a list of distinct Awards associated with that challenge.
+     * @return a list of distinct {@link AwardDto} associated with that challenge.
      */
-    public List<Award> getAwardsByChallenge(String challengeName) {
+    public List<AwardDto> getAwardsByChallenge(String challengeName) {
         return redeemableRepository.findByChallenge_Name(challengeName).stream()
                 .map(Redeemable::getAward)
                 .filter(Objects::nonNull)
                 .distinct()
+                .map(ChallengeService::toAwardDto)
                 .toList();
     }
 
@@ -168,20 +191,23 @@ public class ChallengeService {
      * Retrieves all challenges with a specific duration.
      *
      * @param duration the duration (end date/time) of the challenge
-     * @return a list of {@link Challenge} entities matching the given duration
+     * @return a list of {@link ChallengeResponse} DTOs matching the given duration
      *         or {@code null} if no such challenge exists
      */
-    public List<Challenge> getChallengeByDuration(LocalDateTime duration) {
-        return challengeRepository.findByDuration(duration);
+    public List<ChallengeResponse> getChallengeByDuration(LocalDateTime duration) {
+        return challengeRepository.findByDuration(duration).stream()
+                .map(ChallengeService::challengeToResponse)
+                .toList();
     }
 
     /**
      * Updates an existing challenge with new values for specific fields:
      * phrase, reward, and health module.
      *
-     * @param challengeDto the {@link Challenge} containing updated values
+     * @param challengeDto the {@link ChallengeDTO} containing updated values
+     * @return the updated {@link ChallengeResponse}
      */
-    public Challenge updateChallenge(ChallengeDTO challengeDto) {
+    public ChallengeResponse updateChallenge(ChallengeDTO challengeDto) {
         Challenge oldChallenge = challengeRepository.findByName(challengeDto.getName());
         if (oldChallenge == null) {
             throw new RuntimeException("Challenge no encontrado");
@@ -208,11 +234,13 @@ public class ChallengeService {
             oldChallenge.setModule(module);
         }
 
-        return challengeRepository.save(oldChallenge);
+        Challenge savedChallenge = challengeRepository.save(oldChallenge);
+        return challengeToResponse(savedChallenge);
     }
 
     /**
-     * Deletes a challenge by its unique name, along with its associated redeemables.
+     * Deletes a challenge by its unique name, along with its associated
+     * redeemables.
      *
      * @param name the name of the challenge to delete
      */
@@ -234,9 +262,13 @@ public class ChallengeService {
      *
      * @param userEmail the {@link UserEcicare} to be added
      * @param name      the name of the challenge
+     * @return the updated {@link ChallengeResponse}
      */
-    public Challenge addUserByEmail(String userEmail, String name) {
-        Challenge challenge = getChallengeByName(name);
+    public ChallengeResponse addUserByEmail(String userEmail, String name) {
+        Challenge challenge = challengeRepository.findByName(name);
+        if (challenge == null) {
+            throw new RuntimeException("Challenge not found: " + name);
+        }
         List<UserEcicare> registered = challenge.getRegistered();
         UserEcicare user = userEcicareRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userEmail));
@@ -245,7 +277,7 @@ public class ChallengeService {
             challenge.setRegistered(registered);
             challengeRepository.save(challenge);
         }
-        return challenge;
+        return challengeToResponse(challenge);
     }
 
     /**
@@ -255,9 +287,13 @@ public class ChallengeService {
      *
      * @param userEmail the {@link UserEcicare} to be added
      * @param name      the name of the challenge
+     * @return the updated {@link ChallengeResponse}
      */
-    public Challenge confirmUserByEmail(String userEmail, String name) {
-        Challenge challenge = getChallengeByName(name);
+    public ChallengeResponse confirmUserByEmail(String userEmail, String name) {
+        Challenge challenge = challengeRepository.findByName(name);
+        if (challenge == null) {
+            throw new RuntimeException("Challenge not found: " + name);
+        }
         List<UserEcicare> registered = challenge.getRegistered();
         List<UserEcicare> confirmed = challenge.getConfirmed();
         UserEcicare user = userEcicareRepository.findByEmail(userEmail)
@@ -269,7 +305,7 @@ public class ChallengeService {
             challenge.setConfirmed(confirmed);
             challengeRepository.save(challenge);
         }
-        return challenge;
+        return challengeToResponse(challenge);
     }
 
     /**
@@ -286,15 +322,48 @@ public class ChallengeService {
                 .map(ChallengeService::challengeToResponse)
                 .toList();
     }
-    public static ChallengeResponse challengeToResponse(Challenge challenge){
+
+    /**
+     * Maps a Challenge entity to a ChallengeResponse DTO.
+     *
+     * @param challenge the Challenge entity
+     * @return the ChallengeResponse DTO
+     */
+    public static ChallengeResponse challengeToResponse(Challenge challenge) {
         List<AwardDto> redeemables = challenge.getRedeemables() != null ? challenge.getRedeemables()
                 .stream()
-                .map(r -> new AwardDto(r.getAward().getName(), r.getAward().getDescription(),
-                        r.getAward().getInStock(), r.getAward().getImageUrl()))
-                .toList(): null;
-        return new ChallengeResponse(challenge.getName(), challenge.getDescription(), challenge.getImageUrl(),
-                challenge.getPhrase(), challenge.getTips(), challenge.getDuration(),challenge.getGoals(), challenge.getModule().getName(), redeemables);
+                .map(r -> new AwardDto(
+                        r.getAward().getName(),
+                        r.getAward().getDescription(),
+                        r.getAward().getInStock(),
+                        r.getAward().getImageUrl()))
+                .toList() : null;
+        return new ChallengeResponse(
+                challenge.getName(),
+                challenge.getDescription(),
+                challenge.getImageUrl(),
+                challenge.getPhrase(),
+                challenge.getTips(),
+                challenge.getDuration(),
+                challenge.getGoals(),
+                challenge.getModule().getName(),
+                redeemables);
     }
+
+    /**
+     * Maps an Award entity to an AwardDto.
+     *
+     * @param award the Award entity
+     * @return the AwardDto
+     */
+    private static AwardDto toAwardDto(Award award) {
+        return new AwardDto(
+                award.getName(),
+                award.getDescription(),
+                award.getInStock(),
+                award.getImageUrl());
+    }
+
     /**
      * Retrieves all challenges completes in which a specific user is registered.
      *

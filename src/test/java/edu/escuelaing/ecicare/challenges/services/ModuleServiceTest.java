@@ -1,6 +1,8 @@
 package edu.escuelaing.ecicare.challenges.services;
 
+import edu.escuelaing.ecicare.challenges.models.dto.ChallengeResponse;
 import edu.escuelaing.ecicare.challenges.models.dto.ModuleDTO;
+import edu.escuelaing.ecicare.challenges.models.dto.ModuleResponse;
 import edu.escuelaing.ecicare.challenges.models.entity.Challenge;
 import edu.escuelaing.ecicare.challenges.models.entity.Module;
 import edu.escuelaing.ecicare.challenges.repositories.ChallengeRepository;
@@ -67,12 +69,13 @@ public class ModuleServiceTest {
         Module module2 = createTestModule("Module2", "Description2", Collections.emptyList(), "imageUrl");
         when(moduleRepository.findAll()).thenReturn(List.of(module1, module2));
 
-        List<Module> result = moduleService.getAllModules();
+        List<ModuleResponse> result = moduleService.getAllModules();
 
         assertThat(result)
                 .isNotNull()
-                .hasSize(2)
-                .containsExactly(module1, module2);
+                .hasSize(2);
+        assertThat(result.get(0).name()).isEqualTo("Module1");
+        assertThat(result.get(1).name()).isEqualTo("Module2");
         verify(moduleRepository, times(1)).findAll();
     }
 
@@ -80,7 +83,7 @@ public class ModuleServiceTest {
     @DisplayName("Should return empty list when no modules exist")
     void getAllModules_whenNoModulesExist_shouldReturnEmptyList() {
         when(moduleRepository.findAll()).thenReturn(Collections.emptyList());
-        List<Module> result = moduleService.getAllModules();
+        List<ModuleResponse> result = moduleService.getAllModules();
         assertThat(result).isNotNull().isEmpty();
     }
 
@@ -98,8 +101,9 @@ public class ModuleServiceTest {
         Module module = createTestModule("Module1", "Description1", List.of(challenge), "imageUrl");
         when(moduleRepository.findById("Module1")).thenReturn(Optional.of(module));
 
-        List<Challenge> result = moduleService.getChallengesByModule("Module1");
-        assertThat(result).isNotNull().hasSize(1).containsExactly(challenge);
+        List<ChallengeResponse> result = moduleService.getChallengesByModule("Module1");
+        assertThat(result).isNotNull().hasSize(1);
+        assertThat(result.get(0).name()).isEqualTo("Challenge1");
     }
 
     @Test
@@ -109,10 +113,11 @@ public class ModuleServiceTest {
         Module module = createTestModule("Module1", "Old Description", Collections.emptyList(), "imageUrl");
         when(moduleRepository.findById("Module1")).thenReturn(Optional.of(module));
 
-        Module updated = moduleService.updateModuleByName(moduleDto);
+        when(moduleRepository.save(any(Module.class))).thenReturn(module);
+        ModuleResponse updated = moduleService.updateModuleByName(moduleDto);
 
-        verify(moduleRepository, times(1)).save(module);
-        assertThat(updated.getDescription()).isEqualTo("New Description");
+        verify(moduleRepository, times(1)).save(any(Module.class));
+        assertThat(updated.description()).isEqualTo("New Description");
     }
 
     @Test
@@ -126,27 +131,6 @@ public class ModuleServiceTest {
         verify(moduleRepository, times(1)).delete(module);
         verify(challengeRepository, never()).delete(any());
     }
-
-    // @Test
-    // @DisplayName("Should not delete module when it has challenges")
-    // void deleteModule_whenHasChallenges_shouldReturnFalse() {
-    // Challenge challenge = Challenge.builder()
-    // .name("Challenge1")
-    // .description("Desc")
-    // .duration(java.time.LocalDateTime.now().plusDays(3))
-    // .goals(List.of("Goal1"))
-    // .module(new Module("Module1"))
-    // .build();
-
-    // Module module = createTestModule("Module1", "Description1",
-    // List.of(challenge), "imageUrl");
-    // when(moduleRepository.findById("Module1")).thenReturn(Optional.of(module));
-
-    // moduleService.deleteModule("Module1");
-
-    // verify(challengeRepository, times(1)).delete(challenge);
-    // verify(moduleRepository, times(1)).delete(module);
-    // }
 
     @Test
     @DisplayName("Should return total count of modules")
@@ -168,15 +152,21 @@ public class ModuleServiceTest {
         Page<Module> page = new PageImpl<>(List.of(module1, module2));
         when(moduleRepository.findAll(any(Pageable.class))).thenReturn(page);
 
-        Page<Module> result = moduleService.getAllModulesPaginated(0, 2);
+        Page<ModuleResponse> result = moduleService.getAllModulesPaginated(0, 2);
 
-        assertThat(result).isNotNull().hasSize(2).containsExactly(module1, module2);
+        assertThat(result).isNotNull().hasSize(2);
+        assertThat(result.getContent().get(0).name()).isEqualTo("Module1");
+        assertThat(result.getContent().get(1).name()).isEqualTo("Module2");
         verify(moduleRepository, times(1)).findAll(any(Pageable.class));
     }
 
     @Test
     @DisplayName("Should default page to 0 when negative value is provided")
     void getAllModulesPaginated_whenNegativePage_shouldUseZero() {
+        Module module = createTestModule("Module1", "Description1", Collections.emptyList(), "imageUrl");
+        Page<Module> mockPage = new PageImpl<>(List.of(module));
+        when(moduleRepository.findAll(any(Pageable.class))).thenReturn(mockPage);
+
         moduleService.getAllModulesPaginated(-1, 5);
         verify(moduleRepository, times(1)).findAll(any(Pageable.class));
     }
@@ -184,6 +174,10 @@ public class ModuleServiceTest {
     @Test
     @DisplayName("Should default size to 10 when zero or negative size is provided")
     void getAllModulesPaginated_whenSizeIsZeroOrNegative_shouldUseDefaultSize10() {
+        Module module = createTestModule("Module1", "Description1", Collections.emptyList(), "imageUrl");
+        Page<Module> mockPage = new PageImpl<>(List.of(module));
+        when(moduleRepository.findAll(any(Pageable.class))).thenReturn(mockPage);
+
         moduleService.getAllModulesPaginated(0, 0);
         verify(moduleRepository, times(1)).findAll(any(Pageable.class));
 

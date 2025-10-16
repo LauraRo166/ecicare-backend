@@ -3,6 +3,7 @@ package edu.escuelaing.ecicare.challenges.services;
 import edu.escuelaing.ecicare.awards.models.entity.Award;
 import edu.escuelaing.ecicare.awards.models.entity.Redeemable;
 import edu.escuelaing.ecicare.awards.models.entity.RedeemableId;
+import edu.escuelaing.ecicare.awards.repositories.RedeemableRepository;
 import edu.escuelaing.ecicare.challenges.models.dto.ChallengeDTO;
 import edu.escuelaing.ecicare.challenges.models.dto.ChallengeResponse;
 import edu.escuelaing.ecicare.challenges.models.dto.ModuleWithChallengesDTO;
@@ -33,6 +34,9 @@ class ChallengeServiceTest {
 
         @Mock
         private ChallengeRepository challengeRepository;
+
+        @Mock
+        private RedeemableRepository redeemableRepository;
 
         @Mock
         private ModuleRepository moduleRepository;
@@ -116,13 +120,14 @@ class ChallengeServiceTest {
                 when(challengeRepository.findAll()).thenReturn(List.of(challenge1, challenge2));
 
                 // Act
-                List<Challenge> result = challengeService.getAllChallenges();
+                List<ChallengeResponse> result = challengeService.getAllChallenges();
 
                 // Assert
                 assertThat(result)
                                 .isNotNull()
-                                .hasSize(2)
-                                .containsExactly(challenge1, challenge2);
+                                .hasSize(2);
+                assertThat(result.get(0).name()).isEqualTo("Challenge 1");
+                assertThat(result.get(1).name()).isEqualTo("Challenge 2");
                 verify(challengeRepository, times(1)).findAll();
         }
 
@@ -133,7 +138,7 @@ class ChallengeServiceTest {
                 when(challengeRepository.findAll()).thenReturn(Collections.emptyList());
 
                 // Act
-                List<Challenge> result = challengeService.getAllChallenges();
+                List<ChallengeResponse> result = challengeService.getAllChallenges();
 
                 // Assert
                 assertThat(result).isNotNull().isEmpty();
@@ -148,11 +153,11 @@ class ChallengeServiceTest {
                 when(challengeRepository.findByName(challengeName)).thenReturn(expectedChallenge);
 
                 // Act
-                Challenge result = challengeService.getChallengeByName(challengeName);
+                ChallengeResponse result = challengeService.getChallengeByName(challengeName);
 
                 // Assert
                 assertThat(result).isNotNull();
-                assertThat(result.getName()).isEqualTo(challengeName);
+                assertThat(result.name()).isEqualTo(challengeName);
         }
 
         @Test
@@ -163,7 +168,7 @@ class ChallengeServiceTest {
                 when(challengeRepository.findByName(challengeName)).thenReturn(null);
 
                 // Act
-                Challenge result = challengeService.getChallengeByName(challengeName);
+                ChallengeResponse result = challengeService.getChallengeByName(challengeName);
 
                 // Assert
                 assertThat(result).isNull();
@@ -188,10 +193,10 @@ class ChallengeServiceTest {
                                 .thenAnswer(invocation -> invocation.getArgument(0));
 
                 // Act
-                Challenge updated = challengeService.updateChallenge(dto);
+                ChallengeResponse updated = challengeService.updateChallenge(dto);
 
                 // Assert
-                assertEquals("A test challenge description.", updated.getDescription());
+                assertEquals("A test challenge description.", updated.description());
                 verify(challengeRepository).save(argThat(c -> c.getName().equals("Challenge1") &&
                                 c.getDescription().equals("A test challenge description.") && // corregido
                                 c.getModule().equals(module)));
@@ -214,12 +219,15 @@ class ChallengeServiceTest {
                                 .build();
 
                 when(challengeRepository.findByName(originalName)).thenReturn(oldChallenge);
+                when(challengeRepository.save(any(Challenge.class))).thenReturn(oldChallenge);
 
                 // Act
-                challengeService.updateChallenge(updates);
+                ChallengeResponse result = challengeService.updateChallenge(updates);
 
                 // Assert
-                verify(challengeRepository, times(1)).save(oldChallenge);
+                assertThat(result).isNotNull();
+                verify(challengeRepository, times(1)).save(any(Challenge.class));
+                // Verify the entity was updated correctly
                 assertThat(oldChallenge.getPhrase()).isEqualTo("new phrase"); // Changed
                 assertThat(oldChallenge.getRedeemables()).isEqualTo(redeemables); // Unchanged
                 assertThat(oldChallenge.getModule()).isEqualTo(new Module("Old Module")); // Unchanged
@@ -249,19 +257,25 @@ class ChallengeServiceTest {
                 verify(challengeRepository, never()).save(any(Challenge.class));
         }
 
-        // @Test
-        // @DisplayName("Should call deleteById when deleting a challenge")
-        // void deleteChallenge_whenCalledWithName_shouldCallRepositoryDelete() {
-        // Arrange
-        // String challengeName = "Challenge To Delete";
-        // doNothing().when(challengeRepository).deleteById(challengeName);
+        @Test
+        @DisplayName("Should call delete when deleting a challenge")
+        void deleteChallenge_whenCalledWithName_shouldCallRepositoryDelete() {
+                // Arrange
+                String challengeName = "Challenge To Delete";
+                Challenge challenge = new Challenge();
+                challenge.setName(challengeName);
 
-        // Act
-        // challengeService.deleteChallenge(challengeName);
+                when(challengeRepository.findById(challengeName)).thenReturn(Optional.of(challenge));
+                doNothing().when(redeemableRepository).deleteAllByChallenge(challenge);
+                doNothing().when(challengeRepository).delete(challenge);
 
-        // Assert
-        // verify(challengeRepository, times(1)).deleteById(challengeName);
-        // }
+                // Act
+                challengeService.deleteChallenge(challengeName);
+
+                // Assert
+                verify(redeemableRepository, times(1)).deleteAllByChallenge(challenge);
+                verify(challengeRepository, times(1)).delete(challenge);
+        }
 
         @Test
         @DisplayName("Should add user to challenge when user is not already registered")
@@ -277,10 +291,11 @@ class ChallengeServiceTest {
                 when(userEcicareRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
 
                 // Act
-                Challenge result = challengeService.addUserByEmail(user.getEmail(), challengeName);
+                ChallengeResponse result = challengeService.addUserByEmail(user.getEmail(), challengeName);
 
                 // Assert
-                assertThat(result.getRegistered()).hasSize(1).contains(user);
+                assertThat(result).isNotNull();
+                assertThat(result.name()).isEqualTo(challengeName);
                 verify(challengeRepository, times(1)).save(challenge);
         }
 
@@ -299,10 +314,11 @@ class ChallengeServiceTest {
                 when(userEcicareRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
 
                 // Act
-                Challenge result = challengeService.addUserByEmail(user.getEmail(), challengeName);
+                ChallengeResponse result = challengeService.addUserByEmail(user.getEmail(), challengeName);
 
                 // Assert
-                assertThat(result.getRegistered()).hasSize(1);
+                assertThat(result).isNotNull();
+                assertThat(result.name()).isEqualTo(challengeName);
                 verify(challengeRepository, never()).save(challenge);
         }
 
@@ -350,9 +366,10 @@ class ChallengeServiceTest {
                 when(userEcicareRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
                 when(challengeRepository.save(any(Challenge.class))).thenReturn(challenge);
 
-                Challenge result = challengeService.addUserByEmail("test@example.com", "Challenge1");
+                ChallengeResponse result = challengeService.addUserByEmail("test@example.com", "Challenge1");
 
-                assertThat(result.getRegistered()).contains(user);
+                assertThat(result).isNotNull();
+                assertThat(result.name()).isEqualTo("Challenge1");
                 verify(challengeRepository).save(challenge);
         }
 
@@ -373,10 +390,10 @@ class ChallengeServiceTest {
                 when(userEcicareRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
                 when(challengeRepository.save(any(Challenge.class))).thenReturn(challenge);
 
-                Challenge result = challengeService.confirmUserByEmail("test@example.com", "Challenge1");
+                ChallengeResponse result = challengeService.confirmUserByEmail("test@example.com", "Challenge1");
 
-                assertThat(result.getRegistered()).doesNotContain(user);
-                assertThat(result.getConfirmed()).contains(user);
+                assertThat(result).isNotNull();
+                assertThat(result.name()).isEqualTo("Challenge1");
                 verify(challengeRepository).save(challenge);
         }
 
@@ -392,9 +409,10 @@ class ChallengeServiceTest {
 
                 when(challengeRepository.findByDuration(duration)).thenReturn(List.of(challenge));
 
-                List<Challenge> result = challengeService.getChallengeByDuration(duration);
+                List<ChallengeResponse> result = challengeService.getChallengeByDuration(duration);
 
-                assertThat(result).hasSize(1).contains(challenge);
+                assertThat(result).hasSize(1);
+                assertThat(result.get(0).name()).isEqualTo("Challenge1");
                 verify(challengeRepository).findByDuration(duration);
         }
 
@@ -453,7 +471,7 @@ class ChallengeServiceTest {
                 List<ModuleWithChallengesDTO> result = challengeService.searchChallengesGroupedByModule("Al");
 
                 assertEquals(1, result.size());
-                assertEquals("Module A", result.get(0).getModule().getName());
+                assertEquals("Module A", result.get(0).getModuleName());
                 assertEquals(2, result.get(0).getTotalChallenges());
         }
 
@@ -485,19 +503,22 @@ class ChallengeServiceTest {
                 List<ModuleWithChallengesDTO> result = challengeService.searchChallengesGroupedByModule("X");
 
                 assertEquals(2, result.size());
-                assertEquals("Alpha", result.get(0).getModule().getName());
-                assertEquals("Beta", result.get(1).getModule().getName());
+                assertEquals("Alpha", result.get(0).getModuleName());
+                assertEquals("Beta", result.get(1).getModuleName());
         }
 
         @Test
         void getAllChallengesPaginated_shouldReturnPageOfChallenges() {
                 // Arrange
-                Challenge challenge = new Challenge();
+                Challenge challenge = Challenge.builder()
+                                .name("Challenge1")
+                                .module(new Module("Module1"))
+                                .build();
                 Page<Challenge> challengePage = new PageImpl<>(List.of(challenge));
                 when(challengeRepository.findAll(any(Pageable.class))).thenReturn(challengePage);
 
                 // Act
-                Page<Challenge> result = challengeService.getAllChallengesPaginated(0, 5);
+                Page<ChallengeResponse> result = challengeService.getAllChallengesPaginated(0, 5);
 
                 // Assert
                 assertNotNull(result);
@@ -523,7 +544,7 @@ class ChallengeServiceTest {
                 // Assert
                 assertNotNull(result);
                 assertEquals(1, result.size());
-                assertEquals("Module1", result.get(0).getModule().getName());
+                assertEquals("Module1", result.get(0).getModuleName());
                 assertEquals(1, result.get(0).getTotalChallenges());
         }
 
@@ -533,6 +554,7 @@ class ChallengeServiceTest {
                 Challenge oldChallenge = Challenge.builder()
                                 .name("Challenge1")
                                 .description("Old Desc")
+                                .module(new Module("Module1"))
                                 .build();
 
                 ChallengeDTO dto = new ChallengeDTO();
@@ -547,11 +569,11 @@ class ChallengeServiceTest {
                                 .thenAnswer(inv -> inv.getArgument(0));
 
                 // Act
-                Challenge result = challengeService.updateChallenge(dto);
+                ChallengeResponse result = challengeService.updateChallenge(dto);
 
                 // Assert
-                assertEquals("New Desc", result.getDescription());
-                verify(challengeRepository).save(result);
+                assertEquals("New Desc", result.description());
+                verify(challengeRepository).save(any(Challenge.class));
         }
 
         @Test
@@ -598,14 +620,14 @@ class ChallengeServiceTest {
                                 .thenAnswer(inv -> inv.getArgument(0));
 
                 // Act
-                Challenge result = challengeService.updateChallenge(dto);
+                ChallengeResponse result = challengeService.updateChallenge(dto);
 
                 // Assert
-                assertEquals("New Desc", result.getDescription());
-                assertEquals("new.png", result.getImageUrl());
-                assertEquals("New phrase", result.getPhrase());
-                assertEquals(oldModule, result.getModule());
-                verify(challengeRepository).save(result);
+                assertEquals("New Desc", result.description());
+                assertEquals("new.png", result.imageUrl());
+                assertEquals("New phrase", result.phrase());
+                assertEquals("Module1", result.moduleName());
+                verify(challengeRepository).save(any(Challenge.class));
         }
 
         @Test

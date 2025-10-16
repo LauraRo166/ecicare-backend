@@ -2,7 +2,6 @@ package edu.escuelaing.ecicare.awards.services;
 
 import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -67,10 +66,8 @@ public class AwardService {
      * @throws AwardNotFoundException if the award does not exist
      */
     public Award getAwardById(Long awardId) {
-        Optional<Award> award = awardRepository.findById(awardId);
-        if (!award.isPresent())
-            throw new AwardNotFoundException(awardId);
-        return award.get();
+        return awardRepository.findById(awardId)
+                .orElseThrow(() -> new AwardNotFoundException(awardId));
     }
 
     /**
@@ -110,10 +107,12 @@ public class AwardService {
         Award existingAward = this.getAwardById(awardId);
         mapperService.covertDtoToMap(awardDto)
                 .forEach((key, value) -> {
-                    Field field = ReflectionUtils.findField(Award.class, key);
-                    if (field != null) {
-                        ReflectionUtils.makeAccessible(field);
-                        ReflectionUtils.setField(field, existingAward, value);
+                    if (value != null) {
+                        Field field = ReflectionUtils.findField(Award.class, key);
+                        if (field != null) {
+                            ReflectionUtils.makeAccessible(field);
+                            ReflectionUtils.setField(field, existingAward, value);
+                        }
                     }
                 });
         return awardRepository.save(existingAward);
@@ -123,18 +122,13 @@ public class AwardService {
      * Deletes an award by its unique identifier.
      *
      * @param awardId the ID of the award to delete
+     * @throws AwardNotFoundException if the award does not exist
      */
     public void deleteAwardById(Long awardId) {
-        awardRepository.deleteById(awardId);
-    }
+        Award award = awardRepository.findById(awardId)
+                .orElseThrow(() -> new AwardNotFoundException(awardId));
 
-    /**
-     * Saves or updates an award in the repository.
-     *
-     * @param award the award to persist
-     */
-    public void saveAward(Award award) {
-        awardRepository.save(award);
+        awardRepository.delete(award);
     }
 
     /**
