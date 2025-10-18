@@ -896,6 +896,88 @@
 						"description": "Elimina un challenge específico por su nombre"
 					},
 					"response": []
+				},
+				{
+					"name": "Get Registered Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/challenges/{{test_challenge_name}}/registered-users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"challenges",
+								"{{test_challenge_name}}",
+								"registered-users"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Response contains registered users', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"    pm.expect(jsonData).to.include(pm.variables.get('test_user_email'));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Get Confirmed Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/challenges/{{test_challenge_name}}/confirmed-users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"challenges",
+								"{{test_challenge_name}}",
+								"confirmed-users"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test('Response contains confirmed users', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"    pm.expect(jsonData).to.include(pm.variables.get('test_user_email'));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
 				}
 			],
 			"description": "Endpoints relacionados con la gestión de challenges"

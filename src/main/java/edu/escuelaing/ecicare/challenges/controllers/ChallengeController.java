@@ -163,6 +163,18 @@ public class ChallengeController {
         return challengeService.getChallengesByUserEmail(userEmail);
     }
 
+
+    /**
+     * Retrieves all challenges in which a user with the given email is confirmed.
+     *
+     * @param userEmail email of user
+     * @return a list of challenges where the user is confirmed
+     */
+    @GetMapping("/users/{userEmail}/completed")
+    public List<ChallengeResponse> getUserCompletedChallenges(@PathVariable String userEmail) {
+        return challengeService.getChallengesCompletedByUserEmail(userEmail);
+    }
+
     /**
      * Updates an existing challenge by its name.
      *
@@ -209,4 +221,25 @@ public class ChallengeController {
         return challengeService.confirmUserByEmail(userEmail, name);
     }
 
+    /**
+     * Retrieves confirmed users for a specific challenge
+     *
+     * @param name challenge name
+     * @return list of confirmed user emails
+     */
+    @GetMapping("/{name}/confirmed-users")
+    public List<String> getConfirmedUsersByChallenge(@PathVariable String name) {
+        return challengeService.getConfirmedUsersByChallenge(name);
+    }
+
+    /**
+     * Retrieves registered users for a specific challenge
+     *
+     * @param name challenge name
+     * @return list of registered user emails
+     */
+    @GetMapping("/{name}/registered-users")
+    public List<String> getRegisteredUsersByChallenge(@PathVariable String name) {
+        return challengeService.getRegisteredUsersByChallenge(name);
+    }
 }

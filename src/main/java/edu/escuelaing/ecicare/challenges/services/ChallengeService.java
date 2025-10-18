@@ -378,4 +378,36 @@ public class ChallengeService {
                 .map(ChallengeService::challengeToResponse)
                 .toList();
     }
+
+    /**
+     * Retrieves emails of confirmed users for a specific challenge
+     *
+     * @param challengeName name of the challenge
+     * @return list of confirmed user emails
+     */
+    public List<String> getConfirmedUsersByChallenge(String challengeName) {
+        Challenge challenge = challengeRepository.findByName(challengeName);
+        if (challenge == null) {
+            throw new RuntimeException("Challenge not found: " + challengeName);
+        }
+        return challenge.getConfirmed().stream()
+                .map(UserEcicare::getEmail)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Retrieves emails of registered users for a specific challenge
+     *
+     * @param challengeName name of the challenge
+     * @return list of registered user emails
+     */
+    public List<String> getRegisteredUsersByChallenge(String challengeName) {
+        Challenge challenge = challengeRepository.findByName(challengeName);
+        if (challenge == null) {
+            throw new RuntimeException("Challenge not found: " + challengeName);
+        }
+        return challenge.getRegistered().stream()
+                .map(UserEcicare::getEmail)
+                .collect(Collectors.toList());
+    }
 }
