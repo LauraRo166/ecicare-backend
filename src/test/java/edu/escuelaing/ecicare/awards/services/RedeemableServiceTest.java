@@ -5,7 +5,9 @@ import edu.escuelaing.ecicare.awards.models.entity.Award;
 import edu.escuelaing.ecicare.awards.models.entity.Redeemable;
 import edu.escuelaing.ecicare.awards.models.entity.RedeemableId;
 import edu.escuelaing.ecicare.awards.repositories.RedeemableRepository;
+import edu.escuelaing.ecicare.challenges.models.dto.ChallengeResponse;
 import edu.escuelaing.ecicare.challenges.models.entity.Challenge;
+import edu.escuelaing.ecicare.challenges.models.entity.Module;
 import edu.escuelaing.ecicare.challenges.services.ChallengeService;
 import edu.escuelaing.ecicare.utils.exceptions.notfound.RedeemableNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,6 +56,7 @@ class RedeemableServiceTest {
                 .description("Test Challenge Description")
                 .imageUrl("/images/test-challenge.png")
                 .phrase("Test Phrase")
+                .module(new Module("Test Module"))
                 .build();
 
         testAward = Award.builder()
@@ -156,7 +159,7 @@ class RedeemableServiceTest {
                 RedeemableDto.builder().challengeName("Test Challenge").awardId(2L).limitDays(60).build()
         );
 
-        when(challengeService.getChallengeByName("Test Challenge")).thenReturn(testChallenge);
+        when(challengeService.getChallengeEntityByName("Test Challenge")).thenReturn(testChallenge);
         when(awardService.getAwardById(1L)).thenReturn(testAward);
         when(awardService.getAwardById(2L)).thenReturn(createAnotherAward());
         when(redeemableRepository.save(any(Redeemable.class))).thenReturn(testRedeemable);
@@ -176,7 +179,7 @@ class RedeemableServiceTest {
     @DisplayName("Should create single redeemable to challenge successfully")
     void shouldCreateSingleRedeemableToChallenge() {
         // Given
-        when(challengeService.getChallengeByName("Test Challenge")).thenReturn(testChallenge);
+        when(challengeService.getChallengeEntityByName("Test Challenge")).thenReturn(testChallenge);
         when(awardService.getAwardById(1L)).thenReturn(testAward);
         when(redeemableRepository.save(any(Redeemable.class))).thenReturn(testRedeemable);
 
@@ -276,7 +279,7 @@ class RedeemableServiceTest {
     @DisplayName("Should create redeemable with correct composite key")
     void shouldCreateRedeemableWithCorrectCompositeKey() {
         // Given
-        when(challengeService.getChallengeByName("Test Challenge")).thenReturn(testChallenge);
+        when(challengeService.getChallengeEntityByName("Test Challenge")).thenReturn(testChallenge);
         when(awardService.getAwardById(1L)).thenReturn(testAward);
         when(redeemableRepository.save(any(Redeemable.class))).thenReturn(testRedeemable);
 
@@ -337,7 +340,7 @@ class RedeemableServiceTest {
                 .limitDays(null)
                 .build();
 
-        when(challengeService.getChallengeByName("Test Challenge")).thenReturn(testChallenge);
+        when(challengeService.getChallengeEntityByName("Test Challenge")).thenReturn(testChallenge);
         when(awardService.getAwardById(1L)).thenReturn(testAward);
         when(redeemableRepository.save(any(Redeemable.class))).thenReturn(testRedeemable);
 
@@ -360,7 +363,7 @@ class RedeemableServiceTest {
                 .limitDays(0)
                 .build();
 
-        when(challengeService.getChallengeByName("Test Challenge")).thenReturn(testChallenge);
+        when(challengeService.getChallengeEntityByName("Test Challenge")).thenReturn(testChallenge);
         when(awardService.getAwardById(1L)).thenReturn(testAward);
         when(redeemableRepository.save(any(Redeemable.class))).thenReturn(testRedeemable);
 
@@ -383,7 +386,7 @@ class RedeemableServiceTest {
                 .limitDays(Integer.MAX_VALUE)
                 .build();
 
-        when(challengeService.getChallengeByName("Test Challenge")).thenReturn(testChallenge);
+        when(challengeService.getChallengeEntityByName("Test Challenge")).thenReturn(testChallenge);
         when(awardService.getAwardById(1L)).thenReturn(testAward);
         when(redeemableRepository.save(any(Redeemable.class))).thenReturn(testRedeemable);
 
@@ -432,6 +435,7 @@ class RedeemableServiceTest {
         Challenge specialChallenge = Challenge.builder()
                 .name("Challenge-With_Special.Chars@123")
                 .description("Special Challenge")
+                .module(new Module("Test Module"))
                 .build();
 
         RedeemableDto dto = RedeemableDto.builder()
@@ -440,7 +444,7 @@ class RedeemableServiceTest {
                 .limitDays(15)
                 .build();
 
-        when(challengeService.getChallengeByName("Challenge-With_Special.Chars@123")).thenReturn(specialChallenge);
+        when(challengeService.getChallengeEntityByName("Challenge-With_Special.Chars@123")).thenReturn(specialChallenge);
         when(awardService.getAwardById(1L)).thenReturn(testAward);
         when(redeemableRepository.save(any(Redeemable.class))).thenReturn(testRedeemable);
 

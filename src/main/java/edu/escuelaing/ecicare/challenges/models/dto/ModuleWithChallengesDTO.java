@@ -1,7 +1,5 @@
 package edu.escuelaing.ecicare.challenges.models.dto;
 
-import edu.escuelaing.ecicare.challenges.models.entity.Challenge;
-import edu.escuelaing.ecicare.challenges.models.entity.Module;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,14 +25,24 @@ import java.util.List;
 public class ModuleWithChallengesDTO {
 
     /**
-     * The module information
+     * The module name
      */
-    private Module module;
+    private String moduleName;
+
+    /**
+     * The module description
+     */
+    private String moduleDescription;
+
+    /**
+     * The module image URL
+     */
+    private String moduleImageUrl;
 
     /**
      * List of challenges belonging to this module that match the search criteria
      */
-    private List<Challenge> challenges;
+    private List<ChallengeResponse> challenges;
 
     /**
      * Total count of challenges in this module that match the search criteria.

@@ -9,7 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import edu.escuelaing.ecicare.awards.models.dto.AwardDto;
+import edu.escuelaing.ecicare.awards.models.dto.AwardResponse;
 import edu.escuelaing.ecicare.awards.models.entity.Award;
+import edu.escuelaing.ecicare.awards.models.mapper.AwardMapper;
 import edu.escuelaing.ecicare.awards.services.AwardService;
 import lombok.RequiredArgsConstructor;
 
@@ -48,10 +50,12 @@ public class AwardController {
      * @return a {@link ResponseEntity} containing a list of {@link Award}.
      */
     @GetMapping
-    public ResponseEntity<List<Award>> getAwardPagination(
+    public ResponseEntity<List<AwardResponse>> getAwardPagination(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(awardService.getAwardPagination(page, size));
+        return ResponseEntity.ok(awardService.getAwardPagination(page, size).stream()
+                .map(AwardMapper::toResponse)
+                .toList());
     }
 
     /**
@@ -85,8 +89,8 @@ public class AwardController {
      * @return a {@link ResponseEntity} containing the {@link Award}.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Award> getAwardById(@PathVariable Long id) {
-        return ResponseEntity.ok(awardService.getAwardById(id));
+    public ResponseEntity<AwardResponse> getAwardById(@PathVariable Long id) {
+        return ResponseEntity.ok(AwardMapper.toResponse(awardService.getAwardById(id)));
     }
 
     /**
@@ -96,8 +100,8 @@ public class AwardController {
      * @return a {@link ResponseEntity} containing the created {@link Award}.
      */
     @PostMapping
-    public ResponseEntity<Award> createAward(@RequestBody AwardDto awardDto) {
-        return ResponseEntity.ok(awardService.createAward(awardDto));
+    public ResponseEntity<AwardResponse> createAward(@RequestBody AwardDto awardDto) {
+        return ResponseEntity.ok(AwardMapper.toResponse(awardService.createAward(awardDto)));
     }
 
     /**
@@ -108,8 +112,8 @@ public class AwardController {
      * @return a {@link ResponseEntity} containing the updated {@link Award}.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Award> updateAward(@PathVariable Long id, @RequestBody AwardDto awardDto) {
-        return ResponseEntity.ok(awardService.updateAwardDetails(id, awardDto));
+    public ResponseEntity<AwardResponse> updateAward(@PathVariable Long id, @RequestBody AwardDto awardDto) {
+        return ResponseEntity.ok(AwardMapper.toResponse(awardService.updateAwardDetails(id, awardDto)));
     }
 
     /**

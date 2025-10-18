@@ -45,7 +45,7 @@ public class UserEcicareController {
      * @return a {@link ResponseEntity} containing the created user with
      *         {@link HttpStatus#CREATED}
      */
-    @PostMapping
+    @PostMapping("")
     public ResponseEntity<UserEcicareResponseDTO> createEciCareUser(
             @Valid @RequestBody UserEcicareDto userEcicareDto) {
         UserEcicareResponseDTO createdUser = userEcicareService.createEcicareUser(userEcicareDto);
