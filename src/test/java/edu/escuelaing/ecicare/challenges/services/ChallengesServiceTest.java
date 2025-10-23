@@ -178,7 +178,7 @@ class ChallengeServiceTest {
         @DisplayName("Should update challenge fields when challenge exists")
         void updateChallenge_whenChallengeExists_shouldUpdateAndSaveChanges() {
                 // Arrange
-                Module module = new Module("Module1", "Desc", null, null);
+                Module module = new Module("Module1", "Desc", null, null, null);
                 Challenge existingChallenge = new Challenge("Challenge1", "Old description", null, null, null, null,
                                 null, null, null, null, module, null);
 

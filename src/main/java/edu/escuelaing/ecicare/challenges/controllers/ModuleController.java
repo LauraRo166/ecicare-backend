@@ -3,6 +3,8 @@ package edu.escuelaing.ecicare.challenges.controllers;
 import edu.escuelaing.ecicare.challenges.models.dto.ChallengeResponse;
 import edu.escuelaing.ecicare.challenges.models.dto.ModuleDTO;
 import edu.escuelaing.ecicare.challenges.models.dto.ModuleResponse;
+import edu.escuelaing.ecicare.challenges.models.dto.ModuleChallengesUsersDTO;
+import edu.escuelaing.ecicare.challenges.models.dto.ModuleAdministratorDTO;
 import edu.escuelaing.ecicare.challenges.models.entity.Challenge;
 import edu.escuelaing.ecicare.challenges.services.ModuleService;
 import edu.escuelaing.ecicare.challenges.models.entity.Module;
@@ -81,7 +83,7 @@ public class ModuleController {
             Page<ModuleResponse> modulePage = moduleService.getAllModulesPaginated(page, size);
             return ResponseEntity.ok(modulePage);
         }
-        if (view != null && view.equals("MOBILE")){
+        if (view != null && view.equals("MOBILE")) {
             return ResponseEntity.ok(moduleService.getModules());
         }
         List<ModuleResponse> allModules = moduleService.getAllModules();
@@ -100,6 +102,19 @@ public class ModuleController {
     }
 
     /**
+     * Retrieves all modules with their associated challenges and registered users.
+     * Only returns modules where the requesting user is the administrator.
+     *
+     * @param email the email of the user requesting the modules
+     * @return a list of ModuleChallengesUsersDTO containing modules, their challenges, and registered users
+     */
+    @GetMapping("/with-challenges-and-users")
+    public ResponseEntity<List<ModuleChallengesUsersDTO>> getAllModulesWithChallengesAndUsers(
+            @RequestParam String email) {
+        return ResponseEntity.ok(moduleService.getAllModulesWithChallengesAndUsers(email));
+    }
+
+    /**
      * Updates the description of an existing module.
      *
      * @param module the new description for the module
@@ -108,6 +123,22 @@ public class ModuleController {
     @PutMapping("/")
     public ModuleResponse updateModuleDescription(@RequestBody ModuleDTO module) {
         return moduleService.updateModuleByName(module);
+    }
+
+    /**
+     * Updates the administrator of a module.
+     *
+     * @param moduleName the name of the module to update
+     * @param adminDto the DTO containing the new administrator email
+     * @return the updated ModuleResponse
+     */
+    @PutMapping("/{moduleName}/administrator")
+    public ResponseEntity<ModuleResponse> updateModuleAdministrator(
+            @PathVariable String moduleName,
+            @RequestBody ModuleAdministratorDTO adminDto) {
+        ModuleResponse updatedModule = moduleService.updateModuleAdministrator(
+                moduleName, adminDto.getAdministratorEmail());
+        return ResponseEntity.ok(updatedModule);
     }
 
     /**

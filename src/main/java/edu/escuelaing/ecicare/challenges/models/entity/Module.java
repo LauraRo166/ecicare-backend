@@ -1,6 +1,7 @@
 package edu.escuelaing.ecicare.challenges.models.entity;
 
 
+import edu.escuelaing.ecicare.users.models.entity.UserEcicare;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -39,6 +40,10 @@ public class Module {
 
     @Column(name = "image_url")
     private String imageUrl; //Url of image from module
+
+    @ManyToOne
+    @JoinColumn(name = "administrator_id", nullable = true)
+    private UserEcicare administrator; //Administrator responsible for this module
 
     /**
      * Convenience constructor that creates a module with only a name.
