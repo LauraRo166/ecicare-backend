@@ -17,6 +17,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -289,22 +290,26 @@ public class ChallengeService {
      * @param name      the name of the challenge
      * @return the updated {@link ChallengeResponse}
      */
-    public ChallengeResponse confirmUserByEmail(String userEmail, String name) {
-        Challenge challenge = challengeRepository.findByName(name);
+    @Transactional
+    public ChallengeResponse confirmUserByEmail(String userEmail, String challengeName) {
+
+        Challenge challenge = challengeRepository.findByName(challengeName);
         if (challenge == null) {
-            throw new RuntimeException("Challenge not found: " + name);
+            throw new RuntimeException("Challenge not found: " + challengeName);
         }
-        List<UserEcicare> registered = challenge.getRegistered();
-        List<UserEcicare> confirmed = challenge.getConfirmed();
+
         UserEcicare user = userEcicareRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userEmail));
-        if (registered.contains(user)) {
-            registered.remove(user);
-            confirmed.add(user);
-            challenge.setRegistered(registered);
-            challenge.setConfirmed(confirmed);
-            challengeRepository.save(challenge);
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + userEmail));
+
+        if (!challenge.getRegistered().contains(user)) {
+            throw new RuntimeException("User is not registered in the challenge");
         }
+
+        challenge.getRegistered().remove(user);
+        challenge.getConfirmed().add(user);
+
+        challengeRepository.save(challenge);
+
         return challengeToResponse(challenge);
     }
 
@@ -410,4 +415,37 @@ public class ChallengeService {
                 .map(UserEcicare::getEmail)
                 .collect(Collectors.toList());
     }
+
+    /**
+     * Retrieves paginated registered user emails for a specific challenge.
+     *
+     * @param challengeName the name of the challenge
+     * @param page          the page number (0-based)
+     * @param size          the page size
+     * @return a page of registered user emails
+     */
+    public Page<String> getRegisteredUsersByChallenge(String challengeName, int page, int size) {
+
+        Challenge challenge = challengeRepository.findByName(challengeName);
+        if (challenge == null) {
+            throw new RuntimeException("Challenge not found: " + challengeName);
+        }
+
+        List<String> emails = challenge.getRegistered().stream()
+                .map(UserEcicare::getEmail)
+                .toList();
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        int start = (int) pageable.getOffset();
+        if (start >= emails.size()) {
+            return Page.empty(pageable);
+        }
+
+        int end = Math.min(start + pageable.getPageSize(), emails.size());
+        List<String> paginatedEmails = emails.subList(start, end);
+
+        return new PageImpl<>(paginatedEmails, pageable, emails.size());
+    }
+
 }

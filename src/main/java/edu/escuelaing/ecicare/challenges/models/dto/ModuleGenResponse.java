@@ -13,9 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ModuleDTOwithAdmin {
+public class ModuleGenResponse {
     private String name;
-    private String description;
     private String imageUrl;
-    private String administrator;
 }

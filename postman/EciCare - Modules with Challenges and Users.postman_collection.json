@@ -1,62 +1,15 @@
 {
 	"info": {
-		"_postman_id": "ecicare-modules-challenges-users",
+		"_postman_id": "a7406156-eb19-4ffa-94ee-d5bf1607168a",
 		"name": "EciCare - Modules with Challenges and Users",
 		"description": "Colección para probar el endpoint que obtiene módulos con sus challenges y usuarios registrados. Incluye flujo completo de prueba con datos de ejemplo.",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40620960"
 	},
 	"item": [
 		{
 			"name": "Complete Test Flow - Modules with Challenges and Users",
 			"item": [
-				{
-					"name": "0. Create Admin User",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 201 or 200\", function () {",
-									"    pm.expect([200, 201]).to.include(pm.response.code);",
-									"});",
-									"",
-									"pm.test(\"Admin user created successfully\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData).to.have.property('email');",
-									"    pm.expect(jsonData.email).to.equal(pm.collectionVariables.get('admin_email'));",
-									"});",
-									"",
-									"console.log(\"✅ Paso 0: Usuario administrador creado\");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"idEci\": 1,\n    \"name\": \"Admin User\",\n    \"email\": \"{{admin_email}}\",\n    \"password\": \"admin123\",\n    \"role\": \"ADMINISTRATION\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/ecicareusers",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"ecicareusers"
-							]
-						},
-						"description": "Crea el usuario administrador para asignar a módulos"
-					},
-					"response": []
-				},
 				{
 					"name": "1. Create Test User 1 - Juan Perez",
 					"event": [
@@ -76,7 +29,9 @@
 									"",
 									"console.log(\"✅ Paso 1: Usuario Juan Perez creado\");"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -202,55 +157,6 @@
 					"response": []
 				},
 				{
-					"name": "4. Create Test Module - Fitness",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"pm.test(\"Module created successfully\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData).to.have.property('name');",
-									"    pm.expect(jsonData.name).to.equal('Fitness-Module');",
-									"});",
-									"",
-									"console.log(\"✅ Paso 4: Módulo Fitness creado\");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"Fitness-Module\",\n    \"description\": \"Módulo dedicado a desafíos de fitness y ejercicio físico\",\n    \"imageUrl\": \"https://example.com/fitness-module.jpg\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/modules/",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"modules",
-								""
-							]
-						},
-						"description": "Crea el módulo de Fitness"
-					},
-					"response": []
-				},
-				{
 					"name": "5. Create Test Module - Nutrition",
 					"event": [
 						{
@@ -296,55 +202,6 @@
 							]
 						},
 						"description": "Crea el módulo de Nutrition"
-					},
-					"response": []
-				},
-				{
-					"name": "3. Create Challenge - 30 Day Cardio",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"pm.test(\"Challenge created successfully\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData).to.have.property('name');",
-									"    pm.expect(jsonData.name).to.equal('30-day-cardio-challenge');",
-									"});",
-									"",
-									"console.log(\"✅ Paso 3: Challenge 30 Day Cardio creado\");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"30-day-cardio-challenge\",\n    \"description\": \"Desafío de 30 días de ejercicio cardiovascular\",\n    \"imageUrl\": \"https://example.com/cardio-challenge.jpg\",\n    \"phrase\": \"¡Transforma tu salud cardiovascular en 30 días!\",\n    \"tips\": [\n        \"Comienza con 15 minutos diarios\",\n        \"Aumenta gradualmente la intensidad\",\n        \"Mantén una buena hidratación\",\n        \"Descansa adecuadamente entre sesiones\"\n    ],\n    \"duration\": \"2025-12-31T23:59:59\",\n    \"goals\": [\n        \"Completar 30 minutos de cardio diario\",\n        \"Mejorar resistencia cardiovascular\",\n        \"Quemar 300 calorías por sesión\"\n    ],\n    \"moduleName\": \"Fitness-Module\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/challenges/",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"challenges",
-								""
-							]
-						},
-						"description": "Crea un challenge de cardio en el módulo Fitness"
 					},
 					"response": []
 				},
@@ -806,7 +663,7 @@
 									"    pm.expect(fitnessModule.challenges.length).to.be.at.least(2);",
 									"});",
 									"",
-									"console.log(\"✅ Paso 17: Endpoint filtrado por administrador funciona correctamente\");",
+									"console.log(\"✅ Paso 15: Endpoint filtrado por administrador funciona correctamente\");",
 									"console.log(\"\\n🎉 PRUEBA COMPLETA DE FUNCIONALIDAD DE ADMINISTRADOR 🎉\");",
 									"console.log(\"Se verificó:\");",
 									"console.log(\"- Asignación de administradores a módulos\");",
@@ -943,6 +800,272 @@
 						"description": "Obtiene los módulos donde el usuario especificado es administrador, con sus challenges y usuarios registrados"
 					},
 					"response": []
+				},
+				{
+					"name": "New Request",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "0. Create Admin User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201 or 200\", function () {",
+									"    pm.expect([200, 201]).to.include(pm.response.code);",
+									"});",
+									"",
+									"pm.test(\"Admin user created successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('email');",
+									"    pm.expect(jsonData.email).to.equal(pm.collectionVariables.get('admin_email'));",
+									"});",
+									"",
+									"console.log(\"✅ Paso 0: Usuario administrador creado\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"idEci\": 1,\n    \"name\": \"Admin User\",\n    \"email\": \"{{admin_email}}\",\n    \"password\": \"admin123\",\n    \"role\": \"ADMINISTRATION\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/ecicareusers",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"ecicareusers"
+							]
+						},
+						"description": "Crea el usuario administrador para asignar a módulos"
+					},
+					"response": []
+				},
+				{
+					"name": "4. Create Test Module - Fitness",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Module created successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('name');",
+									"    pm.expect(jsonData.name).to.equal('Fitness-Module');",
+									"});",
+									"",
+									"console.log(\"✅ Paso 4: Módulo Fitness creado\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Fitness-Module\",\n    \"description\": \"Módulo dedicado a desafíos de fitness y ejercicio físico\",\n    \"imageUrl\": \"https://example.com/fitness-module.jpg\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/modules/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"modules",
+								""
+							]
+						},
+						"description": "Crea el módulo de Fitness"
+					},
+					"response": []
+				},
+				{
+					"name": "3. Create Challenge - 30 Day Cardio",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Challenge created successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('name');",
+									"    pm.expect(jsonData.name).to.equal('30-day-cardio-challenge');",
+									"});",
+									"",
+									"console.log(\"✅ Paso 3: Challenge 30 Day Cardio creado\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"30-day-cardio-challenge\",\n    \"description\": \"Desafío de 30 días de ejercicio cardiovascular\",\n    \"imageUrl\": \"https://example.com/cardio-challenge.jpg\",\n    \"phrase\": \"¡Transforma tu salud cardiovascular en 30 días!\",\n    \"tips\": [\n        \"Comienza con 15 minutos diarios\",\n        \"Aumenta gradualmente la intensidad\",\n        \"Mantén una buena hidratación\",\n        \"Descansa adecuadamente entre sesiones\"\n    ],\n    \"duration\": \"2025-12-31T23:59:59\",\n    \"goals\": [\n        \"Completar 30 minutos de cardio diario\",\n        \"Mejorar resistencia cardiovascular\",\n        \"Quemar 300 calorías por sesión\"\n    ],\n    \"moduleName\": \"Fitness-Module\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/challenges/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"challenges",
+								""
+							]
+						},
+						"description": "Crea un challenge de cardio en el módulo Fitness"
+					},
+					"response": []
+				},
+				{
+					"name": "add a user in registred users  for a challenge",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"30-day-cardio-challenge\",\n    \"description\": \"Desafío de 30 días de ejercicio cardiovascular\",\n    \"imageUrl\": \"https://example.com/cardio-challenge.jpg\",\n    \"phrase\": \"¡Transforma tu salud cardiovascular en 30 días!\",\n    \"tips\": [\n        \"Comienza con 15 minutos diarios\",\n        \"Aumenta gradualmente la intensidad\",\n        \"Mantén una buena hidratación\",\n        \"Descansa adecuadamente entre sesiones\"\n    ],\n    \"duration\": \"2025-12-31T23:59:59\",\n    \"goals\": [\n        \"Completar 30 minutos de cardio diario\",\n        \"Mejorar resistencia cardiovascular\",\n        \"Quemar 300 calorías por sesión\"\n    ],\n    \"moduleName\": \"Fitness-Module\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/challenges/users/{{admin_email}}/challenges/Fitness-Module",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"challenges",
+								"users",
+								"{{admin_email}}",
+								"challenges",
+								"Fitness-Module"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all general response modules",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "get module by name",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "get challenges by module name",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "get registred users for a challenge",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "get registred users for a challenge paged",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/challenges/30-day-cardio-challenge/registered-users/paged",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"challenges",
+								"30-day-cardio-challenge",
+								"registered-users",
+								"paged"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "confirm a user by its email",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/challenges/users/{{admin_email}}/challenges/30-day-cardio-challenge/confirm",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"challenges",
+								"users",
+								"{{admin_email}}",
+								"challenges",
+								"30-day-cardio-challenge",
+								"confirm"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get confirmed users by challenge",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
 				}
 			],
 			"description": "Endpoints individuales para pruebas rápidas"
@@ -963,7 +1086,9 @@
 									"",
 									"console.log(\"✅ Módulo Fitness eliminado\");"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1016,6 +1141,33 @@
 							]
 						},
 						"description": "Elimina el módulo Nutrition y todos sus challenges"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User Admin",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"idEci\": 1,\n    \"name\": \"Admin User\",\n    \"email\": \"{{admin_email}}\",\n    \"password\": \"admin123\",\n    \"role\": \"ADMINISTRATION\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/ecicareusers/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"ecicareusers",
+								"1"
+							]
+						}
 					},
 					"response": []
 				}

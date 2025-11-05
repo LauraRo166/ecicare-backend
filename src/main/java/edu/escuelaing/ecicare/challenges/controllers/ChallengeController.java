@@ -104,7 +104,8 @@ public class ChallengeController {
     }
 
     /**
-     * Retrieves all confirmed challenges in which a user with the given email was registered.
+     * Retrieves all confirmed challenges in which a user with the given email was
+     * registered.
      *
      * @param userEmail email of user
      * @return a list of challenges where the user is confirmed
@@ -162,7 +163,6 @@ public class ChallengeController {
     public List<ChallengeResponse> getUserChallenges(@PathVariable String userEmail) {
         return challengeService.getChallengesByUserEmail(userEmail);
     }
-
 
     /**
      * Retrieves all challenges in which a user with the given email is confirmed.
@@ -241,5 +241,14 @@ public class ChallengeController {
     @GetMapping("/{name}/registered-users")
     public List<String> getRegisteredUsersByChallenge(@PathVariable String name) {
         return challengeService.getRegisteredUsersByChallenge(name);
+    }
+
+    @GetMapping("/{challengeName}/registered-users/paged")
+    public Page<String> getRegisteredUsersByChallenge(
+            @PathVariable String challengeName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        return challengeService.getRegisteredUsersByChallenge(challengeName, page, size);
     }
 }

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import edu.escuelaing.ecicare.challenges.models.dto.ModuleGenResponse;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +75,7 @@ public class ModuleController {
      * @return ResponseEntity containing either a paginated Page of modules or a
      *         List of all modules
      */
-    @GetMapping("/")
+    @GetMapping("/modulesWithChallenges")
     public ResponseEntity<?> getAllModules(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size,
@@ -87,6 +88,15 @@ public class ModuleController {
             return ResponseEntity.ok(moduleService.getModules());
         }
         List<ModuleResponse> allModules = moduleService.getAllModules();
+        return ResponseEntity.ok(allModules);
+    }
+
+    @GetMapping("/gen-modules")
+    public ResponseEntity<?> getAllGenModules(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(required = false) String view) {
+        Page<ModuleGenResponse> allModules = moduleService.getAllGenModulesPaginated(page, size);
         return ResponseEntity.ok(allModules);
     }
 
@@ -106,7 +116,8 @@ public class ModuleController {
      * Only returns modules where the requesting user is the administrator.
      *
      * @param email the email of the user requesting the modules
-     * @return a list of ModuleChallengesUsersDTO containing modules, their challenges, and registered users
+     * @return a list of ModuleChallengesUsersDTO containing modules, their
+     *         challenges, and registered users
      */
     @GetMapping("/with-challenges-and-users")
     public ResponseEntity<List<ModuleChallengesUsersDTO>> getAllModulesWithChallengesAndUsers(
@@ -129,7 +140,7 @@ public class ModuleController {
      * Updates the administrator of a module.
      *
      * @param moduleName the name of the module to update
-     * @param adminDto the DTO containing the new administrator email
+     * @param adminDto   the DTO containing the new administrator email
      * @return the updated ModuleResponse
      */
     @PutMapping("/{moduleName}/administrator")
@@ -151,5 +162,10 @@ public class ModuleController {
     @DeleteMapping("/{name}")
     public void deleteModule(@PathVariable String name) {
         moduleService.deleteModule(name);
+    }
+
+    @GetMapping("/{name}")
+    public ModuleResponse getModuleByName(@PathVariable String name) {
+        return moduleService.getModuleByName(name);
     }
 }

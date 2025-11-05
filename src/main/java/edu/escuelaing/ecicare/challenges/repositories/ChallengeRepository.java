@@ -3,6 +3,9 @@ package edu.escuelaing.ecicare.challenges.repositories;
 import edu.escuelaing.ecicare.users.models.entity.UserEcicare;
 import edu.escuelaing.ecicare.challenges.models.entity.Challenge;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -62,4 +65,9 @@ public interface ChallengeRepository extends JpaRepository<Challenge, String> {
      * @return a list of ALL challenges matching the search criteria, sorted by name
      */
     List<Challenge> findByNameContainingIgnoreCaseOrderByNameAsc(String name);
+
+    @Query("SELECT CASE WHEN :user MEMBER OF c.registered THEN true ELSE false END " +
+            "FROM Challenge c WHERE c = :challenge")
+    boolean isUserRegistered(@Param("user") UserEcicare user, @Param("challenge") Challenge challenge);
+
 }
