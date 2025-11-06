@@ -23,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -329,6 +330,47 @@ public class ChallengeService {
     }
 
     /**
+     * Obtiene los desafíos en los que un usuario está registrado, con paginación.
+     * 
+     * @param userEmail email del usuario
+     * @param page      página (default 0)
+     * @param size      tamaño de página (default 10)
+     * @return Page de ChallengeResponse (sin ordenar)
+     */
+    public Page<ChallengeResponse> getChallengesByUserEmailPaged(
+            String userEmail, int page, int size) {
+
+        if (userEmail == null || userEmail.isBlank()) {
+            throw new IllegalArgumentException("userEmail no puede ser nulo o vacío");
+        }
+
+        UserEcicare user = userEcicareRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + userEmail));
+
+        // Valores seguros
+        int safePage = Math.max(0, page);
+        int safeSize = size > 0 ? size : 10;
+
+        // Obtener desafíos desde el repositorio (sin ordenar)
+        List<ChallengeResponse> allChallenges = challengeRepository.findByRegistered(user)
+                .stream()
+                .map(ChallengeService::challengeToResponse)
+                .toList();
+
+        // Paginación manual
+        int start = safePage * safeSize;
+        int end = Math.min(start + safeSize, allChallenges.size());
+
+        List<ChallengeResponse> pagedList = start < allChallenges.size()
+                ? allChallenges.subList(start, end)
+                : Collections.emptyList();
+
+        Pageable pageable = PageRequest.of(safePage, safeSize);
+
+        return new PageImpl<>(pagedList, pageable, allChallenges.size());
+    }
+
+    /**
      * Maps a Challenge entity to a ChallengeResponse DTO.
      *
      * @param challenge the Challenge entity
@@ -382,6 +424,47 @@ public class ChallengeService {
                 .stream()
                 .map(ChallengeService::challengeToResponse)
                 .toList();
+    }
+
+    /**
+     * Obtiene los desafíos completados por un usuario, con paginación.
+     * 
+     * @param userEmail email del usuario
+     * @param page      página (default 0)
+     * @param size      tamaño de página (default 10)
+     * @return Page de ChallengeResponse (sin ordenar)
+     */
+    public Page<ChallengeResponse> getChallengesCompletedByUserEmailPaged(
+            String userEmail, int page, int size) {
+
+        if (userEmail == null || userEmail.isBlank()) {
+            throw new IllegalArgumentException("userEmail no puede ser nulo o vacío");
+        }
+
+        UserEcicare user = userEcicareRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + userEmail));
+
+        // Valores seguros
+        int safePage = Math.max(0, page);
+        int safeSize = size > 0 ? size : 10;
+
+        // SIN ORDENAR → directo del Set/List original
+        List<ChallengeResponse> allChallenges = user.getChallengesConfirmed()
+                .stream()
+                .map(ChallengeService::challengeToResponse)
+                .toList();
+
+        // Paginación manual
+        int start = safePage * safeSize;
+        int end = Math.min(start + safeSize, allChallenges.size());
+
+        List<ChallengeResponse> pagedList = start < allChallenges.size()
+                ? allChallenges.subList(start, end)
+                : Collections.emptyList();
+
+        Pageable pageable = PageRequest.of(safePage, safeSize);
+
+        return new PageImpl<>(pagedList, pageable, allChallenges.size());
     }
 
     /**

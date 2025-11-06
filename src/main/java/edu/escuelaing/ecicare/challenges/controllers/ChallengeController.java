@@ -164,6 +164,16 @@ public class ChallengeController {
         return challengeService.getChallengesByUserEmail(userEmail);
     }
 
+    @GetMapping("/users/{email}/challenges-registered/paged")
+    public ResponseEntity<Page<ChallengeResponse>> getUserRegisteredChallenges(
+            @PathVariable("email") String userEmail,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Page<ChallengeResponse> result = challengeService.getChallengesByUserEmailPaged(userEmail, page, size);
+        return ResponseEntity.ok(result);
+    }
+
     /**
      * Retrieves all challenges in which a user with the given email is confirmed.
      *
@@ -173,6 +183,16 @@ public class ChallengeController {
     @GetMapping("/users/{userEmail}/completed")
     public List<ChallengeResponse> getUserCompletedChallenges(@PathVariable String userEmail) {
         return challengeService.getChallengesCompletedByUserEmail(userEmail);
+    }
+
+    @GetMapping("/users/{email}/completed/paged")
+    public ResponseEntity<Page<ChallengeResponse>> getUserCompletedChallenges(
+            @PathVariable("email") String userEmail,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Page<ChallengeResponse> result = challengeService.getChallengesCompletedByUserEmailPaged(userEmail, page, size);
+        return ResponseEntity.ok(result);
     }
 
     /**

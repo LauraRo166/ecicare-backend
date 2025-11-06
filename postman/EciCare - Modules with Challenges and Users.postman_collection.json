@@ -1018,6 +1018,14 @@
 					"response": []
 				},
 				{
+					"name": "get challenges registered by the user paged",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
 					"name": "get registred users for a challenge paged",
 					"request": {
 						"method": "GET",
@@ -1061,6 +1069,14 @@
 				},
 				{
 					"name": "get confirmed users by challenge",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "get User Completed Challenges paged",
 					"request": {
 						"method": "GET",
 						"header": []
