@@ -5,6 +5,7 @@ import edu.escuelaing.ecicare.challenges.models.dto.ModuleDTO;
 import edu.escuelaing.ecicare.challenges.models.dto.ModuleResponse;
 import edu.escuelaing.ecicare.challenges.models.dto.ModuleChallengesUsersDTO;
 import edu.escuelaing.ecicare.challenges.models.entity.Challenge;
+import edu.escuelaing.ecicare.challenges.repositories.ChallengeRepository;
 import edu.escuelaing.ecicare.challenges.repositories.ModuleRepository;
 import edu.escuelaing.ecicare.users.models.dto.UserEcicareDto;
 import edu.escuelaing.ecicare.users.models.entity.UserEcicare;
@@ -44,6 +45,7 @@ public class ModuleService {
         private final ModuleRepository moduleRepository;
         private final ChallengeService challengeService;
         private final UserEcicareRepository userEcicareRepository;
+        private final ChallengeRepository challengeRepository;
 
         /**
          * Persists a new module in the database.
@@ -149,6 +151,16 @@ public class ModuleService {
                 return module.getChallenges().stream()
                                 .map(ChallengeService::challengeToResponse)
                                 .toList();
+        }
+
+        public Page<ChallengeResponse> getChallengesByModulePaged(String name, int page, int size) {
+                Pageable pageable = PageRequest.of(page, size);
+                Module module = moduleRepository.findById(name)
+                        .orElseThrow(() -> new RuntimeException("Module not found: " + name));
+
+                Page<Challenge> challenges = challengeRepository.findByModule_Name(name, pageable);
+                return challenges
+                        .map(ChallengeService::challengeToResponse);
         }
 
         /**

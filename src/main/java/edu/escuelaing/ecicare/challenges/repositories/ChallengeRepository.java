@@ -2,6 +2,8 @@ package edu.escuelaing.ecicare.challenges.repositories;
 
 import edu.escuelaing.ecicare.users.models.entity.UserEcicare;
 import edu.escuelaing.ecicare.challenges.models.entity.Challenge;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -43,6 +45,7 @@ public interface ChallengeRepository extends JpaRepository<Challenge, String> {
      */
     List<Challenge> findByDuration(LocalDateTime duration);
 
+    Page<Challenge> findByModule_Name(String id, Pageable pageable);
     /**
      * Finds all challenges where a specific user is registered.
      *

@@ -111,6 +111,14 @@ public class ModuleController {
         return moduleService.getChallengesByModule(name);
     }
 
+    @GetMapping("/{name}/challenges")
+    public Page<ChallengeResponse> getModuleChallengesPaged(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            @PathVariable String name) {
+        return moduleService.getChallengesByModulePaged(name, page, size);
+    }
+
     /**
      * Retrieves all modules with their associated challenges and registered users.
      * Only returns modules where the requesting user is the administrator.
