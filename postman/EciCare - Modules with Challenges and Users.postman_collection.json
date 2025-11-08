@@ -531,56 +531,6 @@
 					"response": []
 				},
 				{
-					"name": "15. Assign Administrator to Fitness Module",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"pm.test(\"Administrator assigned successfully\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData).to.have.property('name');",
-									"    pm.expect(jsonData.name).to.equal('Fitness-Module');",
-									"});",
-									"",
-									"console.log(\"✅ Paso 13: Administrador asignado al módulo Fitness\");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"administratorEmail\": \"{{admin_email}}\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/modules/Fitness-Module/administrator",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"modules",
-								"Fitness-Module",
-								"administrator"
-							]
-						},
-						"description": "Asigna un administrador al módulo Fitness"
-					},
-					"response": []
-				},
-				{
 					"name": "16. Assign Administrator to Nutrition Module",
 					"event": [
 						{
@@ -773,7 +723,9 @@
 									"// Log the response for inspection",
 									"console.log(\"Response:\", JSON.stringify(pm.response.json(), null, 2));"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -907,6 +859,56 @@
 					"response": []
 				},
 				{
+					"name": "15. Assign Administrator to Fitness Module",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Administrator assigned successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('name');",
+									"    pm.expect(jsonData.name).to.equal('Fitness-Module');",
+									"});",
+									"",
+									"console.log(\"✅ Paso 13: Administrador asignado al módulo Fitness\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"administratorEmail\": \"{{admin_email}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/modules/Fitness-Module/administrator",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"modules",
+								"Fitness-Module",
+								"administrator"
+							]
+						},
+						"description": "Asigna un administrador al módulo Fitness"
+					},
+					"response": []
+				},
+				{
 					"name": "3. Create Challenge - 30 Day Cardio",
 					"event": [
 						{
@@ -970,7 +972,7 @@
 							"raw": "{\n    \"name\": \"30-day-cardio-challenge\",\n    \"description\": \"Desafío de 30 días de ejercicio cardiovascular\",\n    \"imageUrl\": \"https://example.com/cardio-challenge.jpg\",\n    \"phrase\": \"¡Transforma tu salud cardiovascular en 30 días!\",\n    \"tips\": [\n        \"Comienza con 15 minutos diarios\",\n        \"Aumenta gradualmente la intensidad\",\n        \"Mantén una buena hidratación\",\n        \"Descansa adecuadamente entre sesiones\"\n    ],\n    \"duration\": \"2025-12-31T23:59:59\",\n    \"goals\": [\n        \"Completar 30 minutos de cardio diario\",\n        \"Mejorar resistencia cardiovascular\",\n        \"Quemar 300 calorías por sesión\"\n    ],\n    \"moduleName\": \"Fitness-Module\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/challenges/users/{{admin_email}}/challenges/Fitness-Module",
+							"raw": "{{base_url}}/challenges/users/{{admin_email}}/challenges/30-day-cardio-challenge",
 							"host": [
 								"{{base_url}}"
 							],
@@ -979,7 +981,7 @@
 								"users",
 								"{{admin_email}}",
 								"challenges",
-								"Fitness-Module"
+								"30-day-cardio-challenge"
 							]
 						}
 					},
@@ -987,9 +989,31 @@
 				},
 				{
 					"name": "Get all general response modules",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
 						"method": "GET",
-						"header": []
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"30-day-cardio-challenge\",\n    \"description\": \"Desafío de 30 días de ejercicio cardiovascular\",\n    \"imageUrl\": \"https://example.com/cardio-challenge.jpg\",\n    \"phrase\": \"¡Transforma tu salud cardiovascular en 30 días!\",\n    \"tips\": [\n        \"Comienza con 15 minutos diarios\",\n        \"Aumenta gradualmente la intensidad\",\n        \"Mantén una buena hidratación\",\n        \"Descansa adecuadamente entre sesiones\"\n    ],\n    \"duration\": \"2025-12-31T23:59:59\",\n    \"goals\": [\n        \"Completar 30 minutos de cardio diario\",\n        \"Mejorar resistencia cardiovascular\",\n        \"Quemar 300 calorías por sesión\"\n    ],\n    \"moduleName\": \"Fitness-Module\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/modules/gen-modules",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"modules",
+								"gen-modules"
+							]
+						}
 					},
 					"response": []
 				},
@@ -997,7 +1021,17 @@
 					"name": "get module by name",
 					"request": {
 						"method": "GET",
-						"header": []
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/modules/Fitness-Module",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"modules",
+								"Fitness-Module"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1005,7 +1039,18 @@
 					"name": "get challenges by module name",
 					"request": {
 						"method": "GET",
-						"header": []
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/modules/challenges/Fitness-Module",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"modules",
+								"challenges",
+								"Fitness-Module"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1021,7 +1066,20 @@
 					"name": "get challenges registered by the user paged",
 					"request": {
 						"method": "GET",
-						"header": []
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/challenges/users/{{admin_email}}/challenges-registered/paged",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"challenges",
+								"users",
+								"{{admin_email}}",
+								"challenges-registered",
+								"paged"
+							]
+						}
 					},
 					"response": []
 				},
@@ -1071,12 +1129,73 @@
 					"name": "get confirmed users by challenge",
 					"request": {
 						"method": "GET",
-						"header": []
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/challenges/30-day-cardio-challenge/confirmed-users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"challenges",
+								"30-day-cardio-challenge",
+								"confirmed-users"
+							]
+						}
 					},
 					"response": []
 				},
 				{
 					"name": "get User Completed Challenges paged",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/challenges/users/{{admin_email}}/completed/paged",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"challenges",
+								"users",
+								"{{admin_email}}",
+								"completed",
+								"paged"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get modules administrated by a user paged",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/challenges/users/{{admin_email}}/completed/paged",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"challenges",
+								"users",
+								"{{admin_email}}",
+								"completed",
+								"paged"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get general modules administrated by a user paged Copy",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "get general modules administrated by a user paged Copy",
 					"request": {
 						"method": "GET",
 						"header": []

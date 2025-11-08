@@ -134,6 +134,21 @@ public class ModuleController {
     }
 
     /**
+     * Retrieves modules where the user is an administrator.
+     *
+     * @param email the user's email
+     * @return a list of modules with only name and image
+     */
+    @GetMapping("/administrated-by-user")
+    public ResponseEntity<List<ModuleGenResponse>> getModulesByAdministrator(
+            @RequestParam String email) {
+
+        List<ModuleGenResponse> modules = moduleService.getModulesByAdministrator(email);
+
+        return ResponseEntity.ok(modules);
+    }
+
+    /**
      * Updates the description of an existing module.
      *
      * @param module the new description for the module

@@ -298,6 +298,30 @@ public class ModuleService {
         }
 
         /**
+         * Retrieves only the modules where the given user is administrator,
+         * returning minimal information (name and imageUrl).
+         *
+         * @param email the email of the user requesting the modules
+         * @return a list of ModuleGenResponse containing module name and image
+         */
+        public List<ModuleGenResponse> getModulesByAdministrator(String email) {
+        UserEcicare user = userEcicareRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "User not found")
+                );
+
+        return moduleRepository.findAll().stream()
+                .filter(module -> module.getAdministrator() != null &&
+                                module.getAdministrator().getIdEci().equals(user.getIdEci()))
+                .map(module -> ModuleGenResponse.builder()
+                        .name(module.getName())
+                        .imageUrl(module.getImageUrl())
+                        .build())
+                .toList();
+        }
+
+
+        /**
          * Maps a Module entity to a ModuleResponse DTO.
          *
          * @param module the Module entity

@@ -6,6 +6,7 @@ import edu.escuelaing.ecicare.awards.repositories.RedeemableRepository;
 import edu.escuelaing.ecicare.challenges.models.dto.ChallengeDTO;
 import edu.escuelaing.ecicare.challenges.models.dto.ChallengeResponse;
 import edu.escuelaing.ecicare.challenges.models.dto.ModuleWithChallengesDTO;
+import edu.escuelaing.ecicare.challenges.models.dto.UserEmailNameDTO;
 import edu.escuelaing.ecicare.challenges.models.entity.Module;
 import edu.escuelaing.ecicare.challenges.repositories.ModuleRepository;
 import edu.escuelaing.ecicare.awards.models.entity.Award;
@@ -505,30 +506,30 @@ public class ChallengeService {
      * @param challengeName the name of the challenge
      * @param page          the page number (0-based)
      * @param size          the page size
-     * @return a page of registered user emails
+     * @return a page of registered user name and email DTOs
      */
-    public Page<String> getRegisteredUsersByChallenge(String challengeName, int page, int size) {
+    public Page<UserEmailNameDTO> getRegisteredUsersByChallenge(String challengeName, int page, int size) {
 
         Challenge challenge = challengeRepository.findByName(challengeName);
         if (challenge == null) {
             throw new RuntimeException("Challenge not found: " + challengeName);
         }
 
-        List<String> emails = challenge.getRegistered().stream()
-                .map(UserEcicare::getEmail)
+        List<UserEmailNameDTO> emailsNameUser = challenge.getRegistered().stream()
+                .map(user -> new UserEmailNameDTO(user.getEmail(), user.getName()))
                 .toList();
 
         Pageable pageable = PageRequest.of(page, size);
 
         int start = (int) pageable.getOffset();
-        if (start >= emails.size()) {
+        if (start >= emailsNameUser.size()) {
             return Page.empty(pageable);
         }
 
-        int end = Math.min(start + pageable.getPageSize(), emails.size());
-        List<String> paginatedEmails = emails.subList(start, end);
+        int end = Math.min(start + pageable.getPageSize(), emailsNameUser.size());
+        List<UserEmailNameDTO> paginatedEmails = emailsNameUser.subList(start, end);
 
-        return new PageImpl<>(paginatedEmails, pageable, emails.size());
+        return new PageImpl<>(paginatedEmails, pageable, emailsNameUser.size());
     }
 
 }

@@ -3,6 +3,7 @@ package edu.escuelaing.ecicare.challenges.controllers;
 import edu.escuelaing.ecicare.challenges.models.dto.ChallengeDTO;
 import edu.escuelaing.ecicare.challenges.models.dto.ChallengeResponse;
 import edu.escuelaing.ecicare.challenges.models.dto.ModuleWithChallengesDTO;
+import edu.escuelaing.ecicare.challenges.models.dto.UserEmailNameDTO;
 import edu.escuelaing.ecicare.users.models.entity.UserEcicare;
 import edu.escuelaing.ecicare.challenges.models.entity.Challenge;
 import edu.escuelaing.ecicare.challenges.services.ChallengeService;
@@ -264,7 +265,7 @@ public class ChallengeController {
     }
 
     @GetMapping("/{challengeName}/registered-users/paged")
-    public Page<String> getRegisteredUsersByChallenge(
+    public Page<UserEmailNameDTO> getRegisteredUsersByChallenge(
             @PathVariable String challengeName,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
