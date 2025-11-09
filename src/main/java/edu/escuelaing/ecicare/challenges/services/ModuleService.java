@@ -304,20 +304,22 @@ public class ModuleService {
          * @param email the email of the user requesting the modules
          * @return a list of ModuleGenResponse containing module name and image
          */
-        public List<ModuleGenResponse> getModulesByAdministrator(String email) {
-        UserEcicare user = userEcicareRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "User not found")
-                );
+        public Page<ModuleGenResponse> getModulesByAdministrator(String email, int page, int size) {
+                UserEcicare user = userEcicareRepository.findByEmail(email)
+                        .orElseThrow(() -> new ResponseStatusException(
+                                HttpStatus.NOT_FOUND, "User not found")
+                        );
 
-        return moduleRepository.findAll().stream()
-                .filter(module -> module.getAdministrator() != null &&
-                                module.getAdministrator().getIdEci().equals(user.getIdEci()))
-                .map(module -> ModuleGenResponse.builder()
-                        .name(module.getName())
-                        .imageUrl(module.getImageUrl())
-                        .build())
-                .toList();
+                if (!user.getRole().equals(Role.COLLABORATOR)){
+                        throw new  ResponseStatusException(
+                                HttpStatus.FORBIDDEN, "User is not a collaborator");
+                }
+                Pageable pageable = PageRequest.of(page, size);
+                return moduleRepository.findByAdministrator_Email(email,pageable)
+                        .map(module -> ModuleGenResponse.builder()
+                                .name(module.getName())
+                                .imageUrl(module.getImageUrl())
+                                .build());
         }
 
 

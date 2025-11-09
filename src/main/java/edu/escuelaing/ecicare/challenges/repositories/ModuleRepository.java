@@ -1,6 +1,8 @@
 package edu.escuelaing.ecicare.challenges.repositories;
 
 import edu.escuelaing.ecicare.challenges.models.entity.Module;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,4 +15,5 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface ModuleRepository extends JpaRepository<Module, String> {
+    Page<Module> findByAdministrator_Email(String email, Pageable pageable);
 }

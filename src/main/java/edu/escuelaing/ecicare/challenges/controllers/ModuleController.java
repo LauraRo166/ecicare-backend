@@ -140,10 +140,12 @@ public class ModuleController {
      * @return a list of modules with only name and image
      */
     @GetMapping("/administrated-by-user")
-    public ResponseEntity<List<ModuleGenResponse>> getModulesByAdministrator(
-            @RequestParam String email) {
+    public ResponseEntity<Page<ModuleGenResponse>> getModulesByAdministrator(
+            @RequestParam String email,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
 
-        List<ModuleGenResponse> modules = moduleService.getModulesByAdministrator(email);
+        Page<ModuleGenResponse> modules = moduleService.getModulesByAdministrator(email, page, size);
 
         return ResponseEntity.ok(modules);
     }
