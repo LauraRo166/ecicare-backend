@@ -84,7 +84,7 @@ class ModuleControllerTest {
 
         when(moduleService.getAllModules()).thenReturn(modules);
 
-        mockMvc.perform(get("/modules/"))
+        mockMvc.perform(get("/modules/modulesWithChallenges"))
                 .andExpect(status().isOk())
                 .andExpect(result -> {
                     ModuleResponse[] response = objectMapper.readValue(result.getResponse().getContentAsString(),
