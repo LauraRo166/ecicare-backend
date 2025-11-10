@@ -300,4 +300,12 @@ public class ChallengeController {
 
         return challengeService.searchRegisteredUsers(challengeName, search, pageable);
     }
+
+    @GetMapping("/searchContainingPaged")
+    public Page<ChallengeResponse> searchChallengesWithPaged(
+            @RequestParam(required = false, defaultValue = "") String name,
+            @PageableDefault(size = 10, sort = "name") Pageable pageable) {
+        return challengeService.searchChallengesByName(name, pageable);
+    }
+
 }

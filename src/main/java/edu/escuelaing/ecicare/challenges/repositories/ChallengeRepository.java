@@ -100,4 +100,7 @@ public interface ChallengeRepository extends JpaRepository<Challenge, String> {
             @Param("challengeName") String challengeName,
             @Param("search") String search,
             Pageable pageable);
+
+    Page<Challenge> findByNameContainingIgnoreCase(String name, Pageable pageable);
+
 }

@@ -555,4 +555,46 @@ public class ChallengeService {
                 pageable);
     }
 
+    /**
+     * Searches challenges by name with pagination support.
+     *
+     * @param name     the search term to match in challenge names
+     * @param pageable pagination information
+     * @return a {@link Page} of {@link ChallengeResponse} matching the search
+     *         criteria
+     */
+    public Page<ChallengeResponse> searchChallengesByName(String name, Pageable pageable) {
+
+        Page<Challenge> challengePage = challengeRepository.findByNameContainingIgnoreCase(name, pageable);
+
+        return challengePage.map(c -> new ChallengeResponse(
+                c.getName(),
+                c.getDescription(),
+                c.getImageUrl(),
+                c.getPhrase(),
+                c.getTips(),
+                c.getDuration(),
+                c.getGoals(),
+                c.getModule().getName(),
+                c.getRedeemables()
+                        .stream()
+                        .map(this::toDto)
+                        .toList()));
+    }
+
+    private AwardDto toDto(Redeemable redeemable) {
+        if (redeemable == null || redeemable.getAward() == null) {
+            return null;
+        }
+
+        Award award = redeemable.getAward();
+
+        return AwardDto.builder()
+                .name(award.getName())
+                .description(award.getDescription())
+                .inStock(award.getInStock())
+                .imageUrl(award.getImageUrl())
+                .build();
+    }
+
 }

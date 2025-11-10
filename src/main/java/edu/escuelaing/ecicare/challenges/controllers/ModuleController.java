@@ -9,7 +9,10 @@ import edu.escuelaing.ecicare.challenges.models.entity.Challenge;
 import edu.escuelaing.ecicare.challenges.services.ModuleService;
 import edu.escuelaing.ecicare.challenges.models.entity.Module;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.data.domain.Page;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -193,4 +196,20 @@ public class ModuleController {
     public ModuleResponse getModuleByName(@PathVariable String name) {
         return moduleService.getModuleByName(name);
     }
+
+    @GetMapping("/search")
+    public Page<ModuleGenResponse> searchModules(
+            @RequestParam(defaultValue = "") String name,
+            @PageableDefault(size = 10, sort = "name") Pageable pageable) {
+        return moduleService.searchModulesByName(name, pageable);
+    }
+
+    @GetMapping("/admin/search")
+    public Page<ModuleGenResponse> getModulesByAdminEmail(
+            @RequestParam String email,
+            @RequestParam(defaultValue = "") String name,
+            @PageableDefault(size = 10, sort = "name") Pageable pageable) {
+        return moduleService.findModulesByAdminEmail(email, name, pageable);
+    }
+
 }

@@ -156,11 +156,11 @@ public class ModuleService {
         public Page<ChallengeResponse> getChallengesByModulePaged(String name, int page, int size) {
                 Pageable pageable = PageRequest.of(page, size);
                 Module module = moduleRepository.findById(name)
-                        .orElseThrow(() -> new RuntimeException("Module not found: " + name));
+                                .orElseThrow(() -> new RuntimeException("Module not found: " + name));
 
                 Page<Challenge> challenges = challengeRepository.findByModule_Name(name, pageable);
                 return challenges
-                        .map(ChallengeService::challengeToResponse);
+                                .map(ChallengeService::challengeToResponse);
         }
 
         /**
@@ -306,22 +306,20 @@ public class ModuleService {
          */
         public Page<ModuleGenResponse> getModulesByAdministrator(String email, int page, int size) {
                 UserEcicare user = userEcicareRepository.findByEmail(email)
-                        .orElseThrow(() -> new ResponseStatusException(
-                                HttpStatus.NOT_FOUND, "User not found")
-                        );
+                                .orElseThrow(() -> new ResponseStatusException(
+                                                HttpStatus.NOT_FOUND, "User not found"));
 
-                if (!user.getRole().equals(Role.COLLABORATOR)){
-                        throw new  ResponseStatusException(
-                                HttpStatus.FORBIDDEN, "User is not a collaborator");
+                if (!user.getRole().equals(Role.COLLABORATOR)) {
+                        throw new ResponseStatusException(
+                                        HttpStatus.FORBIDDEN, "User is not a collaborator");
                 }
                 Pageable pageable = PageRequest.of(page, size);
-                return moduleRepository.findByAdministrator_Email(email,pageable)
-                        .map(module -> ModuleGenResponse.builder()
-                                .name(module.getName())
-                                .imageUrl(module.getImageUrl())
-                                .build());
+                return moduleRepository.findByAdministrator_Email(email, pageable)
+                                .map(module -> ModuleGenResponse.builder()
+                                                .name(module.getName())
+                                                .imageUrl(module.getImageUrl())
+                                                .build());
         }
-
 
         /**
          * Maps a Module entity to a ModuleResponse DTO.
@@ -367,6 +365,23 @@ public class ModuleService {
                                 .orElseThrow(() -> new RuntimeException("Module not found: " + name));
 
                 return toModuleResponse(module);
+        }
+
+        public Page<ModuleGenResponse> searchModulesByName(String name, Pageable pageable) {
+                return moduleRepository.findByNameContainingIgnoreCaseDTO(name, pageable);
+        }
+
+        public Page<ModuleGenResponse> findModulesByAdminEmail(
+                        String adminEmail,
+                        String name,
+                        Pageable pageable) {
+                                
+                String searchName = (name == null) ? "" : name;
+
+                return moduleRepository.findByAdministratorEmailDTO(
+                                adminEmail,
+                                searchName,
+                                pageable);
         }
 
 }
