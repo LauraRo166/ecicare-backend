@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
@@ -264,6 +266,14 @@ public class ChallengeController {
         return challengeService.getRegisteredUsersByChallenge(name);
     }
 
+    /**
+     * * Retrieves registered users for a specific challenge with pagination
+     *
+     * @param challengeName challenge name
+     * @param page          page number (0-based)
+     * @param size          page size
+     * @return paginated list of registered users with email and name
+     */
     @GetMapping("/{challengeName}/registered-users/paged")
     public Page<UserEmailNameDTO> getRegisteredUsersByChallenge(
             @PathVariable String challengeName,
@@ -271,5 +281,23 @@ public class ChallengeController {
             @RequestParam(defaultValue = "10") int size) {
 
         return challengeService.getRegisteredUsersByChallenge(challengeName, page, size);
+    }
+
+    /**
+     * Searches registered users for a specific challenge by name or email with
+     * pagination
+     *
+     * @param challengeName challenge name
+     * @param search        search term for name or email
+     * @param pageable      pagination information
+     * @return paginated list of registered users matching the search criteria
+     */
+    @GetMapping("/{challengeName}/users-registered/search-by-name-or-email")
+    public Page<UserEmailNameDTO> getRegisteredUsersBySearch(
+            @PathVariable String challengeName,
+            @RequestParam(required = false, defaultValue = "") String search,
+            @PageableDefault(size = 10, sort = "name") Pageable pageable) {
+
+        return challengeService.searchRegisteredUsers(challengeName, search, pageable);
     }
 }

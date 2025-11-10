@@ -1,6 +1,7 @@
 package edu.escuelaing.ecicare.challenges.repositories;
 
 import edu.escuelaing.ecicare.users.models.entity.UserEcicare;
+import edu.escuelaing.ecicare.challenges.models.dto.UserEmailNameDTO;
 import edu.escuelaing.ecicare.challenges.models.entity.Challenge;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -46,6 +47,7 @@ public interface ChallengeRepository extends JpaRepository<Challenge, String> {
     List<Challenge> findByDuration(LocalDateTime duration);
 
     Page<Challenge> findByModule_Name(String id, Pageable pageable);
+
     /**
      * Finds all challenges where a specific user is registered.
      *
@@ -73,4 +75,29 @@ public interface ChallengeRepository extends JpaRepository<Challenge, String> {
             "FROM Challenge c WHERE c = :challenge")
     boolean isUserRegistered(@Param("user") UserEcicare user, @Param("challenge") Challenge challenge);
 
+    /**
+     * Finds ALL challenges by name using case-insensitive partial matching without
+     * pagination.
+     * Perfect for search functionality where all matching results are needed
+     * and will be grouped by modules.
+     * 
+     * @param name the search term to match (case-insensitive, partial matching)
+     * @return a list of ALL challenges matching the search criteria, sorted by name
+     */
+    @Query("""
+            SELECT new edu.escuelaing.ecicare.challenges.models.dto.UserEmailNameDTO(
+                u.email, u.name
+            )
+            FROM UserEcicare u
+            JOIN u.challengesRegistered c
+            WHERE c.name = :challengeName
+              AND (
+                   LOWER(u.name) LIKE LOWER(CONCAT('%', :search, '%'))
+                OR LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%'))
+              )
+            """)
+    Page<UserEmailNameDTO> searchRegisteredUsers(
+            @Param("challengeName") String challengeName,
+            @Param("search") String search,
+            Pageable pageable);
 }

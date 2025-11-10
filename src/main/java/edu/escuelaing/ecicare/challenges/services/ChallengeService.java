@@ -532,4 +532,27 @@ public class ChallengeService {
         return new PageImpl<>(paginatedEmails, pageable, emailsNameUser.size());
     }
 
+    /**
+     * Searches registered users for a specific challenge by name or email.
+     *
+     * @param challengeName the name of the challenge
+     * @param search        the search term to match in user names or emails
+     * @param pageable      pagination information
+     * @return a page of {@link UserEmailNameDTO} matching the search criteria
+     */
+    public Page<UserEmailNameDTO> searchRegisteredUsers(
+            String challengeName,
+            String search,
+            Pageable pageable) {
+        // Reemplaza null o vacío para que el LIKE funcione siempre
+        if (search == null || search.isBlank()) {
+            search = "";
+        }
+
+        return challengeRepository.searchRegisteredUsers(
+                challengeName,
+                search,
+                pageable);
+    }
+
 }
