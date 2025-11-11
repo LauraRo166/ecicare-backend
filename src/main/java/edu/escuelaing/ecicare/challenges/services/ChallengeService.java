@@ -378,7 +378,7 @@ public class ChallengeService {
      * @param name      partial or full name to search for (case insensitive)
      * @return list of matching {@link ChallengeResponse}
      */
-    public List<ChallengeResponse> searchRegisteredChallengesByUserEmail(String userEmail, String name) {
+    public Page<ChallengeResponse> searchRegisteredChallengesByUserEmail(String userEmail, String name, Pageable pageable) {
         if (userEmail == null || userEmail.isBlank()) {
             throw new IllegalArgumentException("userEmail no puede ser nulo o vacío");
         }
@@ -388,10 +388,8 @@ public class ChallengeService {
 
         String query = name == null ? "" : name.trim().toLowerCase();
 
-        return challengeRepository.findByRegistered(user).stream()
-                .filter(ch -> ch.getName() != null && ch.getName().toLowerCase().contains(query))
-                .map(ChallengeService::challengeToResponse)
-                .toList();
+        return challengeRepository.findRegisterChallengesByUserIdAndSearch(user.getIdEci(), query, pageable)
+                .map(ChallengeService::challengeToResponse);
     }
 
     /**
@@ -401,7 +399,7 @@ public class ChallengeService {
      * @param name      partial or full name to search for (case insensitive)
      * @return list of matching {@link ChallengeResponse}
      */
-    public List<ChallengeResponse> searchConfirmedChallengesByUserEmail(String userEmail, String name) {
+    public Page<ChallengeResponse> searchConfirmedChallengesByUserEmail(String userEmail, String name, Pageable pageable) {
         if (userEmail == null || userEmail.isBlank()) {
             throw new IllegalArgumentException("userEmail no puede ser nulo o vacío");
         }
@@ -411,10 +409,8 @@ public class ChallengeService {
 
         String query = name == null ? "" : name.trim().toLowerCase();
 
-        return user.getChallengesConfirmed().stream()
-                .filter(ch -> ch.getName() != null && ch.getName().toLowerCase().contains(query))
-                .map(ChallengeService::challengeToResponse)
-                .toList();
+        return challengeRepository.findConfirmedChallengesByUserIdAndSearch(user.getIdEci(), query, pageable)
+                .map(ChallengeService::challengeToResponse);
     }
 
     /**

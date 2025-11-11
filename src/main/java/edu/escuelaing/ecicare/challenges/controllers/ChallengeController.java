@@ -174,10 +174,12 @@ public class ChallengeController {
      * GET /challenges/users/{email}/registered/search?name=term
      */
     @GetMapping("/users/{userEmail}/registered/search")
-    public List<ChallengeResponse> searchUserRegisteredChallenges(
+    public Page<ChallengeResponse> searchUserRegisteredChallenges(
             @PathVariable("userEmail") String userEmail,
-            @RequestParam(required = false, defaultValue = "") String name) {
-        return challengeService.searchRegisteredChallengesByUserEmail(userEmail, name);
+            @RequestParam(required = false, defaultValue = "") String name,
+            @PageableDefault(size = 10, sort = "name") Pageable pageable
+            ) {
+        return challengeService.searchRegisteredChallengesByUserEmail(userEmail, name, pageable);
     }
 
     @GetMapping("/users/{email}/challenges-registered/paged")
@@ -208,10 +210,11 @@ public class ChallengeController {
      * GET /challenges/users/{email}/completed/search?name=term
      */
     @GetMapping("/users/{userEmail}/completed/search")
-    public List<ChallengeResponse> searchUserCompletedChallenges(
+    public Page<ChallengeResponse> searchUserCompletedChallenges(
             @PathVariable("userEmail") String userEmail,
-            @RequestParam(required = false, defaultValue = "") String name) {
-        return challengeService.searchConfirmedChallengesByUserEmail(userEmail, name);
+            @RequestParam(required = false, defaultValue = "") String name,
+            @PageableDefault(size = 10, sort = "name") Pageable pageable) {
+        return challengeService.searchConfirmedChallengesByUserEmail(userEmail, name, pageable);
     }
 
     @GetMapping("/users/{email}/completed/paged")

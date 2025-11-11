@@ -114,5 +114,25 @@ public interface ChallengeRepository extends JpaRepository<Challenge, String> {
          * @return a page of challenges matching the criteria
          */
         Page<Challenge> findByNameContainingIgnoreCaseAndModule_Name(String name, String moduleName, Pageable pageable);
+        @Query("""
+            SELECT c FROM Challenge c
+            JOIN c.confirmed u
+            WHERE u.idEci = :userId
+              AND LOWER(c.name) LIKE LOWER(CONCAT('%', :search, '%'))
+        """)
+        Page<Challenge> findConfirmedChallengesByUserIdAndSearch(
+                        @Param("userId") Long userId,
+                        @Param("search") String search,
+                        Pageable pageable);
+        @Query("""
+            SELECT c FROM Challenge c
+            JOIN c.registered u
+            WHERE u.idEci = :userId
+              AND LOWER(c.name) LIKE LOWER(CONCAT('%', :search, '%'))
+        """)
+        Page<Challenge> findRegisterChallengesByUserIdAndSearch(
+                @Param("userId") Long userId,
+                @Param("search") String search,
+                Pageable pageable);
 
 }
