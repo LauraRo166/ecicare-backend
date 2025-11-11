@@ -167,6 +167,19 @@ public class ChallengeController {
         return challengeService.getChallengesByUserEmail(userEmail);
     }
 
+    /**
+     * Busca en los challenges en los que el usuario está registrado (registered)
+     * por nombre (coincidencia parcial, case-insensitive).
+     *
+     * GET /challenges/users/{email}/registered/search?name=term
+     */
+    @GetMapping("/users/{userEmail}/registered/search")
+    public List<ChallengeResponse> searchUserRegisteredChallenges(
+            @PathVariable("userEmail") String userEmail,
+            @RequestParam(required = false, defaultValue = "") String name) {
+        return challengeService.searchRegisteredChallengesByUserEmail(userEmail, name);
+    }
+
     @GetMapping("/users/{email}/challenges-registered/paged")
     public ResponseEntity<Page<ChallengeResponse>> getUserRegisteredChallenges(
             @PathVariable("email") String userEmail,
@@ -186,6 +199,19 @@ public class ChallengeController {
     @GetMapping("/users/{userEmail}/completed")
     public List<ChallengeResponse> getUserCompletedChallenges(@PathVariable String userEmail) {
         return challengeService.getChallengesCompletedByUserEmail(userEmail);
+    }
+
+    /**
+     * Busca en los challenges completados (confirmed) por un usuario por nombre
+     * (coincidencia parcial, case-insensitive).
+     *
+     * GET /challenges/users/{email}/completed/search?name=term
+     */
+    @GetMapping("/users/{userEmail}/completed/search")
+    public List<ChallengeResponse> searchUserCompletedChallenges(
+            @PathVariable("userEmail") String userEmail,
+            @RequestParam(required = false, defaultValue = "") String name) {
+        return challengeService.searchConfirmedChallengesByUserEmail(userEmail, name);
     }
 
     @GetMapping("/users/{email}/completed/paged")
@@ -304,8 +330,9 @@ public class ChallengeController {
     @GetMapping("/searchContainingPaged")
     public Page<ChallengeResponse> searchChallengesWithPaged(
             @RequestParam(required = false, defaultValue = "") String name,
+            @RequestParam(required = false) String module,
             @PageableDefault(size = 10, sort = "name") Pageable pageable) {
-        return challengeService.searchChallengesByName(name, pageable);
+        return challengeService.searchChallengesByName(name, module, pageable);
     }
 
 }

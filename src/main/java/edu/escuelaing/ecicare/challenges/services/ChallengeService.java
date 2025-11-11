@@ -372,6 +372,52 @@ public class ChallengeService {
     }
 
     /**
+     * Searches challenges in which a user is registered by challenge name.
+     *
+     * @param userEmail email of the user
+     * @param name      partial or full name to search for (case insensitive)
+     * @return list of matching {@link ChallengeResponse}
+     */
+    public List<ChallengeResponse> searchRegisteredChallengesByUserEmail(String userEmail, String name) {
+        if (userEmail == null || userEmail.isBlank()) {
+            throw new IllegalArgumentException("userEmail no puede ser nulo o vacío");
+        }
+
+        UserEcicare user = userEcicareRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + userEmail));
+
+        String query = name == null ? "" : name.trim().toLowerCase();
+
+        return challengeRepository.findByRegistered(user).stream()
+                .filter(ch -> ch.getName() != null && ch.getName().toLowerCase().contains(query))
+                .map(ChallengeService::challengeToResponse)
+                .toList();
+    }
+
+    /**
+     * Searches challenges that a user has confirmed (completed) by challenge name.
+     *
+     * @param userEmail email of the user
+     * @param name      partial or full name to search for (case insensitive)
+     * @return list of matching {@link ChallengeResponse}
+     */
+    public List<ChallengeResponse> searchConfirmedChallengesByUserEmail(String userEmail, String name) {
+        if (userEmail == null || userEmail.isBlank()) {
+            throw new IllegalArgumentException("userEmail no puede ser nulo o vacío");
+        }
+
+        UserEcicare user = userEcicareRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + userEmail));
+
+        String query = name == null ? "" : name.trim().toLowerCase();
+
+        return user.getChallengesConfirmed().stream()
+                .filter(ch -> ch.getName() != null && ch.getName().toLowerCase().contains(query))
+                .map(ChallengeService::challengeToResponse)
+                .toList();
+    }
+
+    /**
      * Maps a Challenge entity to a ChallengeResponse DTO.
      *
      * @param challenge the Challenge entity
@@ -563,9 +609,27 @@ public class ChallengeService {
      * @return a {@link Page} of {@link ChallengeResponse} matching the search
      *         criteria
      */
-    public Page<ChallengeResponse> searchChallengesByName(String name, Pageable pageable) {
+    /**
+     * Searches challenges by name with optional module filtering and pagination
+     * support.
+     *
+     * @param name       the search term to match in challenge names
+     * @param moduleName optional module name to restrict the search to a specific
+     *                   module
+     * @param pageable   pagination information
+     * @return a {@link Page} of {@link ChallengeResponse} matching the search
+     *         criteria
+     */
+    public Page<ChallengeResponse> searchChallengesByName(String name, String moduleName, Pageable pageable) {
 
-        Page<Challenge> challengePage = challengeRepository.findByNameContainingIgnoreCase(name, pageable);
+        Page<Challenge> challengePage;
+
+        if (moduleName != null && !moduleName.isBlank()) {
+            challengePage = challengeRepository.findByNameContainingIgnoreCaseAndModule_Name(name, moduleName,
+                    pageable);
+        } else {
+            challengePage = challengeRepository.findByNameContainingIgnoreCase(name, pageable);
+        }
 
         return challengePage.map(c -> new ChallengeResponse(
                 c.getName(),
@@ -575,11 +639,10 @@ public class ChallengeService {
                 c.getTips(),
                 c.getDuration(),
                 c.getGoals(),
-                c.getModule().getName(),
-                c.getRedeemables()
-                        .stream()
-                        .map(this::toDto)
-                        .toList()));
+                c.getModule() != null ? c.getModule().getName() : null,
+                c.getRedeemables() != null
+                        ? c.getRedeemables().stream().map(this::toDto).toList()
+                        : null));
     }
 
     private AwardDto toDto(Redeemable redeemable) {
