@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class AwardDto {
 
     private String name;
+    private Long awardId;
     private String description;
     private Integer inStock;
     private String imageUrl;

@@ -91,7 +91,6 @@ public class ChallengeService {
 
     /**
      * Retrieves a challenge entity by its name (for internal use).
-     * pruebasssssssssssssssss
      *
      * @param name the name of the challenge
      * @return the {@link Challenge} entity, or null if not found
@@ -176,7 +175,7 @@ public class ChallengeService {
 
     /**
      * Gets all the Awards associated with a specific challenge.
-     * The search is performed through the Redeemables linked to the challenge.
+     * The search is performed through the Redeemable linked to the challenge.
      *
      * @param challengeName is the unique name of the challenge to query.
      * @return a list of distinct {@link AwardDto} associated with that challenge.
@@ -242,8 +241,7 @@ public class ChallengeService {
     }
 
     /**
-     * Deletes a challenge by its unique name, along with its associated
-     * redeemables.
+     * Deletes a challenge by its unique name, along with its associated redeemable.
      *
      * @param name the name of the challenge to delete
      */
@@ -424,6 +422,7 @@ public class ChallengeService {
                 .stream()
                 .map(r -> new AwardDto(
                         r.getAward().getName(),
+                        r.getAward().getAwardId(),
                         r.getAward().getDescription(),
                         r.getAward().getInStock(),
                         r.getAward().getImageUrl()))
@@ -449,6 +448,7 @@ public class ChallengeService {
     private static AwardDto toAwardDto(Award award) {
         return new AwardDto(
                 award.getName(),
+                award.getAwardId(),
                 award.getDescription(),
                 award.getInStock(),
                 award.getImageUrl());
