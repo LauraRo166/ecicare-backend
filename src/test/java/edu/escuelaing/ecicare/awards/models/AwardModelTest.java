@@ -287,6 +287,7 @@ class AwardModelTest {
     void shouldCreateAwardDtoWithAllArgsConstructor() {
         AwardDto fullDto = new AwardDto(
                 "Constructor DTO",
+                1000000L,
                 "Constructor Description",
                 25,
                 "/images/constructor-dto.png"

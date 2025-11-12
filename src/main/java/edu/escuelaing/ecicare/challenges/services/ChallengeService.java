@@ -6,6 +6,7 @@ import edu.escuelaing.ecicare.awards.repositories.RedeemableRepository;
 import edu.escuelaing.ecicare.challenges.models.dto.ChallengeDTO;
 import edu.escuelaing.ecicare.challenges.models.dto.ChallengeResponse;
 import edu.escuelaing.ecicare.challenges.models.dto.ModuleWithChallengesDTO;
+import edu.escuelaing.ecicare.challenges.models.dto.UserEmailNameDTO;
 import edu.escuelaing.ecicare.challenges.models.entity.Module;
 import edu.escuelaing.ecicare.challenges.repositories.ModuleRepository;
 import edu.escuelaing.ecicare.awards.models.entity.Award;
@@ -17,11 +18,13 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -88,7 +91,6 @@ public class ChallengeService {
 
     /**
      * Retrieves a challenge entity by its name (for internal use).
-     * pruebasssssssssssssssss
      *
      * @param name the name of the challenge
      * @return the {@link Challenge} entity, or null if not found
@@ -173,7 +175,7 @@ public class ChallengeService {
 
     /**
      * Gets all the Awards associated with a specific challenge.
-     * The search is performed through the Redeemables linked to the challenge.
+     * The search is performed through the Redeemable linked to the challenge.
      *
      * @param challengeName is the unique name of the challenge to query.
      * @return a list of distinct {@link AwardDto} associated with that challenge.
@@ -239,8 +241,7 @@ public class ChallengeService {
     }
 
     /**
-     * Deletes a challenge by its unique name, along with its associated
-     * redeemables.
+     * Deletes a challenge by its unique name, along with its associated redeemable.
      *
      * @param name the name of the challenge to delete
      */
@@ -289,22 +290,26 @@ public class ChallengeService {
      * @param name      the name of the challenge
      * @return the updated {@link ChallengeResponse}
      */
-    public ChallengeResponse confirmUserByEmail(String userEmail, String name) {
-        Challenge challenge = challengeRepository.findByName(name);
+    @Transactional
+    public ChallengeResponse confirmUserByEmail(String userEmail, String challengeName) {
+
+        Challenge challenge = challengeRepository.findByName(challengeName);
         if (challenge == null) {
-            throw new RuntimeException("Challenge not found: " + name);
+            throw new RuntimeException("Challenge not found: " + challengeName);
         }
-        List<UserEcicare> registered = challenge.getRegistered();
-        List<UserEcicare> confirmed = challenge.getConfirmed();
+
         UserEcicare user = userEcicareRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userEmail));
-        if (registered.contains(user)) {
-            registered.remove(user);
-            confirmed.add(user);
-            challenge.setRegistered(registered);
-            challenge.setConfirmed(confirmed);
-            challengeRepository.save(challenge);
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + userEmail));
+
+        if (!challenge.getRegistered().contains(user)) {
+            throw new RuntimeException("User is not registered in the challenge");
         }
+
+        challenge.getRegistered().remove(user);
+        challenge.getConfirmed().add(user);
+
+        challengeRepository.save(challenge);
+
         return challengeToResponse(challenge);
     }
 
@@ -324,6 +329,89 @@ public class ChallengeService {
     }
 
     /**
+     * Obtiene los desafíos en los que un usuario está registrado, con paginación.
+     * 
+     * @param userEmail email del usuario
+     * @param page      página (default 0)
+     * @param size      tamaño de página (default 10)
+     * @return Page de ChallengeResponse (sin ordenar)
+     */
+    public Page<ChallengeResponse> getChallengesByUserEmailPaged(
+            String userEmail, int page, int size) {
+
+        if (userEmail == null || userEmail.isBlank()) {
+            throw new IllegalArgumentException("userEmail no puede ser nulo o vacío");
+        }
+
+        UserEcicare user = userEcicareRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + userEmail));
+
+        // Valores seguros
+        int safePage = Math.max(0, page);
+        int safeSize = size > 0 ? size : 10;
+
+        // Obtener desafíos desde el repositorio (sin ordenar)
+        List<ChallengeResponse> allChallenges = challengeRepository.findByRegistered(user)
+                .stream()
+                .map(ChallengeService::challengeToResponse)
+                .toList();
+
+        // Paginación manual
+        int start = safePage * safeSize;
+        int end = Math.min(start + safeSize, allChallenges.size());
+
+        List<ChallengeResponse> pagedList = start < allChallenges.size()
+                ? allChallenges.subList(start, end)
+                : Collections.emptyList();
+
+        Pageable pageable = PageRequest.of(safePage, safeSize);
+
+        return new PageImpl<>(pagedList, pageable, allChallenges.size());
+    }
+
+    /**
+     * Searches challenges in which a user is registered by challenge name.
+     *
+     * @param userEmail email of the user
+     * @param name      partial or full name to search for (case insensitive)
+     * @return list of matching {@link ChallengeResponse}
+     */
+    public Page<ChallengeResponse> searchRegisteredChallengesByUserEmail(String userEmail, String name, Pageable pageable) {
+        if (userEmail == null || userEmail.isBlank()) {
+            throw new IllegalArgumentException("userEmail no puede ser nulo o vacío");
+        }
+
+        UserEcicare user = userEcicareRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + userEmail));
+
+        String query = name == null ? "" : name.trim().toLowerCase();
+
+        return challengeRepository.findRegisterChallengesByUserIdAndSearch(user.getIdEci(), query, pageable)
+                .map(ChallengeService::challengeToResponse);
+    }
+
+    /**
+     * Searches challenges that a user has confirmed (completed) by challenge name.
+     *
+     * @param userEmail email of the user
+     * @param name      partial or full name to search for (case insensitive)
+     * @return list of matching {@link ChallengeResponse}
+     */
+    public Page<ChallengeResponse> searchConfirmedChallengesByUserEmail(String userEmail, String name, Pageable pageable) {
+        if (userEmail == null || userEmail.isBlank()) {
+            throw new IllegalArgumentException("userEmail no puede ser nulo o vacío");
+        }
+
+        UserEcicare user = userEcicareRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + userEmail));
+
+        String query = name == null ? "" : name.trim().toLowerCase();
+
+        return challengeRepository.findConfirmedChallengesByUserIdAndSearch(user.getIdEci(), query, pageable)
+                .map(ChallengeService::challengeToResponse);
+    }
+
+    /**
      * Maps a Challenge entity to a ChallengeResponse DTO.
      *
      * @param challenge the Challenge entity
@@ -334,6 +422,7 @@ public class ChallengeService {
                 .stream()
                 .map(r -> new AwardDto(
                         r.getAward().getName(),
+                        r.getAward().getAwardId(),
                         r.getAward().getDescription(),
                         r.getAward().getInStock(),
                         r.getAward().getImageUrl()))
@@ -359,6 +448,7 @@ public class ChallengeService {
     private static AwardDto toAwardDto(Award award) {
         return new AwardDto(
                 award.getName(),
+                award.getAwardId(),
                 award.getDescription(),
                 award.getInStock(),
                 award.getImageUrl());
@@ -378,4 +468,192 @@ public class ChallengeService {
                 .map(ChallengeService::challengeToResponse)
                 .toList();
     }
+
+    /**
+     * Obtiene los desafíos completados por un usuario, con paginación.
+     * 
+     * @param userEmail email del usuario
+     * @param page      página (default 0)
+     * @param size      tamaño de página (default 10)
+     * @return Page de ChallengeResponse (sin ordenar)
+     */
+    public Page<ChallengeResponse> getChallengesCompletedByUserEmailPaged(
+            String userEmail, int page, int size) {
+
+        if (userEmail == null || userEmail.isBlank()) {
+            throw new IllegalArgumentException("userEmail no puede ser nulo o vacío");
+        }
+
+        UserEcicare user = userEcicareRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + userEmail));
+
+        // Valores seguros
+        int safePage = Math.max(0, page);
+        int safeSize = size > 0 ? size : 10;
+
+        // SIN ORDENAR → directo del Set/List original
+        List<ChallengeResponse> allChallenges = user.getChallengesConfirmed()
+                .stream()
+                .map(ChallengeService::challengeToResponse)
+                .toList();
+
+        // Paginación manual
+        int start = safePage * safeSize;
+        int end = Math.min(start + safeSize, allChallenges.size());
+
+        List<ChallengeResponse> pagedList = start < allChallenges.size()
+                ? allChallenges.subList(start, end)
+                : Collections.emptyList();
+
+        Pageable pageable = PageRequest.of(safePage, safeSize);
+
+        return new PageImpl<>(pagedList, pageable, allChallenges.size());
+    }
+
+    /**
+     * Retrieves emails of confirmed users for a specific challenge
+     *
+     * @param challengeName name of the challenge
+     * @return list of confirmed user emails
+     */
+    public List<String> getConfirmedUsersByChallenge(String challengeName) {
+        Challenge challenge = challengeRepository.findByName(challengeName);
+        if (challenge == null) {
+            throw new RuntimeException("Challenge not found: " + challengeName);
+        }
+        return challenge.getConfirmed().stream()
+                .map(UserEcicare::getEmail)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Retrieves emails of registered users for a specific challenge
+     *
+     * @param challengeName name of the challenge
+     * @return list of registered user emails
+     */
+    public List<String> getRegisteredUsersByChallenge(String challengeName) {
+        Challenge challenge = challengeRepository.findByName(challengeName);
+        if (challenge == null) {
+            throw new RuntimeException("Challenge not found: " + challengeName);
+        }
+        return challenge.getRegistered().stream()
+                .map(UserEcicare::getEmail)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Retrieves paginated registered user emails for a specific challenge.
+     *
+     * @param challengeName the name of the challenge
+     * @param page          the page number (0-based)
+     * @param size          the page size
+     * @return a page of registered user name and email DTOs
+     */
+    public Page<UserEmailNameDTO> getRegisteredUsersByChallenge(String challengeName, int page, int size) {
+
+        Challenge challenge = challengeRepository.findByName(challengeName);
+        if (challenge == null) {
+            throw new RuntimeException("Challenge not found: " + challengeName);
+        }
+
+        List<UserEmailNameDTO> emailsNameUser = challenge.getRegistered().stream()
+                .map(user -> new UserEmailNameDTO(user.getEmail(), user.getName()))
+                .toList();
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        int start = (int) pageable.getOffset();
+        if (start >= emailsNameUser.size()) {
+            return Page.empty(pageable);
+        }
+
+        int end = Math.min(start + pageable.getPageSize(), emailsNameUser.size());
+        List<UserEmailNameDTO> paginatedEmails = emailsNameUser.subList(start, end);
+
+        return new PageImpl<>(paginatedEmails, pageable, emailsNameUser.size());
+    }
+
+    /**
+     * Searches registered users for a specific challenge by name or email.
+     *
+     * @param challengeName the name of the challenge
+     * @param search        the search term to match in user names or emails
+     * @param pageable      pagination information
+     * @return a page of {@link UserEmailNameDTO} matching the search criteria
+     */
+    public Page<UserEmailNameDTO> searchRegisteredUsers(
+            String challengeName,
+            String search,
+            Pageable pageable) {
+        // Reemplaza null o vacío para que el LIKE funcione siempre
+        if (search == null || search.isBlank()) {
+            search = "";
+        }
+
+        return challengeRepository.searchRegisteredUsers(
+                challengeName,
+                search,
+                pageable);
+    }
+
+    /**
+     * Searches challenges by name with pagination support.
+     *
+     * @param name     the search term to match in challenge names
+     * @param pageable pagination information
+     * @return a {@link Page} of {@link ChallengeResponse} matching the search
+     *         criteria
+     */
+    /**
+     * Searches challenges by name with optional module filtering and pagination
+     * support.
+     *
+     * @param name       the search term to match in challenge names
+     * @param moduleName optional module name to restrict the search to a specific
+     *                   module
+     * @param pageable   pagination information
+     * @return a {@link Page} of {@link ChallengeResponse} matching the search
+     *         criteria
+     */
+    public Page<ChallengeResponse> searchChallengesByName(String name, String moduleName, Pageable pageable) {
+
+        Page<Challenge> challengePage;
+
+        if (moduleName != null && !moduleName.isBlank()) {
+            challengePage = challengeRepository.findByNameContainingIgnoreCaseAndModule_Name(name, moduleName,
+                    pageable);
+        } else {
+            challengePage = challengeRepository.findByNameContainingIgnoreCase(name, pageable);
+        }
+
+        return challengePage.map(c -> new ChallengeResponse(
+                c.getName(),
+                c.getDescription(),
+                c.getImageUrl(),
+                c.getPhrase(),
+                c.getTips(),
+                c.getDuration(),
+                c.getGoals(),
+                c.getModule() != null ? c.getModule().getName() : null,
+                c.getRedeemables() != null
+                        ? c.getRedeemables().stream().map(this::toDto).toList()
+                        : null));
+    }
+
+    private AwardDto toDto(Redeemable redeemable) {
+        if (redeemable == null || redeemable.getAward() == null) {
+            return null;
+        }
+
+        Award award = redeemable.getAward();
+
+        return AwardDto.builder()
+                .name(award.getName())
+                .description(award.getDescription())
+                .inStock(award.getInStock())
+                .imageUrl(award.getImageUrl())
+                .build();
+    }
+
 }

@@ -10,6 +10,7 @@ import edu.escuelaing.ecicare.users.models.dto.UserEcicareResponseDTO;
 import edu.escuelaing.ecicare.users.repositories.UserEcicareRepository;
 import edu.escuelaing.ecicare.utils.exceptions.ResourceNotFoundException;
 import edu.escuelaing.ecicare.utils.exceptions.notfound.UserEcicareNotFoundException;
+import edu.escuelaing.ecicare.utils.models.entity.enums.Role;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -101,6 +102,23 @@ public class UserEcicareService {
         userEcicare.setHasMedicalApprove(true);
         userEcicareRepository.save(userEcicare);
     }
+
+
+        /**
+     * Retrieves the role of a user by their email.
+     * Throws a 404 error if the user is not found.
+     *
+     * @param email The email of the user.
+     * @return The role of the user.
+     */
+    public Role getUserRoleByEmail(String email) {
+        UserEcicare user = userEcicareRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        return user.getRole();
+    }
+
+
 
     /**
      * Maps a {@link UserEcicare} entity to a {@link UserEcicareResponseDTO}.

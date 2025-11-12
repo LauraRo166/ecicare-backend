@@ -10,10 +10,12 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import edu.escuelaing.ecicare.users.models.dto.UserEcicareDto;
 import edu.escuelaing.ecicare.users.models.dto.UserEcicareResponseDTO;
 import edu.escuelaing.ecicare.users.services.UserEcicareService;
+import edu.escuelaing.ecicare.utils.models.entity.enums.Role;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 
@@ -77,6 +79,7 @@ public class UserEcicareController {
         return ResponseEntity.ok(eciCareUser);
     }
 
+
     /**
      * Approves a user's medical status.
      *
@@ -92,4 +95,19 @@ public class UserEcicareController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Retrieves the role of a user by their email.
+     *
+     * @param email the email of the user
+     * @return a {@link ResponseEntity} containing the user's role or {@link HttpStatus#NOT_FOUND} if not found
+     */
+    @GetMapping("/role")
+    public ResponseEntity<String> getUserRoleByEmail(@RequestParam String email) {
+        Role role = userEcicareService.getUserRoleByEmail(email);
+        if (role != null) {
+            return ResponseEntity.ok(role.name());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

@@ -3,6 +3,7 @@ package edu.escuelaing.ecicare.challenges.controllers;
 import edu.escuelaing.ecicare.challenges.models.dto.ChallengeDTO;
 import edu.escuelaing.ecicare.challenges.models.dto.ChallengeResponse;
 import edu.escuelaing.ecicare.challenges.models.dto.ModuleWithChallengesDTO;
+import edu.escuelaing.ecicare.challenges.models.dto.UserEmailNameDTO;
 import edu.escuelaing.ecicare.users.models.entity.UserEcicare;
 import edu.escuelaing.ecicare.challenges.models.entity.Challenge;
 import edu.escuelaing.ecicare.challenges.services.ChallengeService;
@@ -19,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
@@ -104,7 +107,8 @@ public class ChallengeController {
     }
 
     /**
-     * Retrieves all confirmed challenges in which a user with the given email was registered.
+     * Retrieves all confirmed challenges in which a user with the given email was
+     * registered.
      *
      * @param userEmail email of user
      * @return a list of challenges where the user is confirmed
@@ -164,6 +168,66 @@ public class ChallengeController {
     }
 
     /**
+     * Busca en los challenges en los que el usuario está registrado (registered)
+     * por nombre (coincidencia parcial, case-insensitive).
+     *
+     * GET /challenges/users/{email}/registered/search?name=term
+     */
+    @GetMapping("/users/{userEmail}/registered/search")
+    public Page<ChallengeResponse> searchUserRegisteredChallenges(
+            @PathVariable("userEmail") String userEmail,
+            @RequestParam(required = false, defaultValue = "") String name,
+            @PageableDefault(size = 10, sort = "name") Pageable pageable
+            ) {
+        return challengeService.searchRegisteredChallengesByUserEmail(userEmail, name, pageable);
+    }
+
+    @GetMapping("/users/{email}/challenges-registered/paged")
+    public ResponseEntity<Page<ChallengeResponse>> getUserRegisteredChallenges(
+            @PathVariable("email") String userEmail,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Page<ChallengeResponse> result = challengeService.getChallengesByUserEmailPaged(userEmail, page, size);
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * Retrieves all challenges in which a user with the given email is confirmed.
+     *
+     * @param userEmail email of user
+     * @return a list of challenges where the user is confirmed
+     */
+    @GetMapping("/users/{userEmail}/completed")
+    public List<ChallengeResponse> getUserCompletedChallenges(@PathVariable String userEmail) {
+        return challengeService.getChallengesCompletedByUserEmail(userEmail);
+    }
+
+    /**
+     * Busca en los challenges completados (confirmed) por un usuario por nombre
+     * (coincidencia parcial, case-insensitive).
+     *
+     * GET /challenges/users/{email}/completed/search?name=term
+     */
+    @GetMapping("/users/{userEmail}/completed/search")
+    public Page<ChallengeResponse> searchUserCompletedChallenges(
+            @PathVariable("userEmail") String userEmail,
+            @RequestParam(required = false, defaultValue = "") String name,
+            @PageableDefault(size = 10, sort = "name") Pageable pageable) {
+        return challengeService.searchConfirmedChallengesByUserEmail(userEmail, name, pageable);
+    }
+
+    @GetMapping("/users/{email}/completed/paged")
+    public ResponseEntity<Page<ChallengeResponse>> getUserCompletedChallenges(
+            @PathVariable("email") String userEmail,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Page<ChallengeResponse> result = challengeService.getChallengesCompletedByUserEmailPaged(userEmail, page, size);
+        return ResponseEntity.ok(result);
+    }
+
+    /**
      * Updates an existing challenge by its name.
      *
      * @param challengeDto the {@link Challenge} with updated values like:
@@ -207,6 +271,71 @@ public class ChallengeController {
     @PutMapping("/users/{userEmail}/challenges/{name}/confirm")
     public ChallengeResponse confirmUserByEmail(@PathVariable String userEmail, @PathVariable String name) {
         return challengeService.confirmUserByEmail(userEmail, name);
+    }
+
+    /**
+     * Retrieves confirmed users for a specific challenge
+     *
+     * @param name challenge name
+     * @return list of confirmed user emails
+     */
+    @GetMapping("/{name}/confirmed-users")
+    public List<String> getConfirmedUsersByChallenge(@PathVariable String name) {
+        return challengeService.getConfirmedUsersByChallenge(name);
+    }
+
+    /**
+     * Retrieves registered users for a specific challenge
+     *
+     * @param name challenge name
+     * @return list of registered user emails
+     */
+    @GetMapping("/{name}/registered-users")
+    public List<String> getRegisteredUsersByChallenge(@PathVariable String name) {
+        return challengeService.getRegisteredUsersByChallenge(name);
+    }
+
+    /**
+     * * Retrieves registered users for a specific challenge with pagination
+     *
+     * @param challengeName challenge name
+     * @param page          page number (0-based)
+     * @param size          page size
+     * @return paginated list of registered users with email and name
+     */
+    @GetMapping("/{challengeName}/registered-users/paged")
+    public Page<UserEmailNameDTO> getRegisteredUsersByChallenge(
+            @PathVariable String challengeName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        return challengeService.getRegisteredUsersByChallenge(challengeName, page, size);
+    }
+
+    /**
+     * Searches registered users for a specific challenge by name or email with
+     * pagination
+     *
+     * @param challengeName challenge name
+     * @param search        search term for name or email
+     * @param pageable      pagination information
+     * @return paginated list of registered users matching the search criteria
+     */
+    @GetMapping("/{challengeName}/users-registered/search-by-name-or-email")
+    public Page<UserEmailNameDTO> getRegisteredUsersBySearch(
+            @PathVariable String challengeName,
+            @RequestParam(required = false, defaultValue = "") String search,
+            @PageableDefault(size = 10, sort = "name") Pageable pageable) {
+
+        return challengeService.searchRegisteredUsers(challengeName, search, pageable);
+    }
+
+    @GetMapping("/searchContainingPaged")
+    public Page<ChallengeResponse> searchChallengesWithPaged(
+            @RequestParam(required = false, defaultValue = "") String name,
+            @RequestParam(required = false) String module,
+            @PageableDefault(size = 10, sort = "name") Pageable pageable) {
+        return challengeService.searchChallengesByName(name, module, pageable);
     }
 
 }

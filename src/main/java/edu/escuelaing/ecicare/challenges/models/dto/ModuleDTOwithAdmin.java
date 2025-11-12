@@ -1,4 +1,4 @@
-package edu.escuelaing.ecicare.users.models.dto;
+package edu.escuelaing.ecicare.challenges.models.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,9 +13,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class LoginRequestDTO {
-
-    private String email;
-    private String password;
-
+public class ModuleDTOwithAdmin {
+    private String name;
+    private String description;
+    private String imageUrl;
+    private String administrator;
 }
