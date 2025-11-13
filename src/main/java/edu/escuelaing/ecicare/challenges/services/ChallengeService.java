@@ -3,13 +3,11 @@ package edu.escuelaing.ecicare.challenges.services;
 import edu.escuelaing.ecicare.awards.models.dto.AwardDto;
 import edu.escuelaing.ecicare.awards.models.entity.Redeemable;
 import edu.escuelaing.ecicare.awards.repositories.RedeemableRepository;
-import edu.escuelaing.ecicare.challenges.models.dto.ChallengeDTO;
-import edu.escuelaing.ecicare.challenges.models.dto.ChallengeResponse;
-import edu.escuelaing.ecicare.challenges.models.dto.ModuleWithChallengesDTO;
-import edu.escuelaing.ecicare.challenges.models.dto.UserEmailNameDTO;
+import edu.escuelaing.ecicare.challenges.models.dto.*;
 import edu.escuelaing.ecicare.challenges.models.entity.Module;
 import edu.escuelaing.ecicare.challenges.repositories.ModuleRepository;
 import edu.escuelaing.ecicare.awards.models.entity.Award;
+import edu.escuelaing.ecicare.users.models.dto.AuthResponseDTO;
 import edu.escuelaing.ecicare.users.models.entity.UserEcicare;
 import edu.escuelaing.ecicare.challenges.models.entity.Challenge;
 import edu.escuelaing.ecicare.challenges.repositories.ChallengeRepository;
@@ -656,4 +654,19 @@ public class ChallengeService {
                 .build();
     }
 
+    public AdminDTO getChallengeAdmin(String challengeName){
+        UserEcicare userEcicare = challengeRepository.findChallengeAdministrator(challengeName);
+        if (userEcicare == null){
+            throw new RuntimeException("Challenge Administrator not found");
+        }
+        return new AdminDTO(userEcicare.getName(), userEcicare.getEmail());
+    }
+
+    public ChallengeUserStatus getUserChallengeStatus(String email, String challengeName){
+        UserEcicare userEcicare = userEcicareRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        boolean registered = challengeRepository.isUserRegisteredInChallenge(challengeName, userEcicare.getIdEci());
+        boolean completed = challengeRepository.isUserConfirmedInChallenge(challengeName, userEcicare.getIdEci());
+        return new ChallengeUserStatus(completed, registered);
+    }
 }

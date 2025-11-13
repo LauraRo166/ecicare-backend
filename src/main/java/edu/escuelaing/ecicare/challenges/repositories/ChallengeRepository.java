@@ -135,4 +135,27 @@ public interface ChallengeRepository extends JpaRepository<Challenge, String> {
                 @Param("search") String search,
                 Pageable pageable);
 
+        @Query("""
+                SELECT c.module.administrator FROM Challenge c
+                WHERE c.name = :name
+                """)
+        UserEcicare findChallengeAdministrator(@Param("name") String name);
+        @Query("SELECT CASE WHEN COUNT(c) > 0 THEN TRUE ELSE FALSE END " +
+                "FROM Challenge c JOIN c.registered u " +
+                "WHERE c.name = :challengeName AND u.idEci = :userId")
+        boolean isUserRegisteredInChallenge(@Param("challengeName") String challengeName,
+                                            @Param("userId") Long userId);
+
+        /**
+         * Verifica si un usuario ha completado (confirmado) un challenge.
+         *
+         * @param challengeName nombre del reto
+         * @param userId id del usuario (UserEcicare.idEci)
+         * @return true si el usuario ha completado el reto, false en caso contrario
+         */
+        @Query("SELECT CASE WHEN COUNT(c) > 0 THEN TRUE ELSE FALSE END " +
+                "FROM Challenge c JOIN c.confirmed u " +
+                "WHERE c.name = :challengeName AND u.idEci = :userId")
+        boolean isUserConfirmedInChallenge(@Param("challengeName") String challengeName,
+                                           @Param("userId") Long userId);
 }

@@ -338,4 +338,13 @@ public class ChallengeController {
         return challengeService.searchChallengesByName(name, module, pageable);
     }
 
+    @GetMapping("/{name}/administrator")
+    public ResponseEntity<?> getChallengeAdministrator(@PathVariable String name){
+        return ResponseEntity.ok(challengeService.getChallengeAdmin(name));
+    }
+
+    @GetMapping("/{name}/users/{email}/status")
+    public ResponseEntity<?> getChallengeUserStatus(@PathVariable String name, @PathVariable String email){
+        return ResponseEntity.ok(challengeService.getUserChallengeStatus(email, name));
+    }
 }
