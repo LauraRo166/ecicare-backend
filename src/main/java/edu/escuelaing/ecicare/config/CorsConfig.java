@@ -16,7 +16,7 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         config.setAllowedOrigins(Arrays.asList(
-                "https://tu-frontend.github.io", // producción
+                "https://ecicare-front-production.up.railway.app", // producción
                 "http://localhost:5173" // desarrollo local
         ));
         config.addAllowedHeader("*");
