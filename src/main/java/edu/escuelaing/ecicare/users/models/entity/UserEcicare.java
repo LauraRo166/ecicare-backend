@@ -36,6 +36,7 @@ public class UserEcicare {
 
     // Unique identifier for the Ecicare user (primary key).
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_eci", nullable = false, updatable = false)
     private Long idEci;
 

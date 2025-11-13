@@ -3,6 +3,7 @@ package edu.escuelaing.ecicare.users.models.dto;
 import java.time.LocalDateTime;
 
 import edu.escuelaing.ecicare.utils.models.entity.enums.Role;
+import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +18,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class UserEcicareDto {
-
+    @Nullable
     private Long idEci;
     private String name;
     private String email;

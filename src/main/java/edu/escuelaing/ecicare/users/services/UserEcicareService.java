@@ -46,7 +46,6 @@ public class UserEcicareService {
         }
 
         UserEcicare userEcicare = UserEcicare.builder()
-                .idEci(user.getIdEci())
                 .name(user.getName())
                 .email(user.getEmail())
                 .password(user.getPassword())
