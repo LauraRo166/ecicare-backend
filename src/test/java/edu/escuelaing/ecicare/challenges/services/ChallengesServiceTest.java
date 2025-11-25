@@ -180,7 +180,7 @@ class ChallengeServiceTest {
                 // Arrange
                 Module module = new Module("Module1", "Desc", null, null, null);
                 Challenge existingChallenge = new Challenge("Challenge1", "Old description", null, null, null, null,
-                                null, null, null, null, module, null);
+                                null, null, null, null, module, null, null, 0);
 
                 ChallengeDTO dto = new ChallengeDTO();
                 dto.setName("Challenge1");
