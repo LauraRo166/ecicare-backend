@@ -67,7 +67,6 @@ public class UserEcicareService {
      */
     @Transactional
     public void deleteEcicareUserById(Long id) {
-        log.info("Deleting User with ID: {}", id);
         if (!userEcicareRepository.existsById(id)) {
             throw new UserEcicareNotFoundException(id);
         }
