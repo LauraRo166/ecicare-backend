@@ -83,7 +83,8 @@ public class ChallengeControllerTest {
                                 LocalDateTime.now().plusDays(5),
                                 null,
                                 null,
-                                null
+                                null,
+                        null
                 );
 
                 when(challengeService.createChallenge(any(ChallengeDTO.class)))
@@ -106,8 +107,8 @@ public class ChallengeControllerTest {
         @DisplayName("Should get all challenges")
         void shouldGetAllChallenges() throws Exception {
                 List<ChallengeResponse> challenges = Arrays.asList(
-                                new ChallengeResponse("Challenge1", "Desc1", null, null, null, null, null, null, null),
-                                new ChallengeResponse("Challenge2", "Desc2", null, null, null, null, null, null, null));
+                                new ChallengeResponse("Challenge1", "Desc1", null, null, null, null, null, null, null, null),
+                                new ChallengeResponse("Challenge2", "Desc2", null, null, null, null, null, null, null, null));
 
                 when(challengeService.getAllChallenges()).thenReturn(challenges);
 
@@ -125,7 +126,7 @@ public class ChallengeControllerTest {
         @Test
         @DisplayName("Should get challenge by name")
         void shouldGetChallengeByName() throws Exception {
-                ChallengeResponse challenge = new ChallengeResponse("Challenge1", "Desc1", null, null, null, null, null, null, null);
+                ChallengeResponse challenge = new ChallengeResponse("Challenge1", "Desc1", null, null, null, null, null, null, null, null);
 
                 when(challengeService.getChallengeByName("Challenge1")).thenReturn(challenge);
 
@@ -143,7 +144,7 @@ public class ChallengeControllerTest {
         void shouldGetChallengesByDuration() throws Exception {
                 LocalDateTime duration = LocalDateTime.now().plusDays(7);
                 List<ChallengeResponse> challenges = List.of(
-                                new ChallengeResponse("Challenge1", null, null, null, null, duration, null, null, null));
+                                new ChallengeResponse("Challenge1", null, null, null, null, duration, null, null, null, null));
 
                 when(challengeService.getChallengeByDuration(duration)).thenReturn(challenges);
 
@@ -196,7 +197,7 @@ public class ChallengeControllerTest {
                                 "Challenge1",
                                 "Updated Desc",
                                 "imageUrl1",
-                                null, null, null, null, null, null);
+                                null, null, null, null, null, null, null);
 
                 when(challengeService.updateChallenge(updated)).thenReturn(challenge);
 
@@ -229,7 +230,7 @@ public class ChallengeControllerTest {
 
                 // Mock service
                 ChallengeResponse mockChallenge = new ChallengeResponse(
-                                challengeName, null, null, null, null, null, null, null, null);
+                                challengeName, null, null, null, null, null, null, null, null, null);
 
                 when(challengeService.addUserByEmail(userEmail, challengeName)).thenReturn(mockChallenge);
 
