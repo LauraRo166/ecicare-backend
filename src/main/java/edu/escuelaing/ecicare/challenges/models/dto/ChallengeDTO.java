@@ -25,4 +25,5 @@ public class ChallengeDTO {
     private LocalDateTime duration;
     private List<String> goals;
     private String moduleName;
+    private Integer requiredVerifications; // Number of verifications required to confirm a user (optional, defaults to 1)
 }

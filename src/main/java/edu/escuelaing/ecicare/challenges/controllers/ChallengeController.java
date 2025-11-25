@@ -347,4 +347,16 @@ public class ChallengeController {
     public ResponseEntity<?> getChallengeUserStatus(@PathVariable String name, @PathVariable String email){
         return ResponseEntity.ok(challengeService.getUserChallengeStatus(email, name));
     }
+
+    /**
+     * Get verification status for a user in a specific challenge
+     *
+     * @param name challenge name
+     * @param email user email
+     * @return verification status including current and required verifications
+     */
+    @GetMapping("/{name}/users/{email}/verification-status")
+    public ResponseEntity<?> getUserVerificationStatus(@PathVariable String name, @PathVariable String email){
+        return ResponseEntity.ok(challengeService.getUserVerificationStatus(email, name));
+    }
 }

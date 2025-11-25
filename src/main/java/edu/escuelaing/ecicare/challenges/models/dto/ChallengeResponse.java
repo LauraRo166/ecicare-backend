@@ -13,5 +13,6 @@ public record ChallengeResponse(String name,
                                 LocalDateTime duration,
                                 List<String> goals,
                                 String moduleName,
+                                Integer requiredVerifications,
                                 List<AwardDto> redeemables) {
 }

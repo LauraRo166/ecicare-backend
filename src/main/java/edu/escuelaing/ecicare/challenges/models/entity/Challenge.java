@@ -11,7 +11,9 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -24,10 +26,7 @@ import java.util.Set;
  *
  * @author ByteProgramming
  */
-@JsonIdentityInfo(
-    generator = ObjectIdGenerators.PropertyGenerator.class,
-    property = "name"
-)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "name")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -38,60 +37,57 @@ import java.util.Set;
 @Table(name = "challenge")
 public class Challenge {
 
-    // Unique name of the challenge.
-    // This field is the primary key of the table.
-    @Id
-    @Column(name="name", nullable = false, updatable = false)
-    private String name;
-    @Column(name="description", nullable = false)
-    private String description; // Detailed description of the challenge.
-    @Column(name = "image_url")
-    private String imageUrl; //Url of image from challenge
-    @Column(name="phrase")
-    private String phrase; // Motivational phrase or slogan associated with the challenge.
+        // Unique name of the challenge.
+        // This field is the primary key of the table.
+        @Id
+        @Column(name = "name", nullable = false, updatable = false)
+        private String name;
+        @Column(name = "description", nullable = false)
+        private String description; // Detailed description of the challenge.
+        @Column(name = "image_url")
+        private String imageUrl; // Url of image from challenge
+        @Column(name = "phrase")
+        private String phrase; // Motivational phrase or slogan associated with the challenge.
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_challenges_registered",
-            joinColumns = @JoinColumn(name = "challenge_name"),
-            inverseJoinColumns = @JoinColumn(name = "user_id_eci")
-    )
-    private List<UserEcicare> registered; // List of users registered for the challenge.
+        @ManyToMany
+        @JoinTable(name = "user_challenges_registered", joinColumns = @JoinColumn(name = "challenge_name"), inverseJoinColumns = @JoinColumn(name = "user_id_eci"))
+        private List<UserEcicare> registered; // List of users registered for the challenge.
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_challenges_confirmed",
-            joinColumns = @JoinColumn(name = "challenge_name"),
-            inverseJoinColumns = @JoinColumn(name = "user_id_eci")
-    )
-    private List<UserEcicare> confirmed; // List of users confirmed for the challenge done.
+        @ManyToMany
+        @JoinTable(name = "user_challenges_confirmed", joinColumns = @JoinColumn(name = "challenge_name"), inverseJoinColumns = @JoinColumn(name = "user_id_eci"))
+        private List<UserEcicare> confirmed; // List of users confirmed for the challenge done.
 
-    @ElementCollection
-    @CollectionTable(
-            name = "challenge_tips",
-            joinColumns = @JoinColumn(name = "challenge_name")
-    )
-    private List<String> tips; // List of tips related to the challenge.
+        @ElementCollection
+        @CollectionTable(name = "challenge_tips", joinColumns = @JoinColumn(name = "challenge_name"))
+        private List<String> tips; // List of tips related to the challenge.
 
-    @Column(name="duration", nullable = false, updatable = false)
-    private LocalDateTime duration; // Duration or deadline of the challenge, represented as a date and time.
+        @Column(name = "duration", nullable = false, updatable = false)
+        private LocalDateTime duration; // Duration or deadline of the challenge, represented as a date and time.
 
-    @ElementCollection
-    @CollectionTable(
-            name = "challenge_goals",
-            joinColumns = @JoinColumn(name = "challenge_name")
-    )
-    private List<String> goals; // List of goals that participants should achieve during the challenge.
+        @ElementCollection
+        @CollectionTable(name = "challenge_goals", joinColumns = @JoinColumn(name = "challenge_name"))
+        private List<String> goals; // List of goals that participants should achieve during the challenge.
 
-    @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Set<Redeemable> redeemables;
+        @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL, orphanRemoval = true)
+        @OnDelete(action = OnDeleteAction.CASCADE)
+        private Set<Redeemable> redeemables;
 
-    @ManyToOne
-    @JoinColumn(name = "module_name", nullable = false)
-    private Module module; // module to which the challenge belongs
+        @ManyToOne
+        @JoinColumn(name = "module_name", nullable = false)
+        private Module module; // module to which the challenge belongs
 
-    //challenge rating
-    @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Rating> ratings; // Ratings and reviews provided by users for the challenge.
+        // challenge rating
+        @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL, orphanRemoval = true)
+        private List<Rating> ratings; // Ratings and reviews provided by users for the challenge.
+
+        @ElementCollection
+        @CollectionTable(name = "challenge_verifications", joinColumns = @JoinColumn(name = "challenge_name"))
+        @MapKeyColumn(name = "user_email")
+        @Column(name = "verification_count")
+        @Builder.Default
+        private Map<String, Integer> verifications = new HashMap<>(); // Map of user email to verification count
+
+        @Column(name = "required_verifications", nullable = false)
+        @Builder.Default
+        private int requiredVerifications = 1; // Number of verifications required to confirm a user
 }

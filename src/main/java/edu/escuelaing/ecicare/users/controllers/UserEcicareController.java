@@ -1,5 +1,6 @@
 package edu.escuelaing.ecicare.users.controllers;
 
+import edu.escuelaing.ecicare.users.models.entity.UserEcicare;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,6 +19,8 @@ import edu.escuelaing.ecicare.users.services.UserEcicareService;
 import edu.escuelaing.ecicare.utils.models.entity.enums.Role;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
+
+import java.util.List;
 
 /**
  * REST controller for managing {@code UserEcicare} entities.
@@ -109,5 +112,22 @@ public class UserEcicareController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @PatchMapping("/{id}/role")
+    public ResponseEntity<Void> updateUserRole(
+            @PathVariable Long id,
+            @RequestParam Role role
+    ) {
+        userEcicareService.updateUserRole(id, role);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/search")
+    public List<UserEcicareResponseDTO> searchUsers(
+            @RequestParam String query,
+            @RequestParam(required = false) Role role
+    ) {
+        return userEcicareService.searchUsers(query, role);
     }
 }

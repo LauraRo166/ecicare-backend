@@ -71,6 +71,8 @@ public class ChallengeService {
                 .duration(challengeDto.getDuration())
                 .goals(challengeDto.getGoals())
                 .module(module)
+                .requiredVerifications(
+                        challengeDto.getRequiredVerifications() != null ? challengeDto.getRequiredVerifications() : 1)
                 .build();
         challengeRepository.save(challenge);
         return challengeToResponse(challenge);
@@ -233,6 +235,9 @@ public class ChallengeService {
                     .orElseThrow(() -> new RuntimeException("Módulo no encontrado"));
             oldChallenge.setModule(module);
         }
+        if (challengeDto.getRequiredVerifications() != null && challengeDto.getRequiredVerifications() > 0) {
+            oldChallenge.setRequiredVerifications(challengeDto.getRequiredVerifications());
+        }
 
         Challenge savedChallenge = challengeRepository.save(oldChallenge);
         return challengeToResponse(savedChallenge);
@@ -285,7 +290,7 @@ public class ChallengeService {
      * to the list of confirms participants.
      *
      * @param userEmail the {@link UserEcicare} to be added
-     * @param name      the name of the challenge
+     * @param challengeName      the name of the challenge
      * @return the updated {@link ChallengeResponse}
      */
     @Transactional
@@ -303,8 +308,20 @@ public class ChallengeService {
             throw new RuntimeException("User is not registered in the challenge");
         }
 
-        challenge.getRegistered().remove(user);
-        challenge.getConfirmed().add(user);
+        // Obtener el conteo actual de verificaciones para este usuario
+        int currentVerifications = challenge.getVerifications().getOrDefault(userEmail, 0);
+        currentVerifications++;
+
+        // Actualizar el conteo de verificaciones
+        challenge.getVerifications().put(userEmail, currentVerifications);
+
+        // Si alcanzó el número requerido de verificaciones, mover a confirmed
+        if (currentVerifications >= challenge.getRequiredVerifications()) {
+            challenge.getRegistered().remove(user);
+            challenge.getConfirmed().add(user);
+            // Limpiar las verificaciones del usuario confirmado
+            challenge.getVerifications().remove(userEmail);
+        }
 
         challengeRepository.save(challenge);
 
@@ -374,7 +391,8 @@ public class ChallengeService {
      * @param name      partial or full name to search for (case insensitive)
      * @return list of matching {@link ChallengeResponse}
      */
-    public Page<ChallengeResponse> searchRegisteredChallengesByUserEmail(String userEmail, String name, Pageable pageable) {
+    public Page<ChallengeResponse> searchRegisteredChallengesByUserEmail(String userEmail, String name,
+            Pageable pageable) {
         if (userEmail == null || userEmail.isBlank()) {
             throw new IllegalArgumentException("userEmail no puede ser nulo o vacío");
         }
@@ -395,7 +413,8 @@ public class ChallengeService {
      * @param name      partial or full name to search for (case insensitive)
      * @return list of matching {@link ChallengeResponse}
      */
-    public Page<ChallengeResponse> searchConfirmedChallengesByUserEmail(String userEmail, String name, Pageable pageable) {
+    public Page<ChallengeResponse> searchConfirmedChallengesByUserEmail(String userEmail, String name,
+            Pageable pageable) {
         if (userEmail == null || userEmail.isBlank()) {
             throw new IllegalArgumentException("userEmail no puede ser nulo o vacío");
         }
@@ -434,6 +453,7 @@ public class ChallengeService {
                 challenge.getDuration(),
                 challenge.getGoals(),
                 challenge.getModule().getName(),
+                challenge.getRequiredVerifications(),
                 redeemables);
     }
 
@@ -555,8 +575,18 @@ public class ChallengeService {
             throw new RuntimeException("Challenge not found: " + challengeName);
         }
 
+        int requiredVerifications = challenge.getRequiredVerifications();
+        Map<String, Integer> verifications = challenge.getVerifications();
+
         List<UserEmailNameDTO> emailsNameUser = challenge.getRegistered().stream()
-                .map(user -> new UserEmailNameDTO(user.getEmail(), user.getName()))
+                .map(user -> {
+                    int currentVerifications = verifications.getOrDefault(user.getEmail(), 0);
+                    return new UserEmailNameDTO(
+                            user.getEmail(),
+                            user.getName(),
+                            currentVerifications,
+                            requiredVerifications);
+                })
                 .toList();
 
         Pageable pageable = PageRequest.of(page, size);
@@ -634,6 +664,7 @@ public class ChallengeService {
                 c.getDuration(),
                 c.getGoals(),
                 c.getModule() != null ? c.getModule().getName() : null,
+                c.getRequiredVerifications(),
                 c.getRedeemables() != null
                         ? c.getRedeemables().stream().map(this::toDto).toList()
                         : null));
@@ -654,19 +685,44 @@ public class ChallengeService {
                 .build();
     }
 
-    public AdminDTO getChallengeAdmin(String challengeName){
+    public AdminDTO getChallengeAdmin(String challengeName) {
         UserEcicare userEcicare = challengeRepository.findChallengeAdministrator(challengeName);
-        if (userEcicare == null){
+        if (userEcicare == null) {
             throw new RuntimeException("Challenge Administrator not found");
         }
         return new AdminDTO(userEcicare.getName(), userEcicare.getEmail());
     }
 
-    public ChallengeUserStatus getUserChallengeStatus(String email, String challengeName){
+    public ChallengeUserStatus getUserChallengeStatus(String email, String challengeName) {
         UserEcicare userEcicare = userEcicareRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         boolean registered = challengeRepository.isUserRegisteredInChallenge(challengeName, userEcicare.getIdEci());
         boolean completed = challengeRepository.isUserConfirmedInChallenge(challengeName, userEcicare.getIdEci());
         return new ChallengeUserStatus(completed, registered);
+    }
+
+    /**
+     * Obtiene el estado de verificaciones de un usuario en un challenge específico.
+     * 
+     * @param userEmail     el email del usuario
+     * @param challengeName el nombre del challenge
+     * @return un mapa con: currentVerifications, requiredVerifications, isConfirmed
+     */
+    public Map<String, Object> getUserVerificationStatus(String userEmail, String challengeName) {
+        Challenge challenge = challengeRepository.findByName(challengeName);
+        if (challenge == null) {
+            throw new RuntimeException("Challenge not found: " + challengeName);
+        }
+
+        UserEcicare user = userEcicareRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + userEmail));
+
+        Map<String, Object> status = new java.util.HashMap<>();
+        status.put("currentVerifications", challenge.getVerifications().getOrDefault(userEmail, 0));
+        status.put("requiredVerifications", challenge.getRequiredVerifications());
+        status.put("isRegistered", challenge.getRegistered().contains(user));
+        status.put("isConfirmed", challenge.getConfirmed().contains(user));
+
+        return status;
     }
 }

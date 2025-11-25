@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Service class for handling operations related to {@link UserEcicare}.
@@ -102,8 +103,7 @@ public class UserEcicareService {
         userEcicareRepository.save(userEcicare);
     }
 
-
-        /**
+    /**
      * Retrieves the role of a user by their email.
      * Throws a 404 error if the user is not found.
      *
@@ -117,6 +117,26 @@ public class UserEcicareService {
         return user.getRole();
     }
 
+    @Transactional
+    public void updateUserRole(Long id, Role role) {
+        UserEcicare user = userEcicareRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        System.out.println("ID: " + id + " Role: " + role );
+        user.setRole(role);
+        userEcicareRepository.save(user);
+    }
+
+    public List<UserEcicareResponseDTO> searchUsers(String query, Role role) {
+        List<UserEcicare> users;
+        if (role != null) {
+            users = userEcicareRepository.findByNameContainingIgnoreCaseAndRole(query, role);
+        } else {
+            users = userEcicareRepository.findByNameContainingIgnoreCase(query);
+        }
+        return users.stream()
+                .map(this::mapToDto)
+                .toList();
+    }
 
 
     /**

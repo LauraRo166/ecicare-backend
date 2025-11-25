@@ -1,8 +1,11 @@
 package edu.escuelaing.ecicare.users.repositories;
 
 import edu.escuelaing.ecicare.users.models.entity.UserEcicare;
+import edu.escuelaing.ecicare.utils.models.entity.enums.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -19,4 +22,9 @@ public interface UserEcicareRepository extends JpaRepository<UserEcicare, Long> 
      * @return An {@link Optional} containing the user if found, or empty otherwise.
      */
     Optional<UserEcicare> findByEmail(String email);
+
+    List<UserEcicare> findByNameContainingIgnoreCase(String name);
+
+    List<UserEcicare> findByNameContainingIgnoreCaseAndRole(String name, Role role);
+
 }

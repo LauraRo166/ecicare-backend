@@ -56,7 +56,7 @@ public class UserEcicare {
 
     // Role of the user (e.g., ADMIN, USER, DOCTOR). Cannot be changed after registration.
     @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false, updatable = false)
+    @Column(name = "role", nullable = false)
     private Role role;
 
     // Date and time of the user’s registration in the system. Cannot be modified.
