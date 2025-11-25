@@ -121,7 +121,6 @@ public class UserEcicareService {
     public void updateUserRole(Long id, Role role) {
         UserEcicare user = userEcicareRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        System.out.println("ID: " + id + " Role: " + role );
         user.setRole(role);
         userEcicareRepository.save(user);
     }
